@@ -2,7 +2,13 @@ package com.blockaltuno.game;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.os.VibratorManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -34,6 +40,7 @@ public class MainActivity extends Activity {
         s.setBlockNetworkLoads(true);
         s.setMediaPlaybackRequiresUserGesture(false);
         webView.setBackgroundColor(0xFF241912);
+        webView.addJavascriptInterface(new NativeBridge(), "BAUNative");
         setContentView(webView);
         webView.loadDataWithBaseURL(BASE_URL, HEAD + readAsset("index.html") + "</body></html>",
                 "text/html", "utf-8", null);
@@ -62,6 +69,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+        webView.evaluateJavascript("window.bauPause && window.bauPause()", null);
         webView.onPause();
     }
 
@@ -69,5 +77,26 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         webView.onResume();
+        webView.evaluateJavascript("window.bauResume && window.bauResume()", null);
+    }
+
+    /** Lets the game trigger short vibrations on line clears. */
+    private class NativeBridge {
+        private final Vibrator vibrator;
+
+        NativeBridge() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                VibratorManager vm = (VibratorManager) getSystemService(Context.VIBRATOR_MANAGER_SERVICE);
+                vibrator = vm != null ? vm.getDefaultVibrator() : null;
+            } else {
+                vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            }
+        }
+
+        @JavascriptInterface
+        public void vibrate(long ms) {
+            if (vibrator == null || !vibrator.hasVibrator()) return;
+            vibrator.vibrate(VibrationEffect.createOneShot(Math.max(5, Math.min(ms, 300)), VibrationEffect.DEFAULT_AMPLITUDE));
+        }
     }
 }
