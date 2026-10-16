@@ -1,7 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="4">
+<meta name="bau-version" content="5">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -106,14 +106,13 @@ h1 span { color: var(--amber); }
 .menu-row .btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; }
 .menu-row .btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 .foot { text-align: center; color: var(--muted); font-size: 12px; letter-spacing: .08em; margin: 0; }
-.now-playing { text-align: center; color: var(--muted); font-size: 12px; margin: 0; min-height: 1.4em; font-style: italic; }
 
 /* ---------- Records ---------- */
 #records { max-width: 460px; display: flex; flex-direction: column; gap: 16px; }
 .rec-head { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; }
 .rec-head h2 { margin: 0; text-align: center; font-family: var(--font-display); font-size: 30px; letter-spacing: .06em; text-transform: uppercase; }
-.tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; padding: 5px; border-radius: 14px; background: var(--panel); }
-.tab { padding: 10px; border-radius: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 14px; color: var(--muted); }
+.tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 5px; border-radius: 14px; background: var(--panel); }
+.tab { padding: 10px 4px; border-radius: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 14px; color: var(--muted); }
 .tab[aria-selected="true"] { background: var(--amber); color: #2a1a0c; }
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .stat { padding: 12px 8px; border-radius: 12px; background: var(--panel); text-align: center; font-variant-numeric: tabular-nums; }
@@ -163,6 +162,7 @@ h1 span { color: var(--amber); }
 }
 .c1 { background-color: var(--w1) !important; } .c2 { background-color: var(--w2) !important; } .c3 { background-color: var(--w3) !important; }
 .c7 { background-color: #3a2a20 !important; background-image: radial-gradient(circle, var(--gold) 0 17%, #b9852e 18% 24%, transparent 26%), repeating-linear-gradient(100deg, rgba(255,255,255,.06) 0 2px, transparent 2px 7px) !important; box-shadow: inset 0 0 0 2px rgba(255,211,107,.45), inset 0 -4px 0 rgba(0,0,0,.3) !important; }
+.c8 { background-color: #7a4a6e !important; } .c9 { background-color: #3f6b4f !important; }
 .c4 { background-color: var(--w4) !important; } .c5 { background-color: var(--w5) !important; } .c6 { background-color: var(--w6) !important; }
 .cell.preview { background-color: var(--w3); opacity: .55; }
 .cell.will { box-shadow: inset 0 0 0 3px var(--amber), inset 0 3px 0 rgba(255,255,255,.28); }
@@ -192,6 +192,24 @@ h1 span { color: var(--amber); }
 .drag { position: fixed; left: 0; top: 0; z-index: 30; pointer-events: none; display: grid; gap: var(--gap); filter: drop-shadow(0 10px 10px rgba(0,0,0,.45)); }
 .drag i { width: var(--cell); height: var(--cell); border-radius: 5px; }
 .drag i.e { visibility: hidden; }
+
+/* ---------- Tetris ---------- */
+#tetris { max-width: 480px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.t-main { display: flex; gap: 10px; align-items: flex-start; justify-content: center; width: 100%; flex: 1; min-height: 0; }
+.tboard { display: grid; gap: 2px; padding: 6px; border-radius: 12px; touch-action: none;
+  background: linear-gradient(180deg, var(--maple), var(--groove));
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.35), 0 8px 0 var(--w2), 0 16px 26px rgba(0,0,0,.5), 0 0 42px var(--scene-glow, transparent); }
+.tboard .cell { width: var(--tcell); height: var(--tcell); border-radius: 3px; }
+.tboard .cell.ghost { background: var(--maple-3); box-shadow: inset 0 0 0 2px rgba(255,255,255,.6); }
+.t-side { display: grid; gap: 8px; width: 68px; flex: none; }
+.t-box { padding: 8px 6px; border-radius: 12px; background: rgba(18,11,7,.55); text-align: center; display: grid; gap: 6px; justify-items: center; font-variant-numeric: tabular-nums; }
+.t-box span { font-size: 10px; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; }
+.t-box b { font-family: var(--font-display); font-size: 22px; }
+.t-ctrl { width: 100%; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; touch-action: none; }
+.t-ctrl button { height: 58px; border-radius: 14px; background: rgba(51,36,26,.92); box-shadow: 0 5px 0 var(--shadow); display: grid; place-items: center; }
+.t-ctrl button:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--shadow); background: var(--panel-2); }
+.t-ctrl svg { width: 26px; height: 26px; fill: none; stroke: var(--ink); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.t-ctrl #t-drop { background: var(--amber); } .t-ctrl #t-drop svg { stroke: #2a1a0c; }
 
 /* ---------- Story ---------- */
 #levels { max-width: 480px; display: flex; flex-direction: column; gap: 14px; }
@@ -271,6 +289,13 @@ h1 span { color: var(--amber); }
         <span><b>Sudoku</b><small>Tabuleiro 9×9 · linhas, colunas e quadrados 3×3</small></span>
         <span class="rec"><em>Recorde</em><strong id="rec-sudoku">0</strong></span>
       </button>
+      <button class="mode" id="play-tetris" data-mode="tetris">
+        <span class="mini-board" style="grid-template-columns:repeat(4,1fr)" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i class="f"></i><i></i><i></i><i class="f"></i><i class="f"></i><i class="f"></i><i></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i>
+        </span>
+        <span><b>Tetris Clássico</b><small>Arcade · fica mais rápido a cada 100 pontos</small></span>
+        <span class="rec"><em>Recorde</em><strong id="rec-tetris">0</strong></span>
+      </button>
       <button class="mode" id="play-story">
         <span class="mini-board" style="grid-template-columns:repeat(3,1fr)" aria-hidden="true">
           <i class="f"></i><i></i><i class="f"></i><i></i><i class="g"></i><i></i><i class="f"></i><i class="f"></i><i></i>
@@ -291,8 +316,7 @@ h1 span { color: var(--amber); }
         <svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="on" d="M17 9a4 4 0 010 6M19.5 6.5a8 8 0 010 11"/><path class="off" d="M17 9l5 6M22 9l-5 6"/></svg>
       </button>
     </div>
-    <p class="now-playing" id="now-playing"></p>
-    <p class="foot">Funciona sem internet · sem anúncios</p>
+    <p class="foot">Feito pelo Jovem Gafanhoto</p>
   </section>
 
   <section id="records" class="screen" hidden aria-label="Recordes">
@@ -306,6 +330,7 @@ h1 span { color: var(--amber); }
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" id="tab-classic" data-mode="classic" aria-selected="true">Clássico</button>
       <button class="tab" role="tab" id="tab-sudoku" data-mode="sudoku" aria-selected="false">Sudoku</button>
+      <button class="tab" role="tab" id="tab-tetris" data-mode="tetris" aria-selected="false">Tetris</button>
       <button class="tab" role="tab" id="tab-story" data-mode="story" aria-selected="false">História</button>
     </div>
     <div class="stats">
@@ -354,6 +379,50 @@ h1 span { color: var(--amber); }
     </div>
     <div id="tray" aria-label="Peças disponíveis"></div>
   </section>
+
+  <section id="tetris" class="screen" hidden aria-label="Tetris Clássico">
+    <div class="bar">
+      <div><button class="icon-btn" id="t-home" aria-label="Voltar ao menu"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button></div>
+      <div class="scores">
+        <div class="mode-label">Tetris · Nível <b id="t-level">1</b></div>
+        <div class="now" id="t-score">0</div>
+        <div class="best">Recorde <b id="t-best">0</b></div>
+      </div>
+      <div class="right">
+        <button class="icon-btn" id="t-pause" aria-label="Pausar">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>
+        </button>
+        <button class="icon-btn music-toggle" aria-label="Música" aria-pressed="true">
+          <svg viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/><path class="off" d="M3 3l18 18"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="level-bar" aria-hidden="true"><i id="t-fill"></i></div>
+    <div class="t-main">
+      <div class="board-wrap" id="t-wrap"><div id="t-board" class="tboard" role="grid" aria-label="Poço do Tetris"></div></div>
+      <div class="t-side">
+        <div class="t-box"><span>Próxima</span><div class="piece" id="t-next" style="--m:12px"></div></div>
+        <div class="t-box"><span>Linhas</span><b id="t-lines">0</b></div>
+        <div class="t-box"><span>Combo</span><b id="t-combo">—</b></div>
+      </div>
+    </div>
+    <div class="t-ctrl">
+      <button id="t-left" aria-label="Mover para a esquerda"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button id="t-rot" aria-label="Girar"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 11-2.4-5.7"/><path d="M20 4v5h-5"/></svg></button>
+      <button id="t-right" aria-label="Mover para a direita"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+      <button id="t-soft" aria-label="Descer mais rápido"><svg viewBox="0 0 24 24"><path d="M5 9l7 7 7-7"/></svg></button>
+      <button id="t-drop" aria-label="Soltar a peça"><svg viewBox="0 0 24 24"><path d="M6 5l6 6 6-6M6 12l6 6 6-6"/></svg></button>
+    </div>
+  </section>
+
+  <div class="overlay" id="t-paused" hidden>
+    <div class="card" role="dialog" aria-modal="true" aria-labelledby="t-paused-title">
+      <h2 id="t-paused-title">Pausado</h2>
+      <p>Toque em continuar quando estiver pronto.</p>
+      <button class="btn primary" id="t-resume">Continuar</button>
+      <button class="btn ghost" id="t-quit">Menu</button>
+    </div>
+  </div>
 
   <div class="overlay" id="over" hidden>
     <div class="card" id="over-card" role="dialog" aria-modal="true" aria-labelledby="over-title">
@@ -826,6 +895,13 @@ window.Scene = (() => {
       g.connect(out);
       osc("triangle", f, t, end, null, g);
     },
+    chip(f, t, d, v, out) {
+      const lp = actx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 3200;
+      const g = actx.createGain(), end = t + Math.max(.06, d * .8) + .05;
+      env(g, t, v, .005, [.55, Math.max(.05, d * .8)], end);
+      lp.connect(g); g.connect(out);
+      osc("square", f, t, end, null, lp);
+    },
     reed(f, t, d, v, out) {
       const lp = actx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 1300; lp.Q.value = 2;
       const g = actx.createGain(), end = t + Math.max(.08, d * .85) + .06;
@@ -874,6 +950,13 @@ window.Scene = (() => {
       { i: "reed", v: .1, s: "-:16 " + KING, tr: 12 },
       { i: "pluck", v: .3, s: rep(KING_BASS, 2) },
     ] },
+    // Korobeiniki, the Russian folk song made famous by Tetris.
+    tetris: { title: "Korobeiniki", bpm: 132, vol: .45, wet: .14, voices: [
+      { i: "chip", v: .12, s: "E5:1 B4:.5 C5:.5 D5:1 C5:.5 B4:.5 A4:1 A4:.5 C5:.5 E5:1 D5:.5 C5:.5 B4:1.5 C5:.5 D5:1 E5:1 C5:1 A4:1 A4:1 -:1 " +
+                              "-:.5 D5:1 F5:.5 A5:1 G5:.5 F5:.5 E5:1.5 C5:.5 E5:1 D5:.5 C5:.5 B4:1 B4:.5 C5:.5 D5:1 E5:1 C5:1 A4:1 A4:1 -:1" },
+      { i: "pluck", v: .26, s: [["E2", "E3"], ["A2", "A3"], ["G#2", "G#3", 2, "E2", "E3"], ["A2", "A3"], ["D2", "D3"], ["C2", "C3"], ["B1", "B2", 2, "E2", "E3"], ["A2", "A3"]]
+          .map(([a, b2, half, c, d]) => half ? rep(`${a}:.5 ${b2}:.5`, 2) + " " + rep(`${c}:.5 ${d}:.5`, 2) : rep(`${a}:.5 ${b2}:.5`, 4)).join(" ") },
+    ] },
     sudoku: { title: "Mozart · Marcha Turca", bpm: 92, vol: .5, wet: .2, voices: [
       { i: "piano", v: .2, s: rep(TURCA, 2) },
       { i: "pluck", v: .2, s: rep(TURCA_ACC, 2) },
@@ -894,15 +977,14 @@ window.Scene = (() => {
 
   // ---- sequencer with smooth tempo changes ----
   const music = {
-    want: null, track: null, rate: 1, step: 0, time: 0, timer: null,
+    want: null, track: null, rate: 1, tr: 0, step: 0, time: 0, timer: null,
     play(name) {
       this.want = name;
       if (!musicOn || !audio()) return;
       if (this.track === TRACKS[name] && this.timer) return;
       this.stop(true);
-      this.track = TRACKS[name]; this.step = 0; this.rate = 1;
+      this.track = TRACKS[name]; this.step = 0; this.rate = 1; this.tr = 0;
       this.start();
-      const np = $("now-playing"); if (np) np.textContent = name === "menu" ? "♪ " + this.track.title : "";
     },
     start() {
       if (!this.track && this.want) this.track = TRACKS[this.want];
@@ -929,12 +1011,13 @@ window.Scene = (() => {
       const tr = this.track, spb = 60 / (tr.bpm * this.rate), stepDur = spb / 4, total = Math.round(tr.len * 4);
       while (this.time < actx.currentTime + .25) {
         const evs = tr.steps.get(this.step);
-        if (evs) for (const e of evs) INSTR[e.i](hz(e.m), this.time, e.d * spb, e.v, musicBus);
+        if (evs) for (const e of evs) INSTR[e.i](hz(e.m + this.tr), this.time, e.d * spb, e.v, musicBus);
         this.time += stepDur;
         this.step = (this.step + 1) % total;
       }
     },
     setRate(r) { this.rate = r; },
+    setTranspose(semis) { this.tr = semis; },
     duck(amount, dur) {
       if (!actx || !this.timer) return;
       const g = musicBus.gain, now = actx.currentTime, base = this.track.vol;
@@ -1044,7 +1127,7 @@ window.Scene = (() => {
   document.querySelectorAll(".music-toggle").forEach((b) => b.addEventListener("click", () => {
     musicOn = !musicOn; store.set("music", musicOn); renderToggles();
     if (musicOn) { const w = music.want; music.want = null; music.play(w || "menu"); if (S) music.setRate(rateFor(S.score)); }
-    else { const w = music.want; music.stop(); music.want = w; const np = $("now-playing"); if (np) np.textContent = ""; }
+    else { const w = music.want; music.stop(); music.want = w; }
   }));
   document.querySelectorAll(".sfx-toggle").forEach((b) => b.addEventListener("click", () => {
     sfxOn = !sfxOn; store.set("sound", sfxOn); renderToggles(); sfx.place();
@@ -1081,7 +1164,12 @@ window.Scene = (() => {
   }
   const dims = (cells) => [1 + Math.max(...cells.map((p) => p[0])), 1 + Math.max(...cells.map((p) => p[1]))];
 
-  const MODES = { classic: { n: 8, label: "Clássico" }, sudoku: { n: 9, label: "Sudoku" }, story: { label: "História" } };
+  const MODES = {
+    classic: { n: 8, label: "Clássico", sub: "Tabuleiro 8×8 · limpe linhas e colunas" },
+    sudoku: { n: 9, label: "Sudoku", sub: "Tabuleiro 9×9 · linhas, colunas e quadrados 3×3" },
+    tetris: { label: "Tetris", sub: "Arcade · fica mais rápido a cada 100 pontos" },
+    story: { label: "História" },
+  };
   const LEVEL_POINTS = 100;
   const levelOf = (score) => Math.floor(score / LEVEL_POINTS) + 1;
   const rateFor = (score) => Math.min(1 + (levelOf(score) - 1) * .06, 2);
@@ -1244,6 +1332,7 @@ window.Scene = (() => {
   // ---------- layout ----------
   function sizeBoard() {
     if (!S) return;
+    if (S.mode === "tetris") return tSize();
     const app = $("app"), cs = getComputedStyle(app);
     const w = Math.min(app.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), 480);
     const h = app.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 96 - 20 - 130 - 44;
@@ -1341,14 +1430,15 @@ window.Scene = (() => {
     $("level").textContent = levelOf(S.score);
     $("level-fill").style.width = (S.score % LEVEL_POINTS) + "%";
   }
+  const wrapId = () => (S && S.mode === "tetris" ? "t-wrap" : "board-wrap");
   function fx(cls, html, top, life) {
     const d = document.createElement("div");
     d.className = "fx " + cls; d.innerHTML = html; d.style.top = top + "px";
-    $("board-wrap").appendChild(d);
+    $(wrapId()).appendChild(d);
     setTimeout(() => d.remove(), life || 1300);
   }
   function shake(big) {
-    const w = $("board-wrap"); w.classList.remove("shake", "shake-big"); void w.offsetWidth;
+    const w = $(wrapId()); w.classList.remove("shake", "shake-big"); void w.offsetWidth;
     w.classList.add(big ? "shake-big" : "shake");
   }
 
@@ -1561,10 +1651,290 @@ window.Scene = (() => {
     renderTray();
   });
 
+  // ======================================================================
+  //  TETRIS CLÁSSICO — arcade: faster gravity, faster and higher music and
+  //  a new random scene every 100 points.
+  // ======================================================================
+  const TW = 10, TH = 20, HID = 2; // 2 hidden rows above the visible well
+  const TSHAPES = {
+    I: [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]], O: [[1, 1], [1, 1]],
+    T: [[0, 1, 0], [1, 1, 1], [0, 0, 0]], S: [[0, 1, 1], [1, 1, 0], [0, 0, 0]], Z: [[1, 1, 0], [0, 1, 1], [0, 0, 0]],
+    J: [[1, 0, 0], [1, 1, 1], [0, 0, 0]], L: [[0, 0, 1], [1, 1, 1], [0, 0, 0]],
+  };
+  const TCOLOR = { I: 6, O: 3, T: 8, S: 9, Z: 1, J: 2, L: 4 };
+  const TROT = {};
+  for (const k in TSHAPES) {
+    let m = TSHAPES[k]; TROT[k] = [];
+    for (let r = 0; r < 4; r++) {
+      const cells = []; m.forEach((row, y) => row.forEach((v, x) => v && cells.push([y, x])));
+      TROT[k].push(cells);
+      m = m[0].map((_, c) => m.map((row) => row[c]).reverse()); // rotate clockwise
+    }
+  }
+  const KICKS = [[0, 0], [-1, 0], [1, 0], [-2, 0], [2, 0], [0, -1]];
+  const LINE_POINTS = [0, 10, 30, 60, 100];
+  const tInterval = (score) => Math.max(70, Math.round(800 * Math.pow(.85, levelOf(score) - 1)));
+  let T = null; // runtime only: { raf, last, acc, lockAt, lockMoves, clearRows, clearUntil, paused, soft, cells, dirty }
+
+  function tBag() {
+    if (!S.bag.length) { S.bag = Object.keys(TSHAPES); for (let i = S.bag.length - 1; i > 0; i--) { const j = rnd(i + 1); [S.bag[i], S.bag[j]] = [S.bag[j], S.bag[i]]; } }
+    return S.bag.pop();
+  }
+  function tFits(t, r, x, y) {
+    for (const [cy, cx] of TROT[t][r]) {
+      const X = x + cx, Y = y + cy;
+      if (X < 0 || X >= TW || Y >= TH + HID) return false;
+      if (Y >= 0 && S.board[Y * TW + X]) return false;
+    }
+    return true;
+  }
+  const tRunning = () => !!(T && S && S.mode === "tetris" && !S.over && !T.paused);
+  const tCanAct = () => tRunning() && !T.clearUntil && S.piece;
+  function tSpawn() {
+    const t = S.next.shift(); S.next.push(tBag());
+    S.piece = { t, r: 0, x: t === "O" ? 4 : 3, y: t === "I" ? 0 : 1 };
+    T.lockAt = null; T.lockMoves = 0; T.acc = 0; T.dirty = true;
+    renderNext();
+    if (!tFits(S.piece.t, S.piece.r, S.piece.x, S.piece.y)) { tRender(); gameOver(); }
+  }
+  function tMove(dx, dy) {
+    const p = S.piece;
+    if (!tFits(p.t, p.r, p.x + dx, p.y + dy)) return false;
+    p.x += dx; p.y += dy; T.dirty = true;
+    if (T.lockAt && T.lockMoves < 15) { T.lockAt = null; T.lockMoves++; }
+    return true;
+  }
+  function tRotate() {
+    const p = S.piece, r = (p.r + 1) % 4;
+    for (const [kx, ky] of KICKS) if (tFits(p.t, r, p.x + kx, p.y + ky)) {
+      p.r = r; p.x += kx; p.y += ky; T.dirty = true;
+      if (T.lockAt && T.lockMoves < 15) { T.lockAt = null; T.lockMoves++; }
+      if (sfx.ok()) blip("square", 520, actx.currentTime, .04, .05);
+      return true;
+    }
+    return false;
+  }
+  function tHardDrop() {
+    let n = 0; while (tMove(0, 1)) n++;
+    if (n) shake(false);
+    tLock();
+  }
+  function tLock() {
+    const p = S.piece; if (!p) return;
+    let top = false;
+    for (const [cy, cx] of TROT[p.t][p.r]) { const Y = p.y + cy; if (Y < HID) top = true; S.board[Y * TW + p.x + cx] = TCOLOR[p.t]; }
+    S.piece = null; T.lockAt = null; T.dirty = true;
+    const full = [];
+    for (let y = 0; y < TH + HID; y++) { let ok = true; for (let x = 0; x < TW; x++) if (!S.board[y * TW + x]) { ok = false; break; } if (ok) full.push(y); }
+    const levelBefore = levelOf(S.score), bestBefore = bestOf("tetris");
+    let gained = 1;
+    const midTop = $("t-board").clientHeight / 2;
+    if (full.length) {
+      const n = full.length;
+      S.combo += 1; S.lines += n; S.maxCombo = Math.max(S.maxCombo, S.combo);
+      gained += LINE_POINTS[Math.min(n, 4)] * S.combo;
+      const power = n + Math.max(0, S.combo - 1);
+      T.clearRows = full; T.clearUntil = performance.now() + 300;
+      tRender();
+      const pts = [];
+      for (const y of full) if (y >= HID) for (let x = 0; x < TW; x++) { const r = T.cells[(y - HID) * TW + x].getBoundingClientRect(); pts.push({ x: r.left + r.width / 2, y: r.top + r.height / 2 }); }
+      Scene.explode(pts, power);
+      sfx.clear(n, S.combo);
+      buzz(power >= 4 ? 90 : power >= 2 ? 55 : 30);
+      shake(power >= 3);
+      if (n >= 2) fx("praise", n >= 4 ? "TETRIS!" : PRAISE[n], midTop - 70);
+      if (S.combo > 1) fx("combo", "Combo ×" + S.combo, 30);
+      fx("gain", "+" + fmt(gained), midTop - 10, 1000);
+    } else {
+      S.combo = 0;
+      sfx.place(); buzz(10);
+    }
+    S.score += gained;
+    const lv = levelOf(S.score);
+    if (lv > levelBefore) {
+      music.setRate(rateFor(S.score)); music.setTranspose(Math.min(lv - 1, 12));
+      S.theme = randomTheme(S.theme);
+      setTimeout(() => { sfx.levelUp(); fx("lvl", `Nível ${lv}<small>Mais rápido!</small>`, midTop + 40, 1700); }, full.length ? 450 : 0);
+      setTimeout(() => { Scene.set(S.theme); fx("lvl", `Novo cenário<small>${Scene.nameOf(S.theme)}</small>`, midTop + 110, 1900); }, full.length ? 900 : 400);
+    }
+    if (!S.recShown && bestBefore > 0 && S.score > bestBefore) {
+      S.recShown = true;
+      setTimeout(() => { sfx.record(); buzz(120); fx("newrec", "Novo recorde!", 70, 1900); }, 700);
+    }
+    tHud();
+    if (top && !full.length) { tRender(); gameOver(); return; }
+    if (!full.length) { tSpawn(); store.set("game.tetris", S); }
+  }
+  function tFinishClear() {
+    const keep = [];
+    for (let y = 0; y < TH + HID; y++) if (!T.clearRows.includes(y)) keep.push(S.board.slice(y * TW, y * TW + TW));
+    while (keep.length < TH + HID) keep.unshift(new Array(TW).fill(0));
+    S.board = keep.flat();
+    T.clearRows = []; T.clearUntil = 0; T.dirty = true;
+    tSpawn();
+    if (!S.over) store.set("game.tetris", S);
+  }
+  function tFrame(now) {
+    if (!T) return;
+    T.raf = requestAnimationFrame(tFrame);
+    const dt = Math.min(100, now - T.last); T.last = now;
+    if (!tRunning()) return;
+    if (T.clearUntil) { if (now >= T.clearUntil) tFinishClear(); }
+    else if (S.piece) {
+      const iv = T.soft ? Math.min(40, tInterval(S.score)) : tInterval(S.score);
+      T.acc += dt;
+      while (T.acc >= iv) { T.acc -= iv; if (!tMove(0, 1)) { T.acc = 0; break; } }
+      const p = S.piece;
+      if (!tFits(p.t, p.r, p.x, p.y + 1)) {
+        if (!T.lockAt) T.lockAt = now;
+        if (now - T.lockAt >= 450) tLock();
+      } else T.lockAt = null;
+    }
+    if (T.dirty) tRender();
+  }
+  function tRender() {
+    T.dirty = false;
+    const p = S.piece, own = new Set(), ghost = new Set();
+    if (p) {
+      let gy = p.y; while (tFits(p.t, p.r, p.x, gy + 1)) gy++;
+      for (const [cy, cx] of TROT[p.t][p.r]) { own.add((p.y + cy) * TW + p.x + cx); ghost.add((gy + cy) * TW + p.x + cx); }
+    }
+    const clearing = new Set(T.clearRows || []);
+    for (let y = HID; y < TH + HID; y++) for (let x = 0; x < TW; x++) {
+      const i = y * TW + x, el = T.cells[(y - HID) * TW + x];
+      let cls = "cell";
+      if (own.has(i)) cls += " b c" + TCOLOR[p.t];
+      else if (S.board[i]) cls += " b c" + S.board[i] + (clearing.has(y) ? " clearing" : "");
+      else if (ghost.has(i)) cls += " ghost";
+      if (el.className !== cls) el.className = cls;
+      if (clearing.has(y)) el.style.setProperty("--d", Math.abs(x - 4.5) * 20 + "ms"); else el.style.removeProperty("--d");
+    }
+  }
+  function renderNext() {
+    const t = S.next[0], c = TROT[t][0], my = Math.min(...c.map((q) => q[0])), mx = Math.min(...c.map((q) => q[1]));
+    pieceGrid({ cells: c.map(([y, x]) => [y - my, x - mx]), color: TCOLOR[t] }, $("t-next"), true);
+  }
+  function tHud() {
+    const best = bestOf("tetris");
+    $("t-score").textContent = fmt(S.score);
+    $("t-score").classList.toggle("rec", best > 0 && S.score > best);
+    $("t-best").textContent = fmt(Math.max(best, S.score));
+    $("t-level").textContent = levelOf(S.score);
+    $("t-fill").style.width = (S.score % LEVEL_POINTS) + "%";
+    $("t-lines").textContent = S.lines;
+    $("t-combo").textContent = S.combo > 1 ? "×" + S.combo : "—";
+  }
+  function tSize() {
+    const app = $("app"), cs = getComputedStyle(app);
+    const w = Math.min(app.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), 480) - 68 - 10 - 12 - 18;
+    const h = app.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 96 - 16 - 66 - 40 - 12 - 38;
+    const cell = Math.floor(Math.min(w / TW, h / TH));
+    document.documentElement.style.setProperty("--tcell", Math.max(12, Math.min(cell, 36)) + "px");
+  }
+  function tStop() {
+    if (!T) return;
+    cancelAnimationFrame(T.raf);
+    if (S && S.mode === "tetris" && !S.over) store.set("game.tetris", S);
+    T = null;
+  }
+  function tPause() {
+    if (!tRunning()) return;
+    T.paused = true; T.soft = false;
+    $("t-paused").hidden = false; $("t-resume").focus();
+    try { actx && actx.suspend(); } catch (e) {}
+    store.set("game.tetris", S);
+  }
+  function tResume() {
+    if (!T) return;
+    $("t-paused").hidden = true; T.paused = false; T.last = performance.now();
+    try { actx && actx.resume(); } catch (e) {}
+  }
+  function startTetris(fresh, restored) {
+    const saved = restored || (fresh ? null : store.get("game.tetris", null));
+    if (saved && saved.board && saved.board.length === TW * (TH + HID) && !saved.over) S = saved;
+    else {
+      S = { mode: "tetris", rules: "tetris", board: new Array(TW * (TH + HID)).fill(0), bag: [], next: [], piece: null,
+        score: 0, lines: 0, combo: 0, maxCombo: 0, recShown: false };
+      S.next = [tBag(), tBag(), tBag()];
+    }
+    show("tetris");
+    T = { raf: 0, last: performance.now(), acc: 0, lockAt: null, lockMoves: 0, clearRows: [], clearUntil: 0, paused: false, soft: false, cells: [], dirty: true };
+    const bd = $("t-board"); bd.innerHTML = "";
+    bd.style.gridTemplateColumns = `repeat(${TW}, var(--tcell))`;
+    for (let i = 0; i < TW * TH; i++) { const d = document.createElement("div"); d.className = "cell"; bd.appendChild(d); T.cells.push(d); }
+    tSize();
+    if (!S.theme) S.theme = randomTheme();
+    Scene.set(S.theme);
+    music.play("tetris"); music.setRate(rateFor(S.score)); music.setTranspose(Math.min(levelOf(S.score) - 1, 12));
+    tHud();
+    if (S.piece) renderNext(); else tSpawn();
+    tRender();
+    T.raf = requestAnimationFrame(tFrame);
+    setTimeout(() => S && S.mode === "tetris" && fx("lvl", `Cenário<small>${Scene.nameOf(S.theme)}</small>`, $("t-board").clientHeight / 2 - 20, 1900), 250);
+  }
+
+  // ---- controls: buttons (with hold-to-repeat), swipes on the well, keyboard ----
+  function holdBtn(id, fn, repeat) {
+    const el = $(id); let t1 = 0, t2 = 0;
+    const stop = () => { clearTimeout(t1); clearInterval(t2); };
+    el.addEventListener("pointerdown", (e) => {
+      e.preventDefault(); if (!tCanAct()) return; fn();
+      if (repeat) t1 = setTimeout(() => { t2 = setInterval(() => (tCanAct() ? fn() : stop()), repeat); }, 170);
+    });
+    for (const ev of ["pointerup", "pointerleave", "pointercancel"]) el.addEventListener(ev, stop);
+  }
+  holdBtn("t-left", () => tMove(-1, 0), 55);
+  holdBtn("t-right", () => tMove(1, 0), 55);
+  holdBtn("t-rot", tRotate, 0);
+  holdBtn("t-drop", tHardDrop, 0);
+  $("t-soft").addEventListener("pointerdown", (e) => { e.preventDefault(); if (T) T.soft = true; });
+  for (const ev of ["pointerup", "pointerleave", "pointercancel"]) $("t-soft").addEventListener(ev, () => { if (T) T.soft = false; });
+  let sw = null;
+  $("t-board").addEventListener("pointerdown", (e) => {
+    if (!tCanAct()) return;
+    e.preventDefault();
+    sw = { x: e.clientX, y: e.clientY, t: performance.now(), mx: 0, my: 0, id: e.pointerId };
+    try { $("t-board").setPointerCapture(e.pointerId); } catch (_) {}
+  });
+  $("t-board").addEventListener("pointermove", (e) => {
+    if (!sw || e.pointerId !== sw.id || !tCanAct()) return;
+    const step = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--tcell")) + 2;
+    const dx = Math.trunc((e.clientX - sw.x) / step) - sw.mx, dy = Math.trunc((e.clientY - sw.y) / step) - sw.my;
+    for (let k = 0; k < Math.abs(dx); k++) tMove(Math.sign(dx), 0);
+    for (let k = 0; k < dy; k++) tMove(0, 1);
+    sw.mx += dx; sw.my += Math.max(0, dy);
+  });
+  $("t-board").addEventListener("pointerup", (e) => {
+    if (!sw || e.pointerId !== sw.id) return;
+    const dx = e.clientX - sw.x, dy = e.clientY - sw.y, dt = performance.now() - sw.t;
+    sw = null;
+    if (!tCanAct()) return;
+    if (dy > 70 && dt < 260 && Math.abs(dy) > Math.abs(dx) * 2) tHardDrop();
+    else if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && dt < 300) tRotate();
+  });
+  document.addEventListener("keydown", (e) => {
+    if ($("tetris").hidden) return;
+    if (e.key === "p" || e.key === "Escape") { T && T.paused ? tResume() : tPause(); return; }
+    if (!tCanAct()) return;
+    const k = e.key;
+    if (k === "ArrowLeft") tMove(-1, 0); else if (k === "ArrowRight") tMove(1, 0);
+    else if (k === "ArrowDown") tMove(0, 1); else if (k === "ArrowUp" || k === "x") tRotate();
+    else if (k === " ") tHardDrop(); else return;
+    e.preventDefault();
+  });
+  $("t-home").addEventListener("click", showMenu);
+  $("t-pause").addEventListener("click", tPause);
+  $("t-resume").addEventListener("click", tResume);
+  $("t-quit").addEventListener("click", () => { $("t-paused").hidden = true; try { actx && actx.resume(); } catch (e) {} showMenu(); });
+
   // ---------- screens ----------
   function show(id) {
-    for (const s of ["menu", "records", "levels", "game"]) $(s).hidden = s !== id;
-    if (id !== "game") Scene.set(null);
+    if (id !== "tetris") tStop();
+    for (const s of ["menu", "records", "levels", "game", "tetris"]) $(s).hidden = s !== id;
+    $("t-paused").hidden = true;
+    // The start screen floats through space; records and levels keep the wood room.
+    if (id === "menu") Scene.set("space");
+    else if (id !== "game" && id !== "tetris") Scene.set(null);
     $("over").hidden = true;
   }
   function showMenu() {
@@ -1576,7 +1946,7 @@ window.Scene = (() => {
       const saved = store.get("game." + m, null);
       $("play-" + m).querySelector("small").textContent = saved
         ? `Continuar partida · ${fmt(saved.score)} pontos`
-        : (m === "classic" ? "Tabuleiro 8×8 · limpe linhas e colunas" : "Tabuleiro 9×9 · linhas, colunas e quadrados 3×3");
+        : (MODES[m].sub || "");
     }
     const ss = store.get("game.story", null);
     $("rec-story").textContent = storyUnlocked();
@@ -1652,7 +2022,7 @@ window.Scene = (() => {
     music.setRate(rateFor(S.score));
     buildBoard(); sizeBoard(); renderScore(); save();
   }
-  document.querySelectorAll(".mode[data-mode]").forEach((b) => b.addEventListener("click", () => startGame(b.dataset.mode, false)));
+  document.querySelectorAll(".mode[data-mode]").forEach((b) => b.addEventListener("click", () => (b.dataset.mode === "tetris" ? startTetris(false) : startGame(b.dataset.mode, false))));
   $("play-story").addEventListener("click", showLevels);
   $("lv-back").addEventListener("click", showMenu);
   $("btn-levels").addEventListener("click", showLevels);
@@ -1661,25 +2031,27 @@ window.Scene = (() => {
   $("btn-menu").addEventListener("click", showMenu);
   $("btn-records").addEventListener("click", () => showRecords());
   $("rec-back").addEventListener("click", showMenu);
-  $("btn-again").addEventListener("click", () => (S.mode === "story" ? startStory(S.level, true) : startGame(S.mode, true)));
+  $("btn-again").addEventListener("click", () => (S.mode === "story" ? startStory(S.level, true) : S.mode === "tetris" ? startTetris(true) : startGame(S.mode, true)));
   window.addEventListener("resize", sizeBoard);
   document.addEventListener("contextmenu", (e) => e.preventDefault());
 
   // Hooks used by the Android app shell.
   window.blockAltUnoBack = () => {
     if (!$("menu").hidden) return false;
+    if (!$("tetris").hidden && $("over").hidden && tRunning()) { tPause(); return true; }
     if ((!$("game").hidden || !$("over").hidden) && S && S.mode === "story") showLevels(); else showMenu();
     return true;
   };
-  window.bauPause = () => { try { actx && actx.suspend(); } catch (e) {} };
-  window.bauResume = () => { try { actx && actx.resume(); } catch (e) {} };
+  window.bauPause = () => { if (tRunning()) tPause(); try { actx && actx.suspend(); } catch (e) {} };
+  window.bauResume = () => { if (T && T.paused) return; try { actx && actx.resume(); } catch (e) {} };
   document.addEventListener("visibilitychange", () => (document.hidden ? window.bauPause() : window.bauResume()));
 
   function start(data) {
     const vm = document.querySelector('meta[name="bau-version"]');
     $("ver").textContent = "v" + (vm ? vm.content : "");
     renderToggles();
-    if (data && data.S && !data.S.over && data.S.mode === "story") startStory(data.S.level, false, data.S);
+    if (data && data.S && !data.S.over && data.S.mode === "tetris") startTetris(false, data.S);
+    else if (data && data.S && !data.S.over && data.S.mode === "story") startStory(data.S.level, false, data.S);
     else if (data && data.S && !data.S.over) startGame(data.S.mode, false, data.S);
     else showMenu();
     wake();
