@@ -1,5 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
+<meta name="bau-version" content="3">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -70,6 +72,7 @@ h1 {
   color: var(--ink); text-shadow: 0 3px 0 var(--w2), 0 6px 18px rgba(0,0,0,.45);
 }
 h1 span { color: var(--amber); }
+.ver { padding: 3px 10px; border-radius: 99px; background: var(--amber); color: #2a1a0c; font-weight: 800; font-size: 12px; letter-spacing: .1em; }
 .tag { margin: 0; text-align: center; color: var(--muted); font-size: 14px; letter-spacing: .14em; text-transform: uppercase; }
 .modes { display: grid; gap: 12px; }
 .mode {
@@ -88,6 +91,7 @@ h1 span { color: var(--amber); }
 .mini-board { width: 52px; height: 52px; border-radius: 8px; background: var(--maple); display: grid; gap: 2px; padding: 4px; box-sizing: border-box; }
 .mini-board i { border-radius: 2px; background: var(--maple-2); }
 .mini-board i.f { background: var(--w3); }
+.mini-board i.g { background: #3a2a20 radial-gradient(circle, var(--gold) 0 30%, transparent 34%); }
 .menu-row { display: flex; gap: 10px; justify-content: center; align-items: center; }
 .menu-row .btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; }
 .menu-row .btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
@@ -98,7 +102,7 @@ h1 span { color: var(--amber); }
 #records { max-width: 460px; display: flex; flex-direction: column; gap: 16px; }
 .rec-head { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; }
 .rec-head h2 { margin: 0; text-align: center; font-family: var(--font-display); font-size: 30px; letter-spacing: .06em; text-transform: uppercase; }
-.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 5px; border-radius: 14px; background: var(--panel); }
+.tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; padding: 5px; border-radius: 14px; background: var(--panel); }
 .tab { padding: 10px; border-radius: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 14px; color: var(--muted); }
 .tab[aria-selected="true"] { background: var(--amber); color: #2a1a0c; }
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -148,6 +152,7 @@ h1 span { color: var(--amber); }
   background-image: repeating-linear-gradient(100deg, rgba(255,255,255,.07) 0 2px, transparent 2px 7px);
 }
 .c1 { background-color: var(--w1) !important; } .c2 { background-color: var(--w2) !important; } .c3 { background-color: var(--w3) !important; }
+.c7 { background-color: #3a2a20 !important; background-image: radial-gradient(circle, var(--gold) 0 17%, #b9852e 18% 24%, transparent 26%), repeating-linear-gradient(100deg, rgba(255,255,255,.06) 0 2px, transparent 2px 7px) !important; box-shadow: inset 0 0 0 2px rgba(255,211,107,.45), inset 0 -4px 0 rgba(0,0,0,.3) !important; }
 .c4 { background-color: var(--w4) !important; } .c5 { background-color: var(--w5) !important; } .c6 { background-color: var(--w6) !important; }
 .cell.preview { background-color: var(--w3); opacity: .55; }
 .cell.will { box-shadow: inset 0 0 0 3px var(--amber), inset 0 3px 0 rgba(255,255,255,.28); }
@@ -180,6 +185,27 @@ h1 span { color: var(--amber); }
 .drag i { width: var(--cell); height: var(--cell); border-radius: 5px; }
 .drag i.e { visibility: hidden; }
 
+/* ---------- Story ---------- */
+#levels { max-width: 480px; display: flex; flex-direction: column; gap: 14px; }
+.lv-progress { text-align: center; color: var(--muted); font-size: 13px; letter-spacing: .08em; }
+.lv-progress b { color: var(--amber); }
+.lv-legend { display: flex; justify-content: center; gap: 16px; color: var(--muted); font-size: 12px; }
+.lv-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.lv-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; overflow-y: auto; min-height: 0; flex: 1; align-content: start; padding: 4px 2px 12px; }
+.lv { position: relative; aspect-ratio: 1; max-width: 100%; border-radius: 12px; background: var(--panel); box-shadow: 0 4px 0 var(--shadow);
+  display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 22px; font-variant-numeric: tabular-nums; }
+.lv small { position: absolute; bottom: 5px; font-family: var(--font-body); font-size: 9px; font-weight: 700; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; }
+.lv.done { background: linear-gradient(180deg, rgba(234,165,60,.28), rgba(234,165,60,.1)), var(--panel); }
+.lv.done::after { content: "✓"; position: absolute; top: 4px; right: 7px; font-size: 13px; color: var(--gold); }
+.lv.next { background: var(--amber); color: #2a1a0c; }
+.lv.next small { color: #2a1a0c; }
+.lv:disabled { opacity: .32; cursor: default; box-shadow: none; }
+.goal-ic { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; }
+.goal-ic.clear { background: #3a2a20 radial-gradient(circle, var(--gold) 0 30%, transparent 34%); box-shadow: inset 0 0 0 1px rgba(255,211,107,.5); }
+.goal-ic.score { background: var(--amber); }
+.goal-card { display: grid; gap: 4px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,.05); }
+.goal-card b { color: var(--amber); font-size: 18px; }
+
 /* ---------- Overlay ---------- */
 .overlay {
   position: fixed; inset: 0; z-index: 40; display: grid; place-items: center;
@@ -199,6 +225,9 @@ h1 span { color: var(--amber); }
 .card .badge { justify-self: center; padding: 6px 14px; border-radius: 99px; background: var(--amber); color: #2a1a0c; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: 13px; }
 .card .line { display: flex; justify-content: center; gap: 16px; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
 .card .line b { color: var(--ink); }
+.card.lose h2 { color: #c9b9a4; }
+.card.lose .big { color: #c9b9a4; filter: grayscale(.6); }
+.card.win h2 { color: var(--gold); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition: none !important; }
@@ -212,6 +241,7 @@ h1 span { color: var(--amber); }
         <i class="blk c1"></i><i class="blk c3"></i><i class="blk c4"></i><i class="blk c6"></i>
       </div>
       <h1>BLOCK <span>ALT</span> UNO</h1>
+      <span class="ver" id="ver"></span>
       <p class="tag">Quebra-cabeça de blocos de madeira</p>
     </div>
     <div class="modes">
@@ -228,6 +258,13 @@ h1 span { color: var(--amber); }
         </span>
         <span><b>Sudoku</b><small>Tabuleiro 9×9 · linhas, colunas e quadrados 3×3</small></span>
         <span class="rec"><em>Recorde</em><strong id="rec-sudoku">0</strong></span>
+      </button>
+      <button class="mode" id="play-story">
+        <span class="mini-board" style="grid-template-columns:repeat(3,1fr)" aria-hidden="true">
+          <i class="f"></i><i></i><i class="f"></i><i></i><i class="g"></i><i></i><i class="f"></i><i class="f"></i><i></i>
+        </span>
+        <span><b>História</b><small id="story-sub">100 fases · bata a meta de pontos ou destrua os blocos marcados</small></span>
+        <span class="rec"><em>Fase</em><strong id="rec-story">1</strong></span>
       </button>
     </div>
     <div class="menu-row">
@@ -257,13 +294,27 @@ h1 span { color: var(--amber); }
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" id="tab-classic" data-mode="classic" aria-selected="true">Clássico</button>
       <button class="tab" role="tab" id="tab-sudoku" data-mode="sudoku" aria-selected="false">Sudoku</button>
+      <button class="tab" role="tab" id="tab-story" data-mode="story" aria-selected="false">História</button>
     </div>
     <div class="stats">
-      <div class="stat hl"><strong id="st-best">0</strong><span>Recorde</span></div>
-      <div class="stat"><strong id="st-played">0</strong><span>Partidas</span></div>
-      <div class="stat"><strong id="st-combo">—</strong><span>Maior combo</span></div>
+      <div class="stat hl"><strong id="st-best">0</strong><span id="st-best-label">Recorde</span></div>
+      <div class="stat"><strong id="st-played">0</strong><span id="st-played-label">Partidas</span></div>
+      <div class="stat"><strong id="st-combo">—</strong><span id="st-combo-label">Maior combo</span></div>
     </div>
     <ol class="rank" id="rank"></ol>
+  </section>
+
+  <section id="levels" class="screen" hidden aria-label="Fases do modo História">
+    <div class="rec-head">
+      <button class="icon-btn" id="lv-back" aria-label="Voltar ao menu">
+        <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <h2>História</h2>
+      <span></span>
+    </div>
+    <div class="lv-progress"><b id="lv-done">0</b> de 100 fases concluídas</div>
+    <div class="lv-legend"><span><i class="goal-ic score"></i>Meta de pontos</span><span><i class="goal-ic clear"></i>Destruir blocos marcados</span></div>
+    <div class="lv-grid" id="lv-grid"></div>
   </section>
 
   <section id="game" class="screen" hidden aria-label="Partida">
@@ -274,7 +325,7 @@ h1 span { color: var(--amber); }
       <div class="scores">
         <div class="mode-label"><span id="mode-label">Clássico</span> · Nível <b id="level">1</b></div>
         <div class="now" id="score" aria-live="polite">0</div>
-        <div class="best">Recorde <b id="best">0</b></div>
+        <div class="best"><span id="best-label">Recorde</span> <b id="best">0</b></div>
       </div>
       <div class="right">
         <button class="icon-btn music-toggle" aria-label="Música" aria-pressed="true">
@@ -293,14 +344,16 @@ h1 span { color: var(--amber); }
   </section>
 
   <div class="overlay" id="over" hidden>
-    <div class="card" role="dialog" aria-modal="true" aria-labelledby="over-title">
+    <div class="card" id="over-card" role="dialog" aria-modal="true" aria-labelledby="over-title">
       <h2 id="over-title">Fim de jogo</h2>
-      <p>Nenhuma peça cabe no tabuleiro.</p>
+      <p id="over-why">Nenhuma peça cabe no tabuleiro.</p>
       <div class="big" id="over-score">0</div>
       <div class="badge" id="over-badge" hidden>Novo recorde!</div>
       <p id="over-rank"></p>
       <div class="line"><span>Linhas <b id="over-lines">0</b></span><span>Maior combo <b id="over-combo">0</b></span><span>Nível <b id="over-level">1</b></span></div>
+      <button class="btn primary" id="btn-next" hidden>Próxima fase</button>
       <button class="btn primary" id="btn-again">Jogar de novo</button>
+      <button class="btn ghost" id="btn-levels" hidden>Fases</button>
       <button class="btn ghost" id="btn-menu">Menu</button>
     </div>
   </div>
@@ -576,9 +629,27 @@ h1 span { color: var(--amber); }
         blip("square", hz(m), t + d, .2, .06); blip("triangle", hz(m), t + d, .3, .12);
       });
     },
-    over() {
-      if (!this.ok()) return; const t = actx.currentTime;
-      [67, 63, 60, 55].forEach((m, i) => blip("triangle", hz(m), t + i * .18, .45, .16));
+    // "Wah wah wah waaah": a deliberately pathetic sad trombone for every loss.
+    lose() {
+      if (!this.ok()) return;
+      let t = actx.currentTime + .15;
+      const notes = [[58, .5], [57, .5], [56, .5], [55, 1.9]];
+      notes.forEach(([m, d], k) => {
+        const last = k === notes.length - 1, f = hz(m);
+        const o = actx.createOscillator(), lp = actx.createBiquadFilter(), g = actx.createGain();
+        o.type = "sawtooth";
+        o.frequency.setValueAtTime(f * 1.03, t); o.frequency.exponentialRampToValueAtTime(f * (last ? .86 : .97), t + d);
+        lp.type = "lowpass"; lp.Q.value = 7;
+        lp.frequency.setValueAtTime(250, t); lp.frequency.exponentialRampToValueAtTime(1500, t + .14); lp.frequency.exponentialRampToValueAtTime(420, t + d);
+        env(g, t, .34, .05, [.75, d * .8], t + d);
+        if (last) {
+          const lfo = actx.createOscillator(), lg = actx.createGain();
+          lfo.frequency.value = 5.5; lg.gain.value = f * .035;
+          lfo.connect(lg); lg.connect(o.frequency); lfo.start(t + .25); lfo.stop(t + d);
+        }
+        o.connect(lp); lp.connect(g); g.connect(sfxBus); o.start(t); o.stop(t + d + .05);
+        t += d - .04;
+      });
     },
   };
   // Vibration through the Android app shell when available.
@@ -627,15 +698,15 @@ h1 span { color: var(--amber); }
   const rnd = (n) => Math.floor(Math.random() * n);
   function randomPiece() {
     const v = VARIANTS[rnd(VARIANTS.length)];
-    return { cells: v[rnd(v.length)], color: S.mode === "sudoku" ? 3 : 1 + rnd(6) };
+    return { cells: v[rnd(v.length)], color: S.rules === "sudoku" ? 3 : 1 + rnd(6) };
   }
   const dims = (cells) => [1 + Math.max(...cells.map((p) => p[0])), 1 + Math.max(...cells.map((p) => p[1]))];
 
-  const MODES = { classic: { n: 8, label: "Clássico", boxes: false }, sudoku: { n: 9, label: "Sudoku", boxes: true } };
+  const MODES = { classic: { n: 8, label: "Clássico" }, sudoku: { n: 9, label: "Sudoku" }, story: { label: "História" } };
   const LEVEL_POINTS = 100;
   const levelOf = (score) => Math.floor(score / LEVEL_POINTS) + 1;
   const rateFor = (score) => Math.min(1 + (levelOf(score) - 1) * .06, 2);
-  let S = null; // { mode, n, board[], tray[3], score, combo, lines, maxCombo, recShown }
+  let S = null; // { mode, rules, n, board[], tray[3], score, combo, lines, maxCombo, recShown, story fields }
   let cellEls = [];
 
   function canPlace(board, n, cells, r0, c0) {
@@ -649,8 +720,8 @@ h1 span { color: var(--amber); }
     for (let r = 0; r < S.n; r++) for (let c = 0; c < S.n; c++) if (canPlace(S.board, S.n, piece.cells, r, c)) return true;
     return false;
   }
-  function findClears(board) {
-    const n = S.n, idx = new Set();
+  function findClears(board, n = S.n, boxes = S.rules === "sudoku") {
+    const idx = new Set();
     let lines = 0;
     for (let r = 0; r < n; r++) {
       let full = true; for (let c = 0; c < n; c++) if (!board[r * n + c]) { full = false; break; }
@@ -660,7 +731,7 @@ h1 span { color: var(--amber); }
       let full = true; for (let r = 0; r < n; r++) if (!board[r * n + c]) { full = false; break; }
       if (full) { lines++; for (let r = 0; r < n; r++) idx.add(r * n + c); }
     }
-    if (MODES[S.mode].boxes) {
+    if (boxes) {
       for (let br = 0; br < 3; br++) for (let bc = 0; bc < 3; bc++) {
         let full = true;
         for (let r = 0; r < 3 && full; r++) for (let c = 0; c < 3; c++) if (!board[(br * 3 + r) * n + bc * 3 + c]) { full = false; break; }
@@ -677,6 +748,58 @@ h1 span { color: var(--amber); }
     }
     return tray;
   }
+
+  // ---------- story: 100 handmade-by-formula levels ----------
+  // Levels are generated from a fixed seed, so level N is always the same board.
+  // Every 3rd level (2, 5, 8 …) asks to destroy the marked blocks; the rest ask for a score.
+  // Every 5th level uses the Sudoku rules on a 9×9 board. Difficulty grows with N.
+  const STORY_LEVELS = 100, MARK = 7;
+  const storyGoal = (L) => (L % 3 === 2 ? "clear" : "score");
+  const storyTarget = (L) => Math.round((80 + L * 16) / 10) * 10;
+  function seeded(a) {
+    return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  function storyLevel(L) {
+    const rng = seeded(L * 7919 + 101), ri = (k) => Math.floor(rng() * k), t = (L - 1) / (STORY_LEVELS - 1);
+    const rules = L % 5 === 0 ? "sudoku" : "classic", n = rules === "sudoku" ? 9 : 8, boxes = rules === "sudoku";
+    const goal = storyGoal(L), color = () => (boxes ? 3 : 1 + ri(6));
+    const board = new Array(n * n).fill(0), reserved = new Set();
+    // Starting fill grows from about 18% to 50% of the board.
+    const cap = Math.round(n * n * (.18 + .32 * t));
+    let filled = 0;
+    // Never start with a complete line: it would clear on the first move.
+    const put = (i, v) => {
+      if (filled >= cap || board[i] || reserved.has(i)) return false;
+      board[i] = v;
+      if (findClears(board, n, boxes).lines) { board[i] = 0; return false; }
+      filled++;
+      return true;
+    };
+    // 1) Nearly complete lines with one or two holes: tempting, but they need the exact piece.
+    const lines = Math.min(1 + Math.floor(t * 3) + ri(2), Math.floor(cap / (n - 1)));
+    for (let k = 0; k < lines; k++) {
+      const row = rng() < .5, x = ri(n), holes = 1 + (rng() < .3 + t * .5 ? 1 : 0);
+      const cells = Array.from({ length: n }, (_, j) => (row ? x * n + j : j * n + x));
+      for (let h = 0; h < holes; h++) reserved.add(cells[ri(n)]);
+      for (const i of cells) put(i, color());
+    }
+    // 2) Marked blocks to destroy (clear levels only).
+    if (goal === "clear") {
+      const want = 3 + Math.round(t * 17) + ri(3);
+      let marks = 0;
+      for (let a = 0; a < 600 && marks < want; a++) {
+        const i = ri(n * n);
+        if (board[i] === MARK) continue;
+        if (board[i]) { board[i] = MARK; marks++; } else if (put(i, MARK)) marks++;
+      }
+    }
+    // 3) Scattered clutter that gets in the way, up to the fill cap.
+    for (let a = 0; a < 1500 && filled < cap; a++) put(ri(n * n), color());
+    const marks = board.filter((v) => v === MARK).length;
+    return { L, rules, n, goal, board, target: goal === "score" ? storyTarget(L) : 0, marks };
+  }
+  const storyUnlocked = () => Math.min(store.get("story.unlocked", 1), STORY_LEVELS);
+  const storyBest = () => store.get("story.best", {});
 
   // ---------- records ----------
   function scoresOf(mode) { return store.get("scores." + mode, []); }
@@ -695,11 +818,30 @@ h1 span { color: var(--amber); }
   let recTab = "classic";
   function renderRecords() {
     document.querySelectorAll(".tab").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.mode === recTab)));
-    const list = scoresOf(recTab), mc = store.get("maxcombo." + recTab, 0);
-    $("st-best").textContent = fmt(bestOf(recTab));
-    $("st-played").textContent = fmt(store.get("played." + recTab, 0));
+    const mc = store.get("maxcombo." + recTab, 0), story = recTab === "story";
+    $("st-best-label").textContent = story ? "Fases" : "Recorde";
+    $("st-played-label").textContent = story ? "Tentativas" : "Partidas";
     $("st-combo").textContent = mc > 1 ? "×" + mc : "—";
     const ol = $("rank"); ol.innerHTML = "";
+    if (story) {
+      const best = storyBest(), done = Object.keys(best).map(Number).sort((a, b) => b - a);
+      $("st-best").textContent = done.length + "/" + STORY_LEVELS;
+      $("st-played").textContent = fmt(store.get("played.story", 0));
+      if (!done.length) {
+        const li = document.createElement("li"); li.className = "empty"; li.style.display = "block"; li.style.background = "none";
+        li.textContent = "Nenhuma fase concluída ainda. Abra o modo História no menu e comece pela fase 1.";
+        ol.appendChild(li); return;
+      }
+      done.slice(0, 10).forEach((L, i) => {
+        const li = document.createElement("li"); if (i === 0) li.className = "top";
+        li.innerHTML = `<span class="pos">${L}</span><span><span class="sc">${fmt(best[L])}</span><br><span class="meta">Fase ${L} · ${storyGoal(L) === "clear" ? "destruir blocos marcados" : "meta de " + fmt(storyTarget(L)) + " pontos"}</span></span><span class="date">concluída</span>`;
+        ol.appendChild(li);
+      });
+      return;
+    }
+    const list = scoresOf(recTab);
+    $("st-best").textContent = fmt(bestOf(recTab));
+    $("st-played").textContent = fmt(store.get("played." + recTab, 0));
     if (!list.length) {
       const li = document.createElement("li"); li.className = "empty";
       li.style.display = "block"; li.style.background = "none";
@@ -745,7 +887,7 @@ h1 span { color: var(--amber); }
   }
   function baseClass(i) {
     const r = Math.floor(i / S.n), c = i % S.n;
-    const alt = MODES[S.mode].boxes && (Math.floor(r / 3) + Math.floor(c / 3)) % 2 === 1;
+    const alt = S.rules === "sudoku" && (Math.floor(r / 3) + Math.floor(c / 3)) % 2 === 1;
     return "cell" + (alt ? " alt" : "");
   }
   function renderBoard(preview) {
@@ -797,6 +939,18 @@ h1 span { color: var(--amber); }
     });
   }
   function renderScore() {
+    if (S.mode === "story") {
+      const clear = S.goal === "clear";
+      $("score").textContent = fmt(S.score);
+      $("score").classList.remove("rec");
+      $("best-label").textContent = clear ? "Blocos marcados" : "Meta";
+      $("best").textContent = clear ? S.marks : fmt(S.target);
+      $("level").textContent = levelOf(S.score);
+      const pct = clear ? (S.marksTotal - S.marks) / Math.max(1, S.marksTotal) : S.score / S.target;
+      $("level-fill").style.width = Math.min(100, Math.round(pct * 100)) + "%";
+      return;
+    }
+    $("best-label").textContent = "Recorde";
     const best = bestOf(S.mode);
     $("score").textContent = fmt(S.score);
     $("score").classList.toggle("rec", best > 0 && S.score > best);
@@ -876,11 +1030,20 @@ h1 span { color: var(--amber); }
       music.setRate(rateFor(S.score));
       setTimeout(() => { sfx.levelUp(); fx("lvl", `Nível ${lv}<small>Mais rápido!</small>`, midTop + 40, 1700); }, lines ? 450 : 0);
     }
-    if (!S.recShown && bestBefore > 0 && S.score > bestBefore) {
+    if (S.mode !== "story" && !S.recShown && bestBefore > 0 && S.score > bestBefore) {
       S.recShown = true;
       setTimeout(() => { sfx.record(); buzz(120); fx("newrec", "Novo recorde!", 70, 1900); }, 700);
     }
 
+    if (S.mode === "story") {
+      S.marks = S.board.filter((v) => v === MARK).length;
+      if (S.goal === "clear" ? S.marks === 0 : S.score >= S.target) {
+        S.over = true;
+        renderTray(); renderScore();
+        setTimeout(storyWin, lines ? 800 : 300);
+        return true;
+      }
+    }
     if (S.tray.every((t) => !t)) S.tray = newTray();
     renderTray(); renderScore(); save();
     const left = S.tray.filter(Boolean);
@@ -888,26 +1051,64 @@ h1 span { color: var(--amber); }
     return true;
   }
   function save() { store.set("game." + S.mode, S); }
+  function overlay(kind, title, why) {
+    $("over-card").className = "card " + kind;
+    $("over-title").textContent = title;
+    $("over-why").textContent = why;
+    $("over-score").textContent = fmt(S.score);
+    $("over-lines").textContent = S.lines || 0;
+    $("over-combo").textContent = (S.maxCombo || 0) > 1 ? "×" + S.maxCombo : "—";
+    $("over-level").textContent = levelOf(S.score);
+    const story = S.mode === "story";
+    $("btn-next").hidden = !(story && kind === "win" && S.level < STORY_LEVELS);
+    $("btn-levels").hidden = !story;
+    $("btn-again").textContent = story && kind === "lose" ? "Tentar de novo" : "Jogar de novo";
+    $("btn-again").hidden = story && kind === "win" && S.level < STORY_LEVELS;
+    $("over").hidden = false;
+    ($("btn-next").hidden ? $("btn-again") : $("btn-next")).focus();
+  }
+  function storyWin() {
+    store.del("game.story");
+    music.stop(); music.want = null;
+    sfx.record(); buzz(150);
+    const best = storyBest();
+    best[S.level] = Math.max(best[S.level] || 0, S.score);
+    store.set("story.best", best);
+    if (S.level + 1 > store.get("story.unlocked", 1)) store.set("story.unlocked", Math.min(S.level + 1, STORY_LEVELS));
+    store.set("maxcombo.story", Math.max(store.get("maxcombo.story", 0), S.maxCombo || 0));
+    const why = S.goal === "clear" ? "Você destruiu todos os blocos marcados." : `Você bateu a meta de ${fmt(S.target)} pontos.`;
+    overlay("win", `Fase ${S.level} concluída!`, why);
+    $("over-badge").hidden = true;
+    $("over-rank").textContent = S.level < STORY_LEVELS ? `Fase ${S.level + 1} desbloqueada` : "Você completou as 100 fases da História!";
+  }
   function gameOver() {
     if (!S || S.over) return;
+    if (S.mode === "story") {
+      S.over = true;
+      store.del("game.story");
+      music.stop(); music.want = null;
+      sfx.lose(); buzz(400);
+      store.set("maxcombo.story", Math.max(store.get("maxcombo.story", 0), S.maxCombo || 0));
+      const left = S.goal === "clear"
+        ? `Faltaram ${S.marks} ${S.marks === 1 ? "bloco marcado" : "blocos marcados"}.`
+        : `Faltaram ${fmt(S.target - S.score)} pontos para a meta de ${fmt(S.target)}.`;
+      overlay("lose", "Você perdeu", "Nenhuma peça cabe no tabuleiro. " + left);
+      $("over-badge").hidden = true;
+      $("over-rank").textContent = `Fase ${S.level}`;
+      return;
+    }
     const prev = bestOf(S.mode), isRec = S.score > prev && S.score > 0;
     if (isRec) store.set("best." + S.mode, S.score);
     const rank = S.score > 0 ? saveResult() : 0;
     store.del("game." + S.mode);
     S.over = true;
     music.stop(); music.want = null;
-    if (isRec) sfx.record(); else sfx.over();
-    buzz(isRec ? 150 : 60);
-    $("over-title").textContent = isRec ? "Novo recorde!" : "Fim de jogo";
-    $("over-score").textContent = fmt(S.score);
+    if (isRec) sfx.record(); else sfx.lose();
+    buzz(isRec ? 150 : 400);
+    overlay(isRec ? "win" : "lose", isRec ? "Novo recorde!" : "Você perdeu", "Nenhuma peça cabe no tabuleiro.");
     $("over-badge").hidden = !isRec;
     $("over-badge").textContent = prev > 0 ? `Superou ${fmt(prev)}` : "Primeiro recorde";
     $("over-rank").textContent = rank ? `${rank}º lugar no ranking do modo ${MODES[S.mode].label}` : `Recorde: ${fmt(prev)}`;
-    $("over-lines").textContent = S.lines || 0;
-    $("over-combo").textContent = (S.maxCombo || 0) > 1 ? "×" + S.maxCombo : "—";
-    $("over-level").textContent = levelOf(S.score);
-    $("over").hidden = false;
-    $("btn-again").focus();
   }
 
   // ---------- drag & tap ----------
@@ -989,7 +1190,7 @@ h1 span { color: var(--amber); }
 
   // ---------- screens ----------
   function show(id) {
-    for (const s of ["menu", "records", "game"]) $(s).hidden = s !== id;
+    for (const s of ["menu", "records", "levels", "game"]) $(s).hidden = s !== id;
     $("over").hidden = true;
   }
   function showMenu() {
@@ -1003,6 +1204,29 @@ h1 span { color: var(--amber); }
         ? `Continuar partida · ${fmt(saved.score)} pontos`
         : (m === "classic" ? "Tabuleiro 8×8 · limpe linhas e colunas" : "Tabuleiro 9×9 · linhas, colunas e quadrados 3×3");
     }
+    const ss = store.get("game.story", null);
+    $("rec-story").textContent = storyUnlocked();
+    $("story-sub").textContent = ss ? `Continuar fase ${ss.level} · ${fmt(ss.score)} pontos` : "100 fases · bata a meta de pontos ou destrua os blocos marcados";
+  }
+  function showLevels() {
+    S = null;
+    show("levels");
+    music.play("menu");
+    const un = storyUnlocked(), best = storyBest(), grid = $("lv-grid");
+    $("lv-done").textContent = Object.keys(best).length;
+    grid.innerHTML = "";
+    let next = null;
+    for (let L = 1; L <= STORY_LEVELS; L++) {
+      const b = document.createElement("button"), clear = storyGoal(L) === "clear", done = best[L] != null;
+      b.className = "lv" + (done ? " done" : "") + (L === un && !done ? " next" : "");
+      b.disabled = L > un;
+      b.innerHTML = `${L}<small>${clear ? "<i class=\"goal-ic clear\"></i>" : fmt(storyTarget(L))}</small>`;
+      b.setAttribute("aria-label", `Fase ${L}, ${clear ? "destruir blocos marcados" : "meta de " + storyTarget(L) + " pontos"}${done ? ", concluída" : L > un ? ", bloqueada" : ""}`);
+      b.addEventListener("click", () => startStory(L, false));
+      if (L === un) next = b;
+      grid.appendChild(b);
+    }
+    if (next) next.scrollIntoView({ block: "center" });
   }
   function showRecords(mode) {
     S = null;
@@ -1015,38 +1239,63 @@ h1 span { color: var(--amber); }
     const saved = restored || (fresh ? null : store.get("game." + mode, null));
     if (saved && saved.board && saved.board.length === n * n && !saved.over) {
       S = saved;
+      S.rules = S.rules || mode;
     } else {
-      S = { mode, n, board: new Array(n * n).fill(0), tray: [], score: 0, combo: 0, lines: 0, maxCombo: 0, recShown: false };
+      S = { mode, rules: mode, n, board: new Array(n * n).fill(0), tray: [], score: 0, combo: 0, lines: 0, maxCombo: 0, recShown: false };
       S.tray = newTray();
     }
+    enterGame(MODES[mode].label);
+  }
+  function startStory(L, fresh, restored) {
+    const saved = restored || (fresh ? null : store.get("game.story", null));
+    if (saved && saved.level === L && saved.board && !saved.over) {
+      S = saved;
+    } else {
+      const lv = storyLevel(L);
+      S = { mode: "story", rules: lv.rules, n: lv.n, level: L, goal: lv.goal, target: lv.target, marks: lv.marks, marksTotal: lv.marks,
+        board: lv.board, tray: [], score: 0, combo: 0, lines: 0, maxCombo: 0 };
+      S.tray = newTray();
+      store.set("played.story", store.get("played.story", 0) + 1);
+    }
+    enterGame("Fase " + L);
+  }
+  function enterGame(label) {
     selected = -1;
     show("game");
-    $("mode-label").textContent = MODES[mode].label;
-    music.play(mode);
+    $("mode-label").textContent = label;
+    music.play(S.rules);
     music.setRate(rateFor(S.score));
     buildBoard(); sizeBoard(); renderScore(); save();
   }
-  document.querySelectorAll(".mode").forEach((b) => b.addEventListener("click", () => startGame(b.dataset.mode, false)));
-  $("btn-home").addEventListener("click", showMenu);
+  document.querySelectorAll(".mode[data-mode]").forEach((b) => b.addEventListener("click", () => startGame(b.dataset.mode, false)));
+  $("play-story").addEventListener("click", showLevels);
+  $("lv-back").addEventListener("click", showMenu);
+  $("btn-levels").addEventListener("click", showLevels);
+  $("btn-next").addEventListener("click", () => startStory(S.level + 1, true));
+  $("btn-home").addEventListener("click", () => (S && S.mode === "story" ? showLevels() : showMenu()));
   $("btn-menu").addEventListener("click", showMenu);
   $("btn-records").addEventListener("click", () => showRecords());
   $("rec-back").addEventListener("click", showMenu);
-  $("btn-again").addEventListener("click", () => startGame(S.mode, true));
+  $("btn-again").addEventListener("click", () => (S.mode === "story" ? startStory(S.level, true) : startGame(S.mode, true)));
   window.addEventListener("resize", sizeBoard);
   document.addEventListener("contextmenu", (e) => e.preventDefault());
 
   // Hooks used by the Android app shell.
   window.blockAltUnoBack = () => {
     if (!$("menu").hidden) return false;
-    showMenu(); return true;
+    if ((!$("game").hidden || !$("over").hidden) && S && S.mode === "story") showLevels(); else showMenu();
+    return true;
   };
   window.bauPause = () => { try { actx && actx.suspend(); } catch (e) {} };
   window.bauResume = () => { try { actx && actx.resume(); } catch (e) {} };
   document.addEventListener("visibilitychange", () => (document.hidden ? window.bauPause() : window.bauResume()));
 
   function start(data) {
+    const vm = document.querySelector('meta[name="bau-version"]');
+    $("ver").textContent = "v" + (vm ? vm.content : "");
     renderToggles();
-    if (data && data.S && !data.S.over) startGame(data.S.mode, false, data.S);
+    if (data && data.S && !data.S.over && data.S.mode === "story") startStory(data.S.level, false, data.S);
+    else if (data && data.S && !data.S.over) startGame(data.S.mode, false, data.S);
     else showMenu();
     wake();
   }
