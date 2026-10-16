@@ -1,7 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="5">
+<meta name="bau-version" content="6">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -70,7 +70,7 @@ button:focus-visible, .slot:focus-visible { outline: 3px solid var(--amber); out
 .screen { flex: 1; width: 100%; min-height: 0; }
 
 /* ---------- Menu ---------- */
-#menu { max-width: 420px; display: flex; flex-direction: column; justify-content: center; gap: 26px; }
+#menu { max-width: 440px; display: flex; flex-direction: column; justify-content: center; gap: 20px; overflow-y: auto; }
 .logo { display: grid; gap: 10px; justify-items: center; }
 .logo-blocks { display: grid; grid-template-columns: repeat(4, 22px); gap: 4px; }
 .logo-blocks i { width: 22px; height: 22px; border-radius: 4px; animation: bob 3.2s ease-in-out infinite; }
@@ -78,26 +78,33 @@ button:focus-visible, .slot:focus-visible { outline: 3px solid var(--amber); out
 @keyframes bob { 50% { transform: translateY(-5px); } }
 h1 {
   margin: 0; font-family: var(--font-display); font-weight: 800; font-stretch: condensed;
-  font-size: clamp(40px, 13vw, 58px); line-height: .9; letter-spacing: .02em; text-align: center; text-wrap: balance;
+  font-size: clamp(36px, 11vw, 52px); line-height: .9; letter-spacing: .02em; text-align: center; text-wrap: balance;
   color: var(--ink); text-shadow: 0 3px 0 var(--w2), 0 6px 18px rgba(0,0,0,.45);
 }
 h1 span { color: var(--amber); }
 .ver { padding: 3px 10px; border-radius: 99px; background: var(--amber); color: #2a1a0c; font-weight: 800; font-size: 12px; letter-spacing: .1em; }
 .tag { margin: 0; text-align: center; color: var(--muted); font-size: 14px; letter-spacing: .14em; text-transform: uppercase; }
-.modes { display: grid; gap: 12px; }
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .mode {
-  display: grid; grid-template-columns: 52px 1fr auto; align-items: center; gap: 14px;
-  text-align: left; padding: 14px 16px; border-radius: 14px;
-  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)), var(--panel);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 6px 0 var(--shadow);
+  --mc1: #c27f3c; --mc2: #6b4226;
+  position: relative; display: flex; flex-direction: column; gap: 8px; min-width: 0;
+  text-align: left; padding: 10px 10px 12px; border-radius: 16px;
+  background: linear-gradient(160deg, var(--mc1), var(--mc2));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 6px 0 rgba(0,0,0,.4), 0 10px 24px rgba(0,0,0,.35);
   transition: transform .12s;
 }
-.mode:active { transform: translateY(3px); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 3px 0 var(--shadow); }
-.mode b { display: block; font-family: var(--font-display); font-size: 22px; letter-spacing: .04em; text-transform: uppercase; }
-.mode small { color: var(--muted); font-size: 13px; }
-.mode .rec { text-align: right; font-variant-numeric: tabular-nums; }
-.mode .rec em { display: block; font-style: normal; font-size: 11px; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; }
-.mode .rec strong { font-size: 20px; color: var(--amber); }
+#play-classic { --mc1: #d08a3e; --mc2: #7a4520; }
+#play-sudoku { --mc1: #3d8f7a; --mc2: #1d4a40; }
+#play-tetris { --mc1: #8a4fc0; --mc2: #3a1f63; }
+#play-story { --mc1: #c24a3a; --mc2: #5e1c22; }
+.mode:active { transform: translateY(3px); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 3px 0 rgba(0,0,0,.4); }
+.mode .thumb { display: block; aspect-ratio: 5 / 4; max-width: 100%; border-radius: 11px; overflow: hidden; background: rgba(0,0,0,.28); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+.mode .thumb svg { display: block; width: 100%; height: 100%; }
+.mode b { display: block; font-family: var(--font-display); font-size: 19px; line-height: 1.05; letter-spacing: .03em; text-transform: uppercase; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,.25); }
+.mode small { display: block; margin-top: 3px; color: rgba(255,255,255,.78); font-size: 11.5px; line-height: 1.3; }
+.mode .rec { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 8px; border-radius: 9px; background: rgba(0,0,0,.25); font-variant-numeric: tabular-nums; margin-top: auto; }
+.mode .rec em { font-style: normal; font-size: 10px; color: rgba(255,255,255,.75); letter-spacing: .12em; text-transform: uppercase; }
+.mode .rec strong { font-size: 17px; color: var(--gold); }
 .mini-board { width: 52px; height: 52px; border-radius: 8px; background: var(--maple); display: grid; gap: 2px; padding: 4px; box-sizing: border-box; }
 .mini-board i { border-radius: 2px; background: var(--maple-2); }
 .mini-board i.f { background: var(--w3); }
@@ -276,30 +283,22 @@ h1 span { color: var(--amber); }
     </div>
     <div class="modes">
       <button class="mode" id="play-classic" data-mode="classic">
-        <span class="mini-board" style="grid-template-columns:repeat(4,1fr)" aria-hidden="true">
-          <i></i><i></i><i class="f"></i><i></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i></i><i class="f"></i><i></i><i></i><i></i><i class="f"></i><i class="f"></i><i></i>
-        </span>
+        <span class="thumb" data-thumb="classic" aria-hidden="true"></span>
         <span><b>Clássico</b><small>Tabuleiro 8×8 · limpe linhas e colunas</small></span>
         <span class="rec"><em>Recorde</em><strong id="rec-classic">0</strong></span>
       </button>
       <button class="mode" id="play-sudoku" data-mode="sudoku">
-        <span class="mini-board" style="grid-template-columns:repeat(3,1fr)" aria-hidden="true">
-          <i class="f"></i><i class="f"></i><i></i><i class="f"></i><i class="f"></i><i></i><i></i><i></i><i class="f"></i>
-        </span>
+        <span class="thumb" data-thumb="sudoku" aria-hidden="true"></span>
         <span><b>Sudoku</b><small>Tabuleiro 9×9 · linhas, colunas e quadrados 3×3</small></span>
         <span class="rec"><em>Recorde</em><strong id="rec-sudoku">0</strong></span>
       </button>
       <button class="mode" id="play-tetris" data-mode="tetris">
-        <span class="mini-board" style="grid-template-columns:repeat(4,1fr)" aria-hidden="true">
-          <i></i><i></i><i></i><i></i><i></i><i class="f"></i><i></i><i></i><i class="f"></i><i class="f"></i><i class="f"></i><i></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i>
-        </span>
+        <span class="thumb" data-thumb="tetris" aria-hidden="true"></span>
         <span><b>Tetris Clássico</b><small>Arcade · fica mais rápido a cada 100 pontos</small></span>
         <span class="rec"><em>Recorde</em><strong id="rec-tetris">0</strong></span>
       </button>
       <button class="mode" id="play-story">
-        <span class="mini-board" style="grid-template-columns:repeat(3,1fr)" aria-hidden="true">
-          <i class="f"></i><i></i><i class="f"></i><i></i><i class="g"></i><i></i><i class="f"></i><i class="f"></i><i></i>
-        </span>
+        <span class="thumb" data-thumb="story" aria-hidden="true"></span>
         <span><b>História</b><small id="story-sub">100 fases · bata a meta de pontos ou destrua os blocos marcados</small></span>
         <span class="rec"><em>Fase</em><strong id="rec-story">1</strong></span>
       </button>
@@ -456,11 +455,12 @@ window.Scene = (() => {
   const TAU = Math.PI * 2;
 
   function resize() {
-    dpr = Math.min(2, window.devicePixelRatio || 1);
+    dpr = Math.min(theme && theme.hd ? 3 : 2, window.devicePixelRatio || 1);
     W = window.innerWidth; H = window.innerHeight;
     for (const c of [bg, fx]) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
     b.setTransform(dpr, 0, 0, dpr, 0, 0); f.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (theme) amb = theme.amb ? Array.from({ length: theme.amb.n }, () => theme.amb.make(true)) : [];
+    if (theme && theme.onResize) theme.onResize();
   }
   window.addEventListener("resize", resize);
 
@@ -742,6 +742,70 @@ window.Scene = (() => {
       ambStep(p, dt) { p.y += p.v * dt; p.x += Math.sin(clock + p.ph) * 10 * dt; if (p.y > H + 5) Object.assign(p, THEMES.war.amb.make(false)); },
       ambDraw(p) { b.globalAlpha = .6; circle(b, p.x, p.y, p.r, p.hot ? "#ff9a40" : "#9a928a"); b.globalAlpha = 1; },
       boom: { kinds: ["fire", "fire", "smoke", "smoke", "debris", "ember"], colors: ["rgba(255,170,40,.95)", "rgba(255,90,20,.9)", "#2a2420", "#4a4038"], n: 12, speed: 380, grav: 380, drag: .95, life: 1.2, size: 14, ring: "#ffd28a", flash: "rgba(255,210,140,.3)" },
+    },
+    // Start screen only: a high-definition 3D starfield drifting towards the viewer.
+    deepspace: {
+      name: "Espaço profundo", glow: "rgba(150,170,255,.4)", hd: true,
+      onResize() {
+        // Nebula, dust and thousands of faint stars are painted once into an offscreen canvas.
+        const c = document.createElement("canvas"), m = 1.15;
+        c.width = Math.round(W * m * dpr); c.height = Math.round(H * m * dpr);
+        const g = c.getContext("2d"); g.scale(dpr, dpr);
+        const w = W * m, h = H * m;
+        const bgG = g.createLinearGradient(0, 0, w, h);
+        bgG.addColorStop(0, "#02030a"); bgG.addColorStop(.5, "#060818"); bgG.addColorStop(1, "#0a0414");
+        g.fillStyle = bgG; g.fillRect(0, 0, w, h);
+        g.globalCompositeOperation = "lighter";
+        const clouds = [["120,60,255", .55, .3], ["255,70,170", .3, .55], ["40,170,255", .7, .7], ["255,150,80", .2, .15]];
+        for (const [rgb, cx, cy] of clouds) {
+          for (let i = 0; i < 26; i++) {
+            const x = w * cx + R(-.28, .28) * w, y = h * cy + R(-.18, .18) * h, r = R(.08, .3) * Math.max(w, h);
+            const rg = g.createRadialGradient(x, y, 0, x, y, r);
+            rg.addColorStop(0, `rgba(${rgb},${R(.03, .07)})`); rg.addColorStop(1, `rgba(${rgb},0)`);
+            g.fillStyle = rg; g.fillRect(x - r, y - r, r * 2, r * 2);
+          }
+        }
+        g.globalCompositeOperation = "source-over";
+        for (let i = 0; i < 2600; i++) {
+          const a = Math.random();
+          g.fillStyle = `rgba(${pick(["255,255,255", "190,210,255", "255,230,200"])},${.12 + a * a * .7})`;
+          g.fillRect(R(0, w), R(0, h), a > .97 ? 1.6 : .8, a > .97 ? 1.6 : .8);
+        }
+        this.neb = c; this.nw = w; this.nh = h;
+      },
+      sky(t) {
+        if (!this.neb) this.onResize();
+        const ox = Math.sin(t * .03) * W * .05 - W * .075, oy = Math.cos(t * .025) * H * .04 - H * .075;
+        b.drawImage(this.neb, ox, oy, this.nw, this.nh);
+        // A shaded planet with an atmosphere rim, low on the screen.
+        const pr = Math.max(W, H) * .55, px = W * .1, py = H * 1.18;
+        const pg = b.createRadialGradient(px + pr * .35, py - pr * .45, pr * .1, px, py, pr);
+        pg.addColorStop(0, "#2b3f8f"); pg.addColorStop(.55, "#121a45"); pg.addColorStop(1, "#04050f");
+        glow(px, py, pr * 1.12, "rgba(110,150,255,.35)");
+        circle(b, px, py, pr, pg);
+        b.strokeStyle = "rgba(150,190,255,.45)"; b.lineWidth = 2; b.beginPath(); b.arc(px, py, pr, -Math.PI * .5, -Math.PI * .05); b.stroke();
+      },
+      amb: drift(520, (init) => ({ x: R(-1, 1), y: R(-1, 1), z: init ? R(.02, 1) : 1, pz: 0, c: pick(["#ffffff", "#ffffff", "#cfe0ff", "#ffe6c8", "#bcd2ff"]) })),
+      ambStep(p, dt) {
+        p.pz = p.z; p.z -= dt * .085;
+        if (p.z <= .02) Object.assign(p, THEMES.deepspace.amb.make(false), { pz: 1 });
+      },
+      ambDraw(p) {
+        const a = clock * .012, ca = Math.cos(a), sa = Math.sin(a), cx = W / 2, cy = H * .42, k = Math.max(W, H) * .55;
+        const x = p.x * ca - p.y * sa, y = p.x * sa + p.y * ca;
+        const sx = cx + x / p.z * k * .5, sy = cy + y / p.z * k * .5;
+        if (sx < -20 || sx > W + 20 || sy < -20 || sy > H + 20) { Object.assign(p, THEMES.deepspace.amb.make(false), { pz: 1 }); return; }
+        const near = 1 - p.z, size = near * near * 3.2 + .35;
+        b.globalAlpha = Math.min(1, near * 1.3);
+        if (p.pz && p.pz !== p.z) {
+          const px = cx + x / p.pz * k * .5, py = cy + y / p.pz * k * .5;
+          b.strokeStyle = p.c; b.lineWidth = size; b.lineCap = "round";
+          b.beginPath(); b.moveTo(px, py); b.lineTo(sx, sy); b.stroke();
+        } else circle(b, sx, sy, size / 2, p.c);
+        if (near > .8) { b.globalAlpha = (near - .8) * 2.5; glow(sx, sy, size * 5, "rgba(200,220,255,.7)"); }
+        b.globalAlpha = 1;
+      },
+      boom: { kinds: ["star"], colors: ["#ffffff"], n: 6, speed: 300, grav: 0, life: .8, size: 5, ring: "#9be7ff" },
     },
   };
   const ORDER = ["ground", "sky", "moon", "space", "future", "lava", "water", "ocean", "horror", "war"];
@@ -1933,7 +1997,7 @@ window.Scene = (() => {
     for (const s of ["menu", "records", "levels", "game", "tetris"]) $(s).hidden = s !== id;
     $("t-paused").hidden = true;
     // The start screen floats through space; records and levels keep the wood room.
-    if (id === "menu") Scene.set("space");
+    if (id === "menu") Scene.set("deepspace");
     else if (id !== "game" && id !== "tetris") Scene.set(null);
     $("over").hidden = true;
   }
@@ -2045,6 +2109,69 @@ window.Scene = (() => {
   window.bauPause = () => { if (tRunning()) tPause(); try { actx && actx.suspend(); } catch (e) {} };
   window.bauResume = () => { if (T && T.paused) return; try { actx && actx.resume(); } catch (e) {} };
   document.addEventListener("visibilitychange", () => (document.hidden ? window.bauPause() : window.bauResume()));
+
+  // ---------- mode thumbnails (SVG, 100×80) ----------
+  const WOOD = ["#a8452c", "#6b4226", "#c27f3c", "#8a5a2b", "#7c7a3c", "#4f6873"];
+  const TETRO_COLORS = { 1: "#c4513a", 2: "#8a5a2b", 3: "#eaa53c", 4: "#c27f3c", 6: "#5f8fa3", 8: "#b267c9", 9: "#4fa36a" };
+  const svgBlock = (x, y, s, fill, extra) =>
+    `<rect x="${x}" y="${y}" width="${s}" height="${s}" rx="${s * .18}" fill="${fill}"${extra || ""}/>` +
+    `<rect x="${x}" y="${y}" width="${s}" height="${s * .22}" rx="${s * .18}" fill="#fff" opacity=".22"/>`;
+  function thumbSVG(kind) {
+    let o = "";
+    if (kind === "classic") {
+      const n = 8, s = 7.6, g = 1.1, x0 = 50 - (n * s + (n - 1) * g) / 2, y0 = 4;
+      o += `<rect x="${x0 - 3}" y="${y0 - 3}" width="${n * s + (n - 1) * g + 6}" height="${n * s + (n - 1) * g + 6}" rx="5" fill="#d6ae7b"/>`;
+      const filled = ["..##....", ".###..#.", "..#..##.", "########", ".#...#..", "##..###.", ".#....#.", "...##..."];
+      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+        const x = x0 + c * (s + g), y = y0 + r * (s + g), on = filled[r][c] === "#";
+        o += on ? svgBlock(x, y, s, r === 3 ? "#ffd36b" : WOOD[(r * 3 + c) % 6]) : `<rect x="${x}" y="${y}" width="${s}" height="${s}" rx="1.4" fill="#bd915d"/>`;
+      }
+      o += `<rect x="${x0 - 2}" y="${y0 + 3 * (s + g) - 1}" width="${n * s + (n - 1) * g + 4}" height="${s + 2}" rx="2" fill="none" stroke="#fff" stroke-width="1.2" opacity=".9"/>`;
+    } else if (kind === "sudoku") {
+      const n = 9, s = 6.9, g = .9, x0 = 50 - (n * s + (n - 1) * g) / 2, y0 = 4, size = n * s + (n - 1) * g;
+      o += `<rect x="${x0 - 3}" y="${y0 - 3}" width="${size + 6}" height="${size + 6}" rx="5" fill="#d6ae7b"/>`;
+      const filled = [[0, 1], [0, 5], [1, 4], [2, 7], [4, 0], [5, 2], [6, 6], [7, 1], [7, 7], [8, 4], [6, 8], [2, 2]];
+      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+        const x = x0 + c * (s + g), y = y0 + r * (s + g), box = r >= 3 && r < 6 && c >= 3 && c < 6;
+        const alt = (Math.floor(r / 3) + Math.floor(c / 3)) % 2 === 1;
+        if (box) o += svgBlock(x, y, s, "#ffd36b");
+        else if (filled.some(([a, b2]) => a === r && b2 === c)) o += svgBlock(x, y, s, "#c27f3c");
+        else o += `<rect x="${x}" y="${y}" width="${s}" height="${s}" rx="1.2" fill="${alt ? "#bd915d" : "#c99f6b"}"/>`;
+      }
+      for (const k of [3, 6]) {
+        const p = x0 + k * (s + g) - g / 2, q = y0 + k * (s + g) - g / 2;
+        o += `<line x1="${p}" y1="${y0 - 2}" x2="${p}" y2="${y0 + size + 2}" stroke="#6b4226" stroke-width="1.4"/>`;
+        o += `<line x1="${x0 - 2}" y1="${q}" x2="${x0 + size + 2}" y2="${q}" stroke="#6b4226" stroke-width="1.4"/>`;
+      }
+      o += `<rect x="${x0 + 3 * (s + g) - 1.5}" y="${y0 + 3 * (s + g) - 1.5}" width="${3 * s + 2 * g + 3}" height="${3 * s + 2 * g + 3}" rx="2" fill="none" stroke="#fff" stroke-width="1.2"/>`;
+    } else if (kind === "tetris") {
+      const cols = 10, rows = 11, s = 6.4, g = .7, x0 = 50 - (cols * s + (cols - 1) * g) / 2, y0 = 3;
+      o += `<rect x="${x0 - 3}" y="${y0 - 2}" width="${cols * s + (cols - 1) * g + 6}" height="${rows * (s + g) + 3}" rx="4" fill="#1a1030"/>`;
+      const stack = [
+        "..........", "....888...", ".....8....", "..........", "..........", "..........", "..........",
+        ".......9..", "11....4999", "1166.24444", "336622233.",
+      ];
+      for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+        const x = x0 + c * (s + g), y = y0 + r * (s + g), v = stack[r][c];
+        if (v !== ".") o += svgBlock(x, y, s, TETRO_COLORS[v]);
+        else if (r === 7 && c >= 3 && c <= 5) o += `<rect x="${x + .5}" y="${y + .5}" width="${s - 1}" height="${s - 1}" rx="1" fill="none" stroke="#fff" stroke-width=".8" opacity=".55"/>`;
+      }
+      o += `<path d="M${x0 + 4.5 * (s + g) + s / 2} ${y0 + 3.2 * (s + g)} v6 m-2.5 -2.5 l2.5 2.5 l2.5 -2.5" stroke="#fff" stroke-width="1.2" fill="none" opacity=".8"/>`;
+    } else {
+      o += `<rect width="100" height="80" fill="#1d1430"/>`;
+      o += `<path d="M10 70 C 30 70, 22 48, 42 48 S 62 62, 70 44 S 88 22, 74 12" stroke="#ffd36b" stroke-width="2" stroke-dasharray="3 3" fill="none" opacity=".7"/>`;
+      const nodes = [[10, 70, "done"], [28, 60, "done"], [42, 48, "done"], [60, 56, "now"], [70, 44, "lock"], [82, 26, "lock"]];
+      for (const [x, y, st] of nodes) {
+        if (st === "now") o += `<circle cx="${x}" cy="${y}" r="8" fill="#ffd36b" opacity=".3"/>`;
+        o += `<circle cx="${x}" cy="${y}" r="5" fill="${st === "done" ? "#eaa53c" : st === "now" ? "#ffd36b" : "#4a3d5c"}" stroke="#fff" stroke-width="${st === "lock" ? 0 : 1}"/>`;
+        if (st === "done") o += `<path d="M${x - 2} ${y} l1.5 1.6 l3 -3.2" stroke="#2a1a0c" stroke-width="1.3" fill="none"/>`;
+      }
+      o += `<path d="M74 12 v-9" stroke="#fff" stroke-width="1.4"/><path d="M74 3 h9 l-2.5 3 l2.5 3 h-9 z" fill="#e0674b"/>`;
+      o += `<rect x="8" y="8" width="14" height="14" rx="3" fill="#3a2a20" stroke="#ffd36b" stroke-opacity=".6"/><circle cx="15" cy="15" r="3" fill="#ffd36b"/>`;
+    }
+    return `<svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">${o}</svg>`;
+  }
+  document.querySelectorAll("[data-thumb]").forEach((el) => { el.innerHTML = thumbSVG(el.dataset.thumb); });
 
   function start(data) {
     const vm = document.querySelector('meta[name="bau-version"]');
