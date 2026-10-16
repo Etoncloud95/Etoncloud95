@@ -3,6 +3,7 @@ package com.blockaltuno.game;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
@@ -16,6 +17,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
+
+import org.json.JSONObject;
 
 public class MainActivity extends Activity {
     // Fake origin for localStorage only; the page is loaded from the APK and the app has no network access.
@@ -80,9 +84,33 @@ public class MainActivity extends Activity {
         webView.evaluateJavascript("window.bauResume && window.bauResume()", null);
     }
 
-    /** Lets the game trigger short vibrations on line clears. */
+    /** Lets the game vibrate and keep its progress in the app's own storage. */
     private class NativeBridge {
         private final Vibrator vibrator;
+        private final SharedPreferences prefs = getSharedPreferences("bau", MODE_PRIVATE);
+
+        @JavascriptInterface
+        public void setItem(String key, String value) {
+            prefs.edit().putString(key, value).apply();
+        }
+
+        @JavascriptInterface
+        public void removeItem(String key) {
+            prefs.edit().remove(key).apply();
+        }
+
+        @JavascriptInterface
+        public String getAll() {
+            JSONObject all = new JSONObject();
+            try {
+                for (Map.Entry<String, ?> e : prefs.getAll().entrySet()) {
+                    if (e.getValue() instanceof String) all.put(e.getKey(), e.getValue());
+                }
+            } catch (Exception ignored) {
+                // Return whatever was collected.
+            }
+            return all.toString();
+        }
 
         NativeBridge() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

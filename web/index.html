@@ -1,7 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="6">
+<meta name="bau-version" content="7">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -70,7 +70,9 @@ button:focus-visible, .slot:focus-visible { outline: 3px solid var(--amber); out
 .screen { flex: 1; width: 100%; min-height: 0; }
 
 /* ---------- Menu ---------- */
-#menu { max-width: 440px; display: flex; flex-direction: column; justify-content: center; gap: 20px; overflow-y: auto; }
+#menu { max-width: 440px; display: flex; flex-direction: column; gap: 18px; overflow-y: auto; }
+/* Centered when it fits, scrollable from the top when it does not. */
+#menu > :first-child { margin-top: auto; } #menu > :last-child { margin-bottom: auto; }
 .logo { display: grid; gap: 10px; justify-items: center; }
 .logo-blocks { display: grid; grid-template-columns: repeat(4, 22px); gap: 4px; }
 .logo-blocks i { width: 22px; height: 22px; border-radius: 4px; animation: bob 3.2s ease-in-out infinite; }
@@ -113,6 +115,33 @@ h1 span { color: var(--amber); }
 .menu-row .btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; }
 .menu-row .btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 .foot { text-align: center; color: var(--muted); font-size: 12px; letter-spacing: .08em; margin: 0; }
+
+.skin-pick { display: grid; gap: 6px; }
+.skins { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.skin { display: grid; justify-items: center; gap: 4px; padding: 7px 2px 6px; border-radius: 12px; background: rgba(10,8,20,.55); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+.skin i { width: 34px; height: 34px; border-radius: 7px; background-size: 100% 100%; box-shadow: inset 0 3px 0 rgba(255,255,255,.28), inset 0 -4px 0 rgba(0,0,0,.25), 0 2px 6px rgba(0,0,0,.4); }
+.skin span { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: rgba(255,255,255,.8); }
+.skin[aria-checked="true"] { background: rgba(234,165,60,.25); box-shadow: inset 0 0 0 2px var(--amber); }
+.skin[aria-checked="true"] span { color: var(--gold); }
+.skins-note { margin: 0; text-align: center; font-size: 11px; color: var(--muted); letter-spacing: .04em; }
+
+/* ---------- Power (story) ---------- */
+.power { width: 100%; }
+.power-btn { width: 100%; display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: 14px; text-align: left;
+  background: rgba(18,11,7,.62); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), 0 4px 0 var(--shadow); }
+.power-btn svg { width: 30px; height: 30px; flex: none; }
+.power-btn .pw-text { flex: 1; min-width: 0; }
+.power-btn b { display: block; font-size: 14px; letter-spacing: .04em; text-transform: uppercase; }
+.power-btn small { display: block; font-size: 11.5px; color: var(--muted); }
+.power-btn .pw-count { min-width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: rgba(255,255,255,.08); font-family: var(--font-display); font-weight: 800; font-size: 20px; }
+.power-btn.ready { background: linear-gradient(135deg, #e0673b, #a8301e); animation: pulse 1.4s ease-in-out infinite; }
+.power-btn.ready small { color: rgba(255,255,255,.85); }
+.power-btn.ready .pw-count { background: rgba(0,0,0,.25); color: var(--gold); }
+.power-btn.aiming { background: linear-gradient(135deg, #ffd36b, #eaa53c); color: #2a1a0c; animation: none; }
+.power-btn.aiming small { color: #4a2e12; }
+@keyframes pulse { 50% { box-shadow: inset 0 0 0 1px rgba(255,255,255,.2), 0 4px 0 var(--shadow), 0 0 22px rgba(224,103,59,.7); } }
+#board.aim .cell.b { cursor: crosshair; outline: 2px solid rgba(255,211,107,.85); outline-offset: -2px; animation: aimblink .8s ease-in-out infinite; }
+@keyframes aimblink { 50% { filter: brightness(1.25); } }
 
 /* ---------- Records ---------- */
 #records { max-width: 460px; display: flex; flex-direction: column; gap: 16px; }
@@ -279,7 +308,11 @@ h1 span { color: var(--amber); }
       </div>
       <h1>BLOCK <span>ALT</span> UNO</h1>
       <span class="ver" id="ver"></span>
-      <p class="tag">Quebra-cabeça de blocos de madeira</p>
+      <p class="tag">Quebra-cabeça de blocos</p>
+    </div>
+    <div class="skin-pick">
+      <div class="skins" id="skins" role="radiogroup" aria-label="Textura dos blocos"></div>
+      <p class="skins-note">Textura dos blocos · vale para Clássico e Sudoku</p>
     </div>
     <div class="modes">
       <button class="mode" id="play-classic" data-mode="classic">
@@ -376,6 +409,13 @@ h1 span { color: var(--amber); }
     <div class="board-wrap" id="board-wrap">
       <div id="board" role="grid" aria-label="Tabuleiro"></div>
     </div>
+    <div class="power" id="power" hidden>
+      <button class="power-btn" id="btn-power">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="14" cy="19" r="10" fill="#2a1d15"/><circle cx="11" cy="16" r="3" fill="#fff" opacity=".25"/><path d="M20 10l3-3" stroke="#bda78c" stroke-width="2.4" stroke-linecap="round"/><path d="M25 3l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1z" fill="#ffd36b"/></svg>
+        <span class="pw-text"><b id="pw-title">Destruir 4 blocos</b><small id="pw-sub">Faça 1.000 pontos para liberar</small></span>
+        <span class="pw-count" id="pw-count">0</span>
+      </button>
+    </div>
     <div id="tray" aria-label="Peças disponíveis"></div>
   </section>
 
@@ -438,6 +478,172 @@ h1 span { color: var(--amber); }
     </div>
   </div>
 </div>
+
+<script>
+// ======================================================================
+//  SKINS — realistic block textures (wood, cement, brick, ice, water)
+//  painted procedurally on canvas at startup. No image files, no network.
+// ======================================================================
+window.Skins = (() => {
+  "use strict";
+  const SIZE = 128;
+  // Colour sets for blocks 1–6. Classic shifts through them every level; story changes them every phase.
+  const PALETTES = [
+    ["#a8452c", "#6b4226", "#c27f3c", "#8a5a2b", "#7c7a3c", "#4f6873"], // madeiras
+    ["#3f7a4a", "#5c8a3a", "#8aa04a", "#2f5d50", "#6b8f71", "#a3b86c"], // floresta
+    ["#2f6f9f", "#3f8fb0", "#5fb3c9", "#24577a", "#4a7fc0", "#7fc4d6"], // oceano
+    ["#d0603a", "#e08a3c", "#c94a5a", "#f0b04a", "#b0503a", "#e07060"], // pôr do sol
+    ["#6a4aa0", "#8a5ac0", "#4a3a8a", "#a070c0", "#5a5ab0", "#c080b0"], // realeza
+    ["#e0608a", "#f08ab0", "#60b0e0", "#f0c060", "#90d080", "#c090e0"], // doce
+    ["#c09030", "#d0a840", "#a07020", "#e0c060", "#b08840", "#8a6a28"], // ouro
+    ["#707a88", "#8a94a0", "#5a6470", "#a0a8b4", "#606a78", "#9098a4"], // aço
+  ];
+  const EXTRA = { 8: "#7a4a6e", 9: "#3f6b4f" }; // Tetris T and S pieces
+  const KINDS = [["wood", "Madeira"], ["cement", "Cimento"], ["brick", "Tijolo"], ["ice", "Gelo"], ["water", "Água"]];
+
+  const rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+  const col = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a == null ? 1 : a})`;
+  const clamp = (v) => (v < 0 ? 0 : v > 255 ? 255 : v);
+  let seed = 7;
+  const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const R = (a, b) => a + rand() * (b - a);
+
+  function canvas() { const c = document.createElement("canvas"); c.width = c.height = SIZE; return [c, c.getContext("2d")]; }
+  // Cloudy value noise: random low-resolution layers stretched with smoothing and blended in.
+  function fbm(g, strength, from, octaves, mode) {
+    for (let o = 0; o < octaves; o++) {
+      const n = from << o, c = document.createElement("canvas"); c.width = c.height = n;
+      const x = c.getContext("2d"), id = x.createImageData(n, n);
+      for (let i = 0; i < n * n; i++) { const v = rand() * 255; id.data[i * 4] = id.data[i * 4 + 1] = id.data[i * 4 + 2] = v; id.data[i * 4 + 3] = 255; }
+      x.putImageData(id, 0, 0);
+      g.save(); g.globalAlpha = strength / (o * .6 + 1); g.globalCompositeOperation = mode || "overlay";
+      g.imageSmoothingEnabled = true; g.imageSmoothingQuality = "high"; g.drawImage(c, 0, 0, SIZE, SIZE); g.restore();
+    }
+  }
+  function speckle(g, n, color, r0, r1, a0, a1) {
+    for (let i = 0; i < n; i++) { g.fillStyle = col(color, R(a0, a1)); g.beginPath(); g.arc(R(0, SIZE), R(0, SIZE), R(r0, r1), 0, Math.PI * 2); g.fill(); }
+  }
+  function light(g, top, bottom) {
+    const lg = g.createLinearGradient(0, 0, SIZE, SIZE);
+    lg.addColorStop(0, `rgba(255,255,255,${top})`); lg.addColorStop(.5, "rgba(255,255,255,0)"); lg.addColorStop(1, `rgba(0,0,0,${bottom})`);
+    g.fillStyle = lg; g.fillRect(0, 0, SIZE, SIZE);
+  }
+
+  const PAINT = {
+    wood(b) {
+      const [c, g] = canvas(), id = g.createImageData(SIZE, SIZE), d = id.data;
+      const ph = R(0, 10), kx = R(20, 108), ky = R(20, 108), knotOn = rand() < .55;
+      for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
+        const dx = x - kx, dy = (y - ky) * 2.4, kd = dx * dx + dy * dy;
+        const knot = knotOn ? Math.exp(-kd / 900) * 9 : 0;
+        const w = y + Math.sin(x * .045 + ph) * 5 + Math.sin(x * .12 + ph * 2) * 1.6 + knot;
+        const ring = Math.sin(w * .55) * .5 + .5, fine = Math.sin(w * 2.6 + x * .03) * .5 + .5;
+        let f = .76 + ring * .2 + fine * .07 - rand() * .07;
+        if (knotOn && kd < 60) f -= .18 * (1 - kd / 60);
+        const i = (y * SIZE + x) * 4;
+        d[i] = clamp(b[0] * f); d[i + 1] = clamp(b[1] * f); d[i + 2] = clamp(b[2] * f); d[i + 3] = 255;
+      }
+      g.putImageData(id, 0, 0);
+      fbm(g, .22, 4, 3);
+      light(g, .14, .2);
+      return c;
+    },
+    cement(b) {
+      const [c, g] = canvas();
+      const lum = b[0] * .3 + b[1] * .59 + b[2] * .11;
+      const base = mix(mix(b, [lum, lum, lum], .55), [196, 194, 188], .22);
+      g.fillStyle = col(base); g.fillRect(0, 0, SIZE, SIZE);
+      fbm(g, .6, 4, 5);
+      speckle(g, 320, [40, 38, 36], .3, 1.1, .15, .45);
+      speckle(g, 160, [255, 255, 250], .3, 1, .12, .35);
+      speckle(g, 14, [30, 28, 26], 1.2, 2.6, .25, .5);
+      light(g, .12, .22);
+      return c;
+    },
+    brick(b) {
+      const [c, g] = canvas();
+      g.fillStyle = "#cbc3b5"; g.fillRect(0, 0, SIZE, SIZE);
+      fbm(g, .35, 8, 3);
+      const rows = 3, h = SIZE / rows, m = 6, bw = SIZE / 2, tone = mix(b, [158, 62, 42], .4);
+      for (let r = 0; r < rows; r++) {
+        for (let x0 = r % 2 ? -bw / 2 : 0; x0 < SIZE; x0 += bw) {
+          const x = x0 + m / 2, y = r * h + m / 2, w = bw - m, hh = h - m, v = R(.86, 1.12);
+          g.fillStyle = col(tone.map((q) => clamp(q * v))); g.fillRect(x, y, w, hh);
+          g.fillStyle = "rgba(255,255,255,.22)"; g.fillRect(x, y, w, 2);
+          g.fillStyle = "rgba(0,0,0,.28)"; g.fillRect(x, y + hh - 2, w, 2);
+        }
+      }
+      fbm(g, .5, 8, 4);
+      speckle(g, 220, [35, 20, 15], .3, 1.1, .2, .45);
+      speckle(g, 70, [255, 235, 210], .3, .9, .15, .3);
+      light(g, .1, .22);
+      return c;
+    },
+    ice(b) {
+      const [c, g] = canvas(), t = mix(b, [222, 244, 255], .62);
+      const lg = g.createLinearGradient(0, 0, SIZE, SIZE);
+      lg.addColorStop(0, col(mix(t, [255, 255, 255], .55))); lg.addColorStop(.5, col(t)); lg.addColorStop(1, col(mix(t, b, .45)));
+      g.fillStyle = lg; g.fillRect(0, 0, SIZE, SIZE);
+      fbm(g, .35, 4, 4, "soft-light");
+      g.lineCap = "round";
+      for (let k = 0; k < 6; k++) {
+        let x = R(0, SIZE), y = R(0, SIZE), a = R(0, Math.PI * 2);
+        const pts = [[x, y]];
+        for (let s = 0; s < 6; s++) { a += R(-.7, .7); x += Math.cos(a) * R(8, 20); y += Math.sin(a) * R(8, 20); pts.push([x, y]); }
+        g.strokeStyle = "rgba(40,90,120,.18)"; g.lineWidth = 2.2; g.beginPath(); pts.forEach(([px, py], i) => (i ? g.lineTo(px + 1, py + 1) : g.moveTo(px + 1, py + 1))); g.stroke();
+        g.strokeStyle = "rgba(255,255,255,.75)"; g.lineWidth = 1; g.beginPath(); pts.forEach(([px, py], i) => (i ? g.lineTo(px, py) : g.moveTo(px, py))); g.stroke();
+      }
+      speckle(g, 70, [255, 255, 255], .3, 1.2, .3, .8);
+      g.fillStyle = "rgba(255,255,255,.3)"; g.beginPath(); g.moveTo(0, 0); g.lineTo(SIZE * .55, 0); g.lineTo(0, SIZE * .55); g.closePath(); g.fill();
+      g.strokeStyle = "rgba(255,255,255,.55)"; g.lineWidth = 4; g.strokeRect(4, 4, SIZE - 8, SIZE - 8);
+      return c;
+    },
+    water(b) {
+      const [c, g] = canvas(), w = mix(b, [40, 140, 220], .45);
+      const lg = g.createLinearGradient(0, 0, 0, SIZE);
+      lg.addColorStop(0, col(mix(w, [255, 255, 255], .35))); lg.addColorStop(.5, col(w)); lg.addColorStop(1, col(mix(w, [0, 10, 30], .3)));
+      g.fillStyle = lg; g.fillRect(0, 0, SIZE, SIZE);
+      fbm(g, .25, 4, 3, "soft-light");
+      const ph = R(0, 6);
+      g.strokeStyle = "rgba(255,255,255,.2)"; g.lineWidth = 1.6;
+      for (let k = 0; k < 9; k++) {
+        g.beginPath(); for (let x = 0; x <= SIZE; x += 4) { const y = k * 15 + Math.sin(x * .09 + ph + k) * 4 + Math.sin(x * .23 - k) * 1.5; x ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke();
+        g.beginPath(); for (let y = 0; y <= SIZE; y += 4) { const x = k * 15 + Math.sin(y * .08 + ph * 2 + k) * 5; y ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke();
+      }
+      for (let i = 0; i < 6; i++) {
+        const x = R(12, SIZE - 12), y = R(30, SIZE - 10), r = R(2, 6);
+        g.strokeStyle = "rgba(255,255,255,.6)"; g.lineWidth = 1.2; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.stroke();
+        g.fillStyle = "rgba(255,255,255,.8)"; g.beginPath(); g.arc(x - r * .35, y - r * .35, r * .25, 0, Math.PI * 2); g.fill();
+      }
+      g.fillStyle = "rgba(255,255,255,.28)"; g.beginPath(); g.ellipse(SIZE * .45, SIZE * .12, SIZE * .42, SIZE * .1, -.15, 0, Math.PI * 2); g.fill();
+      return c;
+    },
+  };
+
+  const cache = new Map();
+  function tex(kind, hex) {
+    const key = kind + hex;
+    if (!cache.has(key)) { seed = 1 + [...key].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) % 2147483646, 7); cache.set(key, PAINT[kind](rgb(hex)).toDataURL("image/jpeg", .86)); }
+    return cache.get(key);
+  }
+  const style = document.createElement("style");
+  document.head.appendChild(style);
+  let current = "";
+  function apply(kind, pal) {
+    kind = PAINT[kind] ? kind : "wood"; pal = ((pal % PALETTES.length) + PALETTES.length) % PALETTES.length;
+    const key = kind + pal;
+    if (key === current) return;
+    current = key;
+    const colors = { ...EXTRA }; PALETTES[pal].forEach((h, i) => { colors[i + 1] = h; });
+    let rules = "";
+    for (const i in colors) rules += `.skinned .c${i}{background-color:${colors[i]}!important;background-image:url(${tex(kind, colors[i])})!important;background-size:100% 100%!important}`;
+    rules += `.skinned .c7{background-color:#2e2219!important;background-image:radial-gradient(circle,#ffd36b 0 17%,#b9852e 18% 24%,transparent 26%),url(${tex(kind, "#2e2219")})!important;background-size:100% 100%!important}`;
+    style.textContent = rules;
+  }
+  return { KINDS, PALETTES, apply, preview: (kind, i) => tex(kind, PALETTES[0][i == null ? 2 : i]) };
+})();
+</script>
 
 <script>
 // ======================================================================
@@ -878,10 +1084,27 @@ window.Scene = (() => {
   const fmt = (n) => Number(n).toLocaleString("pt-BR");
 
   // ---------- storage (always guarded) ----------
+  // Progress is mirrored into the Android app's own storage, so story progress and records
+  // survive even if the web view's storage is cleared.
+  const native = window.BAUNative && window.BAUNative.getAll ? window.BAUNative : null;
+  try {
+    if (native) {
+      const all = JSON.parse(native.getAll() || "{}");
+      if (Object.keys(all).length) for (const k in all) localStorage.setItem(k, all[k]);
+      else for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith("bau.")) native.setItem(k, localStorage.getItem(k)); }
+    }
+  } catch (e) {}
   const store = {
     get(k, d) { try { const v = localStorage.getItem("bau." + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
-    set(k, v) { try { localStorage.setItem("bau." + k, JSON.stringify(v)); } catch (e) {} },
-    del(k) { try { localStorage.removeItem("bau." + k); } catch (e) {} },
+    set(k, v) {
+      const j = JSON.stringify(v);
+      try { localStorage.setItem("bau." + k, j); } catch (e) {}
+      try { native && native.setItem("bau." + k, j); } catch (e) {}
+    },
+    del(k) {
+      try { localStorage.removeItem("bau." + k); } catch (e) {}
+      try { native && native.removeItem("bau." + k); } catch (e) {}
+    },
   };
 
   // ======================================================================
@@ -1399,7 +1622,7 @@ window.Scene = (() => {
     if (S.mode === "tetris") return tSize();
     const app = $("app"), cs = getComputedStyle(app);
     const w = Math.min(app.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), 480);
-    const h = app.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 96 - 20 - 130 - 44;
+    const h = app.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 96 - 20 - 130 - 44 - (S.mode === "story" ? 66 : 0);
     const gap = 3, pad = 14;
     const avail = Math.max(160, Math.min(w, h));
     const cell = Math.floor((avail - pad - gap * (S.n - 1)) / S.n);
@@ -1475,6 +1698,7 @@ window.Scene = (() => {
     });
   }
   function renderScore() {
+    renderPower();
     if (S.mode === "story") {
       const clear = S.goal === "clear";
       $("score").textContent = fmt(S.score);
@@ -1552,6 +1776,7 @@ window.Scene = (() => {
     if (lv > levelBefore) {
       music.setRate(rateFor(S.score));
       setTimeout(() => { sfx.levelUp(); fx("lvl", `Nível ${lv}<small>Mais rápido!</small>`, midTop + 40, 1700); }, lines ? 450 : 0);
+      if (S.mode === "classic") setTimeout(() => { applySkin(); fx("lvl", "Novas cores!", midTop - 60, 1600); }, lines ? 600 : 200);
       if (S.mode !== "story") {
         S.theme = randomTheme(S.theme);
         setTimeout(() => { Scene.set(S.theme); fx("lvl", `Novo cenário<small>${Scene.nameOf(S.theme)}</small>`, midTop + 110, 1900); }, lines ? 900 : 400);
@@ -1563,6 +1788,7 @@ window.Scene = (() => {
     }
 
     if (S.mode === "story") {
+      checkPowerEarned();
       S.marks = S.board.filter((v) => v === MARK).length;
       if (S.goal === "clear" ? S.marks === 0 : S.score >= S.target) {
         S.over = true;
@@ -1574,10 +1800,81 @@ window.Scene = (() => {
     if (S.tray.every((t) => !t)) S.tray = newTray();
     renderTray(); renderScore(); save();
     const left = S.tray.filter(Boolean);
-    if (!left.some(fitsAnywhere)) setTimeout(gameOver, lines ? 800 : 400);
+    if (!left.some(fitsAnywhere)) {
+      // In story mode an unused power keeps the level alive.
+      if (S.mode === "story" && S.power > 0) setTimeout(() => fx("lvl", "Sem espaço!<small>Use o poder</small>", $("board").clientHeight / 2, 2000), lines ? 800 : 300);
+      else setTimeout(gameOver, lines ? 800 : 400);
+    }
     return true;
   }
   function save() { store.set("game." + S.mode, S); }
+
+  // ---------- story power: destroy 4 blocks ----------
+  // No power at the start of a level; every 1.000 points in the level earns one use.
+  const POWER_POINTS = 1000, POWER_TAPS = 4;
+  function renderPower() {
+    const show = S && S.mode === "story";
+    $("power").hidden = !show;
+    if (!show) return;
+    const btn = $("btn-power"), aiming = S.powerTaps > 0;
+    btn.classList.toggle("ready", !aiming && S.power > 0);
+    btn.classList.toggle("aiming", aiming);
+    $("board").classList.toggle("aim", aiming);
+    $("pw-count").textContent = aiming ? S.powerTaps : S.power;
+    if (aiming) {
+      $("pw-title").textContent = `Toque em ${S.powerTaps} ${S.powerTaps === 1 ? "bloco" : "blocos"}`;
+      $("pw-sub").textContent = S.powerTaps === POWER_TAPS ? "Toque aqui para cancelar" : "Toque aqui para terminar";
+    } else {
+      $("pw-title").textContent = "Destruir 4 blocos";
+      const next = POWER_POINTS - (S.score % POWER_POINTS);
+      $("pw-sub").textContent = S.power > 0 ? "Pronto! Toque para usar" : `Faltam ${fmt(next)} pontos para liberar`;
+    }
+  }
+  function checkPowerEarned() {
+    if (S.mode !== "story") return;
+    const earned = Math.floor(S.score / POWER_POINTS);
+    if (earned > (S.powerEarned || 0)) {
+      S.power = (S.power || 0) + earned - (S.powerEarned || 0);
+      S.powerEarned = earned;
+      setTimeout(() => { sfx.levelUp(); buzz(80); fx("newrec", "Poder liberado!", 70, 1900); }, 600);
+    }
+  }
+  $("btn-power").addEventListener("click", () => {
+    if (!S || S.mode !== "story" || S.over) return;
+    if (S.powerTaps > 0) {
+      if (S.powerTaps === POWER_TAPS) S.power++; // nothing destroyed yet: give the use back
+      S.powerTaps = 0;
+      afterPower();
+    } else if (S.power > 0) {
+      S.power--; S.powerTaps = POWER_TAPS; selected = -1;
+      renderTray(); renderPower(); save();
+    }
+  });
+  function destroyCell(i) {
+    const v = S.board[i];
+    if (!v) return;
+    S.board[i] = 0;
+    renderBoard();
+    cellEls[i].classList.add("c" + v, "b", "clearing");
+    setTimeout(() => renderBoard(), 360);
+    const r = cellEls[i].getBoundingClientRect();
+    Scene.explode([{ x: r.left + r.width / 2, y: r.top + r.height / 2 }], 3);
+    sfx.clear(1, 2); buzz(70); shake(false);
+    S.powerTaps--;
+    S.marks = S.board.filter((x) => x === MARK).length;
+    renderScore();
+    if (S.goal === "clear" && S.marks === 0) {
+      S.powerTaps = 0; S.over = true; renderPower();
+      setTimeout(storyWin, 700);
+      return;
+    }
+    if (S.powerTaps === 0) afterPower(); else { renderPower(); save(); }
+  }
+  function afterPower() {
+    renderTray(); renderPower(); save();
+    const left = S.tray.filter(Boolean);
+    if (!left.some(fitsAnywhere) && !(S.power > 0)) setTimeout(gameOver, 500);
+  }
   function overlay(kind, title, why) {
     $("over-card").className = "card " + kind;
     $("over-title").textContent = title;
@@ -1663,7 +1960,7 @@ window.Scene = (() => {
     renderBoard(pv);
   }
   $("tray").addEventListener("pointerdown", (e) => {
-    if (!S || S.over) return;
+    if (!S || S.over || S.powerTaps > 0) return;
     const slot = e.target.closest(".slot");
     if (!slot || !S.tray[slot.dataset.i]) return;
     e.preventDefault();
@@ -1701,6 +1998,11 @@ window.Scene = (() => {
 
   // Tap a piece, then tap the board: the tapped cell becomes part of the piece.
   $("board").addEventListener("click", (e) => {
+    if (S && !S.over && S.powerTaps > 0) {
+      const t = e.target.closest("[data-i]");
+      if (t) destroyCell(+t.dataset.i);
+      return;
+    }
     if (!S || S.over || selected < 0) return;
     const t = e.target.closest("[data-i]");
     if (!t) return;
@@ -1929,6 +2231,7 @@ window.Scene = (() => {
     tSize();
     if (!S.theme) S.theme = randomTheme();
     Scene.set(S.theme);
+    Skins.apply("wood", 0);
     music.play("tetris"); music.setRate(rateFor(S.score)); music.setTranspose(Math.min(levelOf(S.score) - 1, 12));
     tHud();
     if (S.piece) renderNext(); else tSpawn();
@@ -2004,6 +2307,7 @@ window.Scene = (() => {
   function showMenu() {
     S = null; selected = -1;
     show("menu");
+    renderSkins();
     music.play("menu");
     for (const m of Object.keys(MODES)) {
       $("rec-" + m).textContent = fmt(bestOf(m));
@@ -2067,15 +2371,20 @@ window.Scene = (() => {
     } else {
       const lv = storyLevel(L);
       S = { mode: "story", rules: lv.rules, n: lv.n, level: L, goal: lv.goal, target: lv.target, marks: lv.marks, marksTotal: lv.marks,
-        board: lv.board, tray: [], score: 0, combo: 0, lines: 0, maxCombo: 0 };
+        board: lv.board, tray: [], score: 0, combo: 0, lines: 0, maxCombo: 0, power: 0, powerEarned: 0, powerTaps: 0 };
       S.tray = newTray();
       store.set("played.story", store.get("played.story", 0) + 1);
     }
     enterGame("Fase " + L);
   }
+  // Classic and Sudoku use the chosen texture; story and Tetris keep wood.
+  // Block colours: Classic shifts palette every level, story every phase.
+  const paletteFor = () => (S.mode === "classic" ? levelOf(S.score) - 1 : S.mode === "story" ? S.level - 1 : 0);
+  const applySkin = () => Skins.apply(S && (S.mode === "classic" || S.mode === "sudoku") ? store.get("skin", "wood") : "wood", S ? paletteFor() : 0);
   function enterGame(label) {
     selected = -1;
     show("game");
+    applySkin();
     if (S.mode === "story") S.theme = Scene.ids[worldOf(S.level)];
     else if (!S.theme) S.theme = randomTheme();
     Scene.set(S.theme);
@@ -2173,7 +2482,24 @@ window.Scene = (() => {
   }
   document.querySelectorAll("[data-thumb]").forEach((el) => { el.innerHTML = thumbSVG(el.dataset.thumb); });
 
+  // ---------- texture picker ----------
+  function renderSkins() {
+    const cur = store.get("skin", "wood"), box = $("skins");
+    if (!box.children.length) {
+      for (const [k, name] of Skins.KINDS) {
+        const b2 = document.createElement("button");
+        b2.className = "skin"; b2.dataset.skin = k; b2.setAttribute("role", "radio");
+        b2.innerHTML = `<i style="background-image:url(${Skins.preview(k)})"></i><span>${name}</span>`;
+        b2.addEventListener("click", () => { store.set("skin", k); renderSkins(); sfx.place(); });
+        box.appendChild(b2);
+      }
+    }
+    for (const b2 of box.children) b2.setAttribute("aria-checked", String(b2.dataset.skin === cur));
+    Skins.apply(cur, 0);
+  }
+
   function start(data) {
+    document.body.classList.add("skinned");
     const vm = document.querySelector('meta[name="bau-version"]');
     $("ver").textContent = "v" + (vm ? vm.content : "");
     renderToggles();
