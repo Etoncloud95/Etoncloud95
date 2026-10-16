@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 2x2 wooden blocks on a maple tray, inside the 66dp safe zone of the 108dp canvas. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:fillColor="#D6AE7B" android:pathData="M28,28h52v52h-52z" />
+    <path android:fillColor="#A8452C" android:pathData="M32,32h21v21h-21z" />
+    <path android:fillColor="#EAA53C" android:pathData="M55,32h21v21h-21z" />
+    <path android:fillColor="#6B4226" android:pathData="M32,55h21v21h-21z" />
+    <path android:fillColor="#C99F6B" android:pathData="M55,55h21v21h-21z" />
+</vector>
