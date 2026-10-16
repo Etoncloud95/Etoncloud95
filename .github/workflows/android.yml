@@ -8,6 +8,9 @@ on:
       - ".github/workflows/android.yml"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -33,3 +36,11 @@ jobs:
         with:
           name: BLOCK-ALT-UNO-apk
           path: BLOCK-ALT-UNO.apk
+      - name: Publish APK as a release download
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-latest
+          name: BLOCK ALT UNO (APK)
+          body: "Baixe BLOCK-ALT-UNO.apk abaixo e abra no celular para instalar."
+          files: BLOCK-ALT-UNO.apk
+          make_latest: true
