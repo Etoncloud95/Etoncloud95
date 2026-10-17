@@ -241,6 +241,18 @@ As 7 novas têm percussão leve para servir também durante o jogo. Na História
 | Grama | Torrões com terra embaixo, folhas e pétalas | Folhas + pétalas | Folhas 2×1 + torrões de terra |
 | Fumaça | Sem pedaços: volutas que sobem e se dissolvem | Nuvenzinhas que sobem | Quadrados que sobem e crescem |
 
+## Conteúdo e progressão (v22)
+
+- **Metas variadas na História**, sem exigir linhas fora das fases 8/9:
+  - fases …4: "Coloque N blocos";
+  - fases …6: "Faça N jogadas sem perder";
+  - fases …8 e …9: linhas de uma vez;
+  - demais fases: pontos.
+- **Próximas peças:** a próxima mão aparece em miniatura acima da bandeja (Clássico, Sudoku, História e Diário). Se nenhuma delas couber quando chegar a vez, é trocada.
+- **Mapa da História:** cada mundo tem uma faixa com a cor do seu cenário e uma trilha de 20 paradas em zigue-zague, ligadas por uma linha tracejada. As paradas mostram a meta (pontos, ▪ blocos, ↻ jogadas, ×2/×3 linhas).
+- **Conquistas:** 15 marcos de linhas, combos, linhas de uma vez, estrelas, medalhas, recordes, desafios do dia e texturas. Cada uma vale +1 estrela, que conta para liberar Mármore e Metal. Ao conquistar aparece um aviso no topo, e a lista fica em Recordes → Conquistas.
+- **Desafio do dia:** botão "Diário" no menu. Uma fase gerada pela data, igual para todos e sem internet, sempre com meta de pontos (+20%), com desfazer e continuar. Guarda a sequência de dias seguidos, e o botão mostra ✓ quando o desafio do dia já foi feito.
+
 ## Ajudas ao jogador (v21)
 
 - **Tutorial:** 3 telas ilustradas (arrastar peças, completar linhas, quadrados da História) na primeira partida. Pode ser revisto em Ajustes → Como jogar.

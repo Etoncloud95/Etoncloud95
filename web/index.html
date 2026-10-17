@@ -1,7 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="21">
+<meta name="bau-version" content="22">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -179,9 +179,17 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
 #records { max-width: 460px; display: flex; flex-direction: column; gap: 16px; }
 .rec-head { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; }
 .rec-head h2 { margin: 0; text-align: center; font-family: var(--font-display); font-size: 30px; letter-spacing: .06em; text-transform: uppercase; }
-.tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 5px; border-radius: 14px; background: var(--panel); }
+.tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 5px; border-radius: 14px; background: var(--panel); }
 .tab { padding: 10px 4px; border-radius: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 14px; color: var(--muted); }
 .tab[aria-selected="true"] { background: var(--amber); color: #2a1a0c; }
+.tab { font-size: 11px; letter-spacing: .04em; padding: 10px 2px; }
+.menu-row .btn { gap: 6px; padding-inline: 8px; font-size: 13px; }
+#btn-daily.done { box-shadow: inset 0 0 0 2px var(--ok); }
+.toast { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); left: 50%; transform: translateX(-50%); z-index: 60; display: grid; gap: 2px; text-align: center; padding: 10px 18px; border-radius: 14px; background: rgba(30,20,12,.95); box-shadow: inset 0 0 0 2px var(--gold), 0 8px 20px rgba(0,0,0,.5); color: var(--ink); pointer-events: none; }
+.toast small { color: var(--gold); font-size: 12px; }
+.toast.in { animation: toast-in 2.6s ease both; }
+@keyframes toast-in { 0% { opacity: 0; transform: translate(-50%, -20px); } 10%, 85% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -10px); } }
+.rank li.ach-off { opacity: .45; }
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .stat { padding: 12px 8px; border-radius: 12px; background: var(--panel); text-align: center; font-variant-numeric: tabular-nums; }
 .stat strong { display: block; font-family: var(--font-display); font-size: 26px; color: var(--ink); }
@@ -315,7 +323,16 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
 .lv-legend span { display: inline-flex; align-items: center; gap: 6px; }
 .world { grid-column: 1 / -1; padding: 10px 2px 2px; font-family: var(--font-display); font-weight: 800; font-size: 18px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink); }
 .world span { color: var(--amber); }
-.lv-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; overflow-y: auto; min-height: 0; flex: 1; align-content: start; padding: 4px 2px 12px; }
+.lv-grid { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; min-height: 0; flex: 1; padding: 4px 2px 12px; }
+/* v22: the story is a map: each world is a banner tinted by its scene and a winding trail of 20 stops */
+.world { padding: 10px 12px; border-radius: 14px; background: linear-gradient(120deg, color-mix(in srgb, var(--wg) 55%, #1a120c), #1a120c 80%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+.wpath { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(4, auto); gap: 10px 6px; padding: 6px 4px 10px; }
+.wpath svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.wpath .lv { justify-self: center; width: min(58px, 100%); border-radius: 50%; z-index: 1; }
+.next-row { width: 100%; display: flex; align-items: center; justify-content: flex-end; gap: 8px; height: 18px; color: var(--muted); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+#next-tray { display: flex; gap: 10px; align-items: center; opacity: .8; }
+#next-tray .piece.mini { gap: 1px; }
+#next-tray .piece.mini i { width: 7px; height: 7px; border-radius: 2px; }
 .lv { position: relative; aspect-ratio: 1; max-width: 100%; border-radius: 12px; background: var(--panel); box-shadow: 0 4px 0 var(--shadow);
   display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 22px; font-variant-numeric: tabular-nums; }
 .lv small { position: absolute; bottom: 5px; font-family: var(--font-body); font-size: 9px; font-weight: 700; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; }
@@ -595,6 +612,10 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0zM7 6H4v1a3 3 0 003 3M17 6h3v1a3 3 0 01-3 3"/></svg>
         Recordes
       </button>
+      <button class="btn ghost" id="btn-daily">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>
+        <span id="daily-label">Diário</span>
+      </button>
       <button class="btn ghost" id="btn-settings">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
         Ajustes
@@ -616,6 +637,7 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       <button class="tab" role="tab" id="tab-sudoku" data-mode="sudoku" aria-selected="false">Sudoku</button>
       <button class="tab" role="tab" id="tab-tetris" data-mode="tetris" aria-selected="false">Tetris</button>
       <button class="tab" role="tab" id="tab-story" data-mode="story" aria-selected="false">História</button>
+      <button class="tab" role="tab" id="tab-ach" data-mode="ach" aria-selected="false">Conquistas</button>
     </div>
     <div class="stats">
       <div class="stat hl"><strong id="st-best">0</strong><span id="st-best-label">Recorde</span></div>
@@ -634,7 +656,7 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       <span></span>
     </div>
     <div class="lv-progress"><b id="lv-done">0</b> de 1000 fases concluídas</div>
-    <div class="lv-legend"><span><i class="goal-ic score"></i>Meta de pontos</span><span><i class="goal-ic clear"></i>Linhas de uma vez</span></div>
+    <div class="lv-legend"><span><i class="goal-ic score"></i>Meta de pontos</span><span><i class="goal-ic clear"></i>Linhas de uma vez</span><span>▪ blocos · ↻ jogadas</span></div>
     <div class="lv-grid" id="lv-grid"></div>
   </section>
 
@@ -672,6 +694,7 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
         <span class="pw-count" id="pw-count">0</span>
       </button>
     </div>
+    <div class="next-row" aria-label="Próximas peças"><span>Próximas</span><div id="next-tray"></div></div>
     <div id="tray" aria-label="Peças disponíveis"></div>
   </section>
 
@@ -749,6 +772,7 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
     </div>
   </div>
 
+  <div class="toast" id="toast" hidden role="status"></div>
   <div class="overlay" id="tut" hidden>
     <div class="card tut-card" role="dialog" aria-modal="true" aria-labelledby="tut-title">
       <div class="tut-art" id="tut-art" aria-hidden="true"></div>
@@ -3331,6 +3355,7 @@ window.Scene = (() => {
     ids: ORDER,
     worlds: WORLDS,
     nameOf: (id) => (THEMES[id] ? THEMES[id].name : ""),
+    glowOf: (id) => (THEMES[id] ? THEMES[id].glow : "rgba(234,165,60,.5)"),
     current: () => (theme ? theme.id : null),
     set(id, v) {
       const t = THEMES[id] || null, nv = t ? (v | 0) % VARIANTS.length : 0;
@@ -3961,7 +3986,11 @@ window.Scene = (() => {
   const STORY_LEVELS = 1000, MARK = 7;
   // v20: phases ending in 8 and 9 (the climax before the music changes) ask to clear 2 or 3 lines
   // at once; every other phase asks for a score. (Saves from before v20 may still hold "clear".)
-  const storyGoal = (L) => (L % 10 === 8 || L % 10 === 9 ? "multi" : "score");
+  // v22: …4 asks to place N blocks and …6 to make N moves without losing (neither needs lines).
+  const storyGoal = (L) => (L % 10 === 8 || L % 10 === 9 ? "multi" : L % 10 === 4 ? "blocks" : L % 10 === 6 ? "moves" : "score");
+  const goalNeed = (L) => { const g = storyGoal(L), d = storyDiff(L); return g === "multi" ? multiNeed(L) : g === "blocks" ? 24 + Math.round(d * 40 / 4) * 4 : g === "moves" ? 14 + Math.round(d * 20) : 0; };
+  const goalBadge = (L) => { const g = storyGoal(L); return g === "multi" ? `×${multiNeed(L)} linhas` : g === "blocks" ? `${goalNeed(L)} blocos` : g === "moves" ? `${goalNeed(L)} jogadas` : null; };
+  const goalLabel = (L) => { const g = storyGoal(L); return g === "multi" ? `${multiNeed(L)} linhas de uma vez` : g === "blocks" ? `colocar ${goalNeed(L)} blocos` : g === "moves" ? `${goalNeed(L)} jogadas sem perder` : `meta de ${fmt(storyTarget(L))} pontos`; };
   const multiNeed = (L) => (L % 10 === 8 ? 2 : 3);
   // Difficulty 0..~0.65, in waves: inside every block of 10 phases it goes easy, a bit harder, easy
   // again…, with 8 and 9 as the peak; the whole curve rises slowly over the 1000 phases.
@@ -3974,8 +4003,8 @@ window.Scene = (() => {
   function seeded(a) {
     return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   }
-  function storyLevel(L) {
-    const rng = seeded(L * 7919 + 101), ri = (k) => Math.floor(rng() * k), t = storyDiff(L);
+  function storyLevel(L, salt) {
+    const rng = seeded(L * 7919 + 101 + (salt || 0) * 104729), ri = (k) => Math.floor(rng() * k), t = storyDiff(L);
     const rules = L % 5 === 0 ? "sudoku" : "classic", n = rules === "sudoku" ? 9 : 8, boxes = rules === "sudoku";
     const goal = storyGoal(L), color = () => (boxes ? 3 : 1 + ri(6));
     const board = new Array(n * n).fill(0), reserved = new Set();
@@ -4022,7 +4051,7 @@ window.Scene = (() => {
     // 3) Scattered clutter that gets in the way, up to the fill cap.
     for (let a = 0; a < 1500 && filled < cap; a++) put(ri(n * n), color());
     const marks = board.filter((v) => v === MARK).length;
-    return { L, rules, n, goal, board, target: goal === "score" ? storyTarget(L) : 0, marks, need: goal === "multi" ? multiNeed(L) : 0, key };
+    return { L, rules, n, goal, board, target: goal === "score" ? storyTarget(L) : 0, marks, need: goal === "score" ? 0 : goalNeed(L), key };
   }
   // v14: 50 worlds of 20 phases; every world has its own scene (Scene.worlds).
   const LEVELS_PER_WORLD = 20;
@@ -4058,7 +4087,46 @@ window.Scene = (() => {
     return st;
   }
   const starCount = (arr) => (arr ? arr.reduce((a, v) => a + (v ? 1 : 0), 0) : 0);
-  function totalStars() { const st = storyStars(); let n = 0; for (const L in st) n += starCount(st[L]); return n; }
+  function totalStars() { const st = storyStars(); let n = 0; for (const L in st) n += starCount(st[L]); return n + Object.keys(store.get("ach", {})).length; }
+  // ---------- v22: lifetime stats and achievements (each one is worth +1 star) ----------
+  function stat(update) { const s2 = store.get("stats", { lines: 0, maxCombo: 0, bestMulti: 0, tex: [] }); if (update) { update(s2); store.set("stats", s2); } return s2; }
+  const ACH = [
+    ["first", "Primeira linha", "Limpe sua primeira linha", (x) => x.lines >= 1],
+    ["lines100", "Cem linhas", "Limpe 100 linhas no total", (x) => x.lines >= 100],
+    ["lines1000", "Mil linhas", "Limpe 1.000 linhas no total", (x) => x.lines >= 1000],
+    ["combo3", "Em sequência", "Faça um combo ×3", (x) => x.maxCombo >= 3],
+    ["combo5", "Imparável", "Faça um combo ×5", (x) => x.maxCombo >= 5],
+    ["multi3", "Triplo", "Limpe 3 linhas de uma vez", (x) => x.bestMulti >= 3],
+    ["multi4", "Quádruplo", "Limpe 4 linhas de uma vez", (x) => x.bestMulti >= 4],
+    ["stars30", "Colecionador", "Junte 30 estrelas", (x) => x.stars >= 30],
+    ["three10", "Perfeccionista", "Ganhe 3 estrelas em 10 fases", (x) => x.three >= 10],
+    ["medal", "Explorador", "Ganhe uma medalha de mundo", (x) => x.medals >= 1],
+    ["classic1k", "Mil pontos", "Faça 1.000 pontos no Clássico", (x) => x.classic >= 1000],
+    ["tetris500", "Arcade", "Faça 500 pontos no Tetris", (x) => x.tetris >= 500],
+    ["daily1", "Todo dia", "Complete um desafio do dia", (x) => x.daily >= 1],
+    ["daily7", "Uma semana", "Complete 7 desafios do dia", (x) => x.daily >= 7],
+    ["tex10", "Estilista", "Jogue com 10 texturas diferentes", (x) => x.tex >= 10],
+  ];
+  function achStats() {
+    const s2 = stat(), st = storyStars(); let three = 0, stars = 0;
+    for (const L in st) { const c = starCount(st[L]); stars += c; if (c === 3) three++; }
+    return { lines: s2.lines, maxCombo: s2.maxCombo, bestMulti: s2.bestMulti, tex: (s2.tex || []).length, stars, three, medals: Object.keys(store.get("story.medals", {})).length,
+      classic: bestOf("classic"), tetris: bestOf("tetris"), daily: Object.keys(store.get("daily.done", {})).length };
+  }
+  let toastQ = [], toastBusy = false;
+  function toast(html) {
+    toastQ.push(html); if (toastBusy) return;
+    const next = () => { const h = toastQ.shift(); if (!h) { toastBusy = false; return; } toastBusy = true; const t = $("toast"); t.innerHTML = h; t.hidden = false; t.classList.remove("in"); void t.offsetWidth; t.classList.add("in"); setTimeout(() => { t.hidden = true; next(); }, 2600); };
+    next();
+  }
+  function checkAch() {
+    const got = store.get("ach", {}), x = achStats(); let changed = false;
+    for (const [id, title] of ACH) if (!got[id] && ACH.find((a) => a[0] === id)[3](x)) { got[id] = Date.now(); changed = true; toast(`<b>🏆 Conquista: ${title}</b><small>+1 estrela</small>`); sfx.levelUp(); }
+    if (changed) store.set("ach", got);
+  }
+  // ---------- v22: daily challenge (offline, generated from the date) ----------
+  const dayKey = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+  const dayIdx = () => { const d = new Date(); return Math.floor((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(2024, 0, 1)) / 864e5); };
   function worldMedal(w, st) {
     const best = storyBest(); let stars = 0;
     for (let L = w * LEVELS_PER_WORLD + 1; L <= (w + 1) * LEVELS_PER_WORLD; L++) { if (best[L] == null) return null; stars += starCount(st[L]); }
@@ -4067,9 +4135,9 @@ window.Scene = (() => {
   const MEDAL_NAME = { bronze: "bronze", silver: "prata", gold: "ouro" }, MEDAL_RANK = { bronze: 1, silver: 2, gold: 3 };
   // One special challenge per phase, built only from things the game already measures.
   function challengeFor(st) {
-    const L = st.level, d = storyDiff(L), type = st.goal === "multi" ? 2 : (L - 1) % 3;
+    const L = st.level, d = storyDiff(L), type = st.goal === "multi" ? 2 : st.goal === "moves" ? (L % 20 < 10 ? 0 : 1) : (L - 1) % 3;
     if (type === 0) { const n = 2 + Math.floor(d * 2); return { text: `Faça um combo ×${n}`, need: n, val: st.maxCombo || 0, kind: "min" }; }
-    if (type === 2) { const n = st.goal === "clear" ? (st.marksTotal || 0) * 3 + 8 : st.goal === "multi" ? 8 + (st.need || 2) * 4 : Math.ceil(st.target / 8) + 8; return { text: `Vença em até ${n} jogadas`, need: n, val: st.moves || 0, kind: "max" }; }
+    if (type === 2) { const n = st.goal === "clear" ? (st.marksTotal || 0) * 3 + 8 : st.goal === "multi" ? 8 + (st.need || 2) * 4 : st.goal === "blocks" ? Math.ceil(st.need / 3) + 8 : Math.ceil(st.target / 8) + 8; return { text: `Vença em até ${n} jogadas`, need: n, val: st.moves || 0, kind: "max" }; }
     const n = 3 + Math.floor(d * 5); return { text: `Limpe ${n} linhas no total`, need: n, val: st.lines || 0, kind: "min" };
   }
   const challengeMet = (c) => (c.kind === "min" ? c.val >= c.need : c.val <= c.need);
@@ -4101,7 +4169,16 @@ window.Scene = (() => {
   let recTab = "classic";
   function renderRecords() {
     document.querySelectorAll(".tab").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.mode === recTab)));
+    if (recTab === "ach") {
+      const got = store.get("ach", {}), x = achStats(), ol = $("rank");
+      $("st-best").textContent = `${Object.keys(got).length}/${ACH.length}`; $("st-best-label").textContent = "Conquistas";
+      $("st-played").textContent = fmt(x.lines); $("st-played-label").textContent = "Linhas no total";
+      $("st-combo").textContent = x.daily; $("st-combo-label").textContent = "Desafios do dia";
+      ol.innerHTML = ACH.map(([id, t, d]) => `<li class="${got[id] ? "top" : "ach-off"}"><span class="pos">${got[id] ? "🏆" : "🔒"}</span><span><span class="sc">${t}</span><br><span class="meta">${d}</span></span><span class="date">${got[id] ? "+1 ★" : ""}</span></li>`).join("");
+      return;
+    }
     const mc = store.get("maxcombo." + recTab, 0), story = recTab === "story";
+    $("st-combo-label").textContent = "Maior combo";
     $("st-best-label").textContent = story ? "Fases" : "Recorde";
     $("st-played-label").textContent = story ? "Tentativas" : "Partidas";
     $("st-combo").textContent = mc > 1 ? "×" + mc : "—";
@@ -4117,7 +4194,7 @@ window.Scene = (() => {
       }
       done.slice(0, 10).forEach((L, i) => {
         const li = document.createElement("li"); if (i === 0) li.className = "top";
-        li.innerHTML = `<span class="pos">${L}</span><span><span class="sc">${fmt(best[L])}</span><br><span class="meta">Fase ${L} · ${storyGoal(L) === "multi" ? multiNeed(L) + " linhas de uma vez" : "meta de " + fmt(storyTarget(L)) + " pontos"}</span></span><span class="date">concluída</span>`;
+        li.innerHTML = `<span class="pos">${L}</span><span><span class="sc">${fmt(best[L])}</span><br><span class="meta">Fase ${L} · ${goalLabel(L)}</span></span><span class="date">concluída</span>`;
         ol.appendChild(li);
       });
       return;
@@ -4147,7 +4224,7 @@ window.Scene = (() => {
     if (S.mode === "tetris") return tSize();
     const app = $("app"), cs = getComputedStyle(app);
     const w = Math.min(app.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), 480);
-    const h = app.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 96 - 20 - 130 - 44 - (S.mode === "story" ? 66 : 0);
+    const h = app.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 96 - 20 - 130 - 44 - 20 - (S.mode === "story" ? 66 : 0);
     const gap = 3, pad = 14;
     const avail = Math.max(160, Math.min(w, h));
     const cell = Math.floor((avail - pad - gap * (S.n - 1)) / S.n);
@@ -4214,7 +4291,20 @@ window.Scene = (() => {
     }
   }
   let selected = -1;
+  // v22: the next hand is dealt in advance and shown small, so the player can plan.
+  function dealTray() {
+    const nx = S.next;
+    S.tray = nx && nx.some(fitsAnywhere) ? nx : newTray();
+    S.next = newTray();
+  }
+  function renderNextHand() {
+    const box = $("next-tray"); box.innerHTML = "";
+    if (!S || S.mode === "tetris") return;
+    if (!S.next) S.next = newTray();
+    for (const p of S.next) { const d = document.createElement("div"); d.className = "piece mini"; pieceGrid(p, d, true); d.style.setProperty("--m", "7px"); box.appendChild(d); }
+  }
   function renderTray() {
+    renderNextHand();
     const tray = $("tray");
     tray.innerHTML = "";
     const cell = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--cell")) || 40;
@@ -4248,7 +4338,7 @@ window.Scene = (() => {
       $("best-label").textContent = "Mundo";
       $("best").textContent = worldOf(S.level) + 1;
       $("level").textContent = levelOf(S.score);
-      const pct = S.goal === "clear" ? (S.marksTotal - S.marks) / Math.max(1, S.marksTotal) : S.goal === "multi" ? (S.bestMulti || 0) / S.need : S.score / S.target;
+      const pct = S.goal === "clear" ? (S.marksTotal - S.marks) / Math.max(1, S.marksTotal) : S.goal === "score" ? S.score / S.target : goalVal() / S.need;
       $("level-fill").style.width = Math.min(100, Math.round(pct * 100)) + "%";
       return;
     }
@@ -4301,9 +4391,10 @@ window.Scene = (() => {
     let gained = p.cells.length;
     const { idx, lines, groups } = findClears(S.board);
     const midTop = $("board").clientHeight / 2;
-    S.moves = (S.moves || 0) + 1;
+    S.moves = (S.moves || 0) + 1; S.placed = (S.placed || 0) + p.cells.length;
     if (lines) {
       S.bestMulti = Math.max(S.bestMulti || 0, lines);
+      stat((x) => { x.lines += lines; x.bestMulti = Math.max(x.bestMulti, lines); x.maxCombo = Math.max(x.maxCombo, (S.combo || 0) + 1); });
       sweepGroups(groups, (i) => cellEls[i]);
       S.combo += 1;
       S.lines = (S.lines || 0) + lines;
@@ -4362,7 +4453,8 @@ window.Scene = (() => {
         return true;
       }
     }
-    if (S.tray.every((t) => !t)) S.tray = newTray();
+    if (lines) checkAch();
+    if (S.tray.every((t) => !t)) dealTray();
     renderTray(); renderScore(); save();
     const left = S.tray.filter(Boolean);
     if (!left.some(fitsAnywhere)) {
@@ -4372,18 +4464,19 @@ window.Scene = (() => {
     }
     return true;
   }
-  function save() { store.set("game." + S.mode, S); }
+  function save() { store.set("game." + (S.daily ? "daily" : S.mode), S); }
 
   // ---------- story power: destroy 4 blocks ----------
   // No power at the start of a level; every 300 points in the level earns one use.
   const POWER_POINTS = 300, POWER_TAPS = 4;
   // Has the phase's goal been met? (score, N lines at once, or — old saves — the marked blocks)
-  const storyDone = () => (S.goal === "clear" ? S.marks === 0 : S.goal === "multi" ? (S.bestMulti || 0) >= S.need : S.score >= S.target);
-  const goalText = (st) => (st.goal === "clear" ? "Destrua os blocos marcados" : st.goal === "multi" ? `Destrua ${st.need} linhas de uma vez` : `Faça ${fmt(st.target)} pontos`);
+  const goalVal = () => (S.goal === "multi" ? S.bestMulti || 0 : S.goal === "blocks" ? S.placed || 0 : S.goal === "moves" ? S.moves || 0 : S.score);
+  const storyDone = () => (S.goal === "clear" ? S.marks === 0 : S.goal === "score" ? S.score >= S.target : goalVal() >= S.need);
+  const goalText = (st) => (st.goal === "clear" ? "Destrua os blocos marcados" : st.goal === "multi" ? `Destrua ${st.need} linhas de uma vez` : st.goal === "blocks" ? `Coloque ${st.need} blocos` : st.goal === "moves" ? `Faça ${st.need} jogadas sem perder` : `Faça ${fmt(st.target)} pontos`);
   function renderGoal() {
     const done = storyDone();
     $("goal-text").textContent = goalText(S);
-    $("goal-p").textContent = done ? "✓ Cumprido" : S.goal === "clear" ? `Faltam ${S.marks}` : S.goal === "multi" ? `Melhor jogada: ${Math.min(S.bestMulti || 0, S.need)} / ${S.need}` : `${fmt(S.score)} / ${fmt(S.target)}`;
+    $("goal-p").textContent = done ? "✓ Cumprido" : S.goal === "clear" ? `Faltam ${S.marks}` : S.goal === "multi" ? `Melhor jogada: ${Math.min(S.bestMulti || 0, S.need)} / ${S.need}` : S.goal === "score" ? `${fmt(S.score)} / ${fmt(S.target)}` : `${Math.min(goalVal(), S.need)} / ${S.need}`;
     $("goal").classList.toggle("done", done);
   }
   function renderPower() {
@@ -4470,6 +4563,7 @@ window.Scene = (() => {
     (!$("btn-continue").hidden ? $("btn-continue") : $("btn-next").hidden ? $("btn-again") : $("btn-next")).focus();
   }
   function storyWin() {
+    if (S.daily) return dailyWin();
     store.del("game.story");
     music.stop(); music.want = null;
     sfx.record(); buzz(150);
@@ -4483,6 +4577,7 @@ window.Scene = (() => {
     const st = storyStars(), before = st[S.level] || [0, 0, 0], starsBefore = totalStars();
     st[S.level] = before.map((v, i) => (v || got[i] ? 1 : 0));
     store.set("story.stars", st);
+    checkAch();
     const starsAfter = totalStars(), newStars = starsAfter - starsBefore;
     const rewards = [];
     if (newStars > 0) rewards.push(`+${newStars} ${newStars === 1 ? "estrela" : "estrelas"} · total ${starsAfter}`);
@@ -4490,7 +4585,7 @@ window.Scene = (() => {
     if (medal && (MEDAL_RANK[medal] || 0) > (MEDAL_RANK[medals[w]] || 0)) { medals[w] = medal; store.set("story.medals", medals); rewards.push(`Medalha de ${MEDAL_NAME[medal]} · Mundo ${w + 1}`); }
     for (const [, name, need] of Skins.KINDS) if (need && starsBefore < need && starsAfter >= need) rewards.push(`Nova textura: ${name}`);
 
-    const why = S.goal === "clear" ? "Você destruiu todos os blocos marcados." : S.goal === "multi" ? `Você destruiu ${S.need} linhas de uma vez!` : `Você bateu a meta de ${fmt(S.target)} pontos.`;
+    const why = S.goal === "clear" ? "Você destruiu todos os blocos marcados." : S.goal === "multi" ? `Você destruiu ${S.need} linhas de uma vez!` : S.goal === "blocks" ? `Você colocou ${S.need} blocos.` : S.goal === "moves" ? `Você fez ${S.need} jogadas sem perder.` : `Você bateu a meta de ${fmt(S.target)} pontos.`;
     overlay("win", `Fase ${S.level} concluída!`, why);
     $("over-badge").hidden = true;
     $("over-rank").textContent = S.level < STORY_LEVELS ? `Fase ${S.level + 1} desbloqueada` : `Você completou as ${STORY_LEVELS} fases da História!`;
@@ -4516,21 +4611,25 @@ window.Scene = (() => {
     if (!S || S.over) return;
     if (S.mode === "story") {
       S.over = true;
-      store.del("game.story");
+      store.del(S.daily ? "game.daily" : "game.story");
       music.stop(); music.want = null;
       sfx.lose(); buzz(400); $("board").classList.add("dead");
       store.set("maxcombo.story", Math.max(store.get("maxcombo.story", 0), S.maxCombo || 0));
       const left = S.goal === "clear"
         ? `Faltaram ${S.marks} ${S.marks === 1 ? "bloco marcado" : "blocos marcados"}.`
         : S.goal === "multi" ? `Faltou destruir ${S.need} linhas de uma vez. Dica: guarde a peça reta para a coluna vazia.`
+        : S.goal === "blocks" ? `Faltaram ${S.need - (S.placed || 0)} blocos para a meta de ${S.need}.`
+        : S.goal === "moves" ? `Faltaram ${S.need - (S.moves || 0)} jogadas para a meta de ${S.need}.`
         : `Faltaram ${fmt(S.target - S.score)} pontos para a meta de ${fmt(S.target)}.`;
       overlay("lose", "Você perdeu", "Nenhuma peça cabe no tabuleiro. " + left);
       $("over-badge").hidden = true;
-      $("over-rank").textContent = `Fase ${S.level}`;
+      $("over-rank").textContent = S.daily ? "Desafio do dia · tente de novo quantas vezes quiser" : `Fase ${S.level}`;
+      if (S.daily) $("btn-levels").hidden = true;
       return;
     }
     const prev = bestOf(S.mode), isRec = S.score > prev && S.score > 0;
     if (isRec) store.set("best." + S.mode, S.score);
+    setTimeout(checkAch, 900);
     const rank = S.score > 0 ? saveResult() : 0;
     store.del("game." + S.mode);
     S.over = true;
@@ -4575,7 +4674,7 @@ window.Scene = (() => {
     for (const [r] of rows) for (let c = 0; c < n; c++) { const i = r * n + c, v = S.board[i]; if (!v) continue; const rc = cellEls[i].getBoundingClientRect(); pts.push({ x: rc.left + rc.width / 2, y: rc.top + rc.height / 2, size: rc.width, color: Skins.colorOf(v), tex: Skins.texOf(v) }); S.board[i] = 0; }
     if (pts.length) Scene.explode(pts, 2, Skins.material());
     S.marks = S.board.filter((v) => v === MARK).length;
-    S.tray = newTray(); S.undoSnap = null;
+    S.tray = newTray(); S.next = newTray(); S.undoSnap = null;
     music.play(storyTrack(S.level)); sfx.levelUp();
     renderBoard(); renderTray(); renderScore(); save();
   }
@@ -4773,6 +4872,7 @@ window.Scene = (() => {
     if (full.length) {
       const n = full.length;
       S.combo += 1; S.lines += n; S.maxCombo = Math.max(S.maxCombo, S.combo);
+      stat((x) => { x.lines += n; x.bestMulti = Math.max(x.bestMulti, n); x.maxCombo = Math.max(x.maxCombo, S.combo); }); checkAch();
       gained += LINE_POINTS[Math.min(n, 4)] * S.combo;
       const power = n + Math.max(0, S.combo - 1);
       T.clearRows = full; T.clearUntil = performance.now() + 300;
@@ -4995,6 +5095,8 @@ window.Scene = (() => {
   function showMenu() {
     S = null; selected = -1;
     show("menu");
+    const dd = store.get("daily.done", {})[dayKey()] != null;
+    $("btn-daily").classList.toggle("done", dd); $("daily-label").textContent = dd ? "Diário ✓" : "Diário";
     renderSkins();
     music.play(menuTrack());
     for (const m of Object.keys(MODES)) {
@@ -5016,22 +5118,32 @@ window.Scene = (() => {
     $("lv-done").textContent = Object.keys(best).length;
     grid.innerHTML = "";
     let next = null;
+    let path = null;
     for (let L = 1; L <= STORY_LEVELS; L++) {
-      if ((L - 1) % LEVELS_PER_WORLD === 0) {
+      const k = (L - 1) % LEVELS_PER_WORLD;
+      if (k === 0) {
         const w = document.createElement("div"), wi = worldOf(L);
-        let ws = 0; for (let k = wi * LEVELS_PER_WORLD + 1; k <= (wi + 1) * LEVELS_PER_WORLD; k++) ws += starCount(st[k]);
-        w.className = "world"; w.innerHTML = `Mundo ${wi + 1} · <span>${Scene.names[wi]}</span><span class="wstars">★ ${ws}/${LEVELS_PER_WORLD * 3}${medals[wi] ? `<i class="medal ${medals[wi]}" title="Medalha de ${MEDAL_NAME[medals[wi]]}"></i>` : ""}</span>`;
+        let ws = 0; for (let q = wi * LEVELS_PER_WORLD + 1; q <= (wi + 1) * LEVELS_PER_WORLD; q++) ws += starCount(st[q]);
+        w.className = "world"; w.style.setProperty("--wg", Scene.glowOf(Scene.worlds[wi].id));
+        w.innerHTML = `Mundo ${wi + 1} · <span>${Scene.names[wi]}</span><span class="wstars">★ ${ws}/${LEVELS_PER_WORLD * 3}${medals[wi] ? `<i class="medal ${medals[wi]}" title="Medalha de ${MEDAL_NAME[medals[wi]]}"></i>` : ""}</span>`;
         grid.appendChild(w);
+        // a winding trail: rows of 5 that alternate direction, joined by a dashed line
+        path = document.createElement("div"); path.className = "wpath";
+        const pts = [];
+        for (let q = 0; q < LEVELS_PER_WORLD; q++) { const row = Math.floor(q / 5), col = row % 2 ? 4 - (q % 5) : q % 5; pts.push(`${col * 20 + 10},${row * 25 + 12.5}`); }
+        path.innerHTML = `<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts.join(" ")}" fill="none" stroke="rgba(244,231,212,.28)" stroke-width="1.2" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/></svg>`;
+        grid.appendChild(path);
       }
-      const b = document.createElement("button"), clear = storyGoal(L) === "multi", done = best[L] != null;
+      const b = document.createElement("button"), badge = goalBadge(L), done = best[L] != null;
       b.dataset.l = L;
       b.className = "lv" + (done ? " done" : "") + (L === un && !done ? " next" : "");
+      const row = Math.floor(k / 5); b.style.gridRow = row + 1; b.style.gridColumn = (row % 2 ? 4 - (k % 5) : k % 5) + 1;
       b.disabled = L > un;
       const sc = starCount(st[L]);
-      b.innerHTML = `${done ? `<span class="lv-stars"><b>${"★".repeat(sc)}</b>${"★".repeat(3 - sc)}</span>` : ""}${L}<small>${clear ? `<i class="goal-ic clear"></i>×${multiNeed(L)}` : fmt(storyTarget(L))}</small>`;
-      b.setAttribute("aria-label", `Fase ${L}, ${clear ? "destruir " + multiNeed(L) + " linhas de uma vez" : "meta de " + storyTarget(L) + " pontos"}${done ? ", concluída" : L > un ? ", bloqueada" : ""}`);
+      b.innerHTML = `${done ? `<span class="lv-stars"><b>${"★".repeat(sc)}</b>${"★".repeat(3 - sc)}</span>` : ""}${L}<small>${badge ? (storyGoal(L) === "multi" ? `<i class="goal-ic clear"></i>×${multiNeed(L)}` : badge.split(" ")[0] + (storyGoal(L) === "blocks" ? "▪" : "↻")) : fmt(storyTarget(L))}</small>`;
+      b.setAttribute("aria-label", `Fase ${L}, ${goalLabel(L)}${done ? ", concluída" : L > un ? ", bloqueada" : ""}`);
       if (L === un) next = b;
-      grid.appendChild(b);
+      path.appendChild(b);
     }
     if (next) next.scrollIntoView({ block: "center" });
   }
@@ -5065,9 +5177,37 @@ window.Scene = (() => {
       S.rules = S.rules || mode;
     } else {
       S = { mode, rules: mode, n, board: new Array(n * n).fill(0), tray: [], score: 0, combo: 0, lines: 0, maxCombo: 0, recShown: false };
-      S.tray = newTray();
+      S.tray = newTray(); S.next = newTray();
     }
     enterGame(MODES[mode].label);
+  }
+  // Daily challenge: a story-style phase built from today's date (same for everyone, no internet),
+  // always a score goal, with undo and continue like the story.
+  function startDaily(fresh) {
+    const key = dayKey(), saved = fresh ? null : store.get("game.daily", null);
+    if (saved && saved.daily === key && saved.board && !saved.over) S = saved;
+    else {
+      const idx = dayIdx(); let L = 21 + ((idx * 37) % 300); while (storyGoal(L) !== "score") L++;
+      const lv = storyLevel(L, idx);
+      S = { mode: "story", daily: key, rules: lv.rules, n: lv.n, level: L, goal: "score", target: Math.round(lv.target * 1.2 / 10) * 10, marks: 0, marksTotal: 0, need: 0,
+        board: lv.board, tray: [], score: 0, combo: 0, lines: 0, maxCombo: 0, power: 0, powerEarned: 0, powerTaps: 0, moves: 0, bestMulti: 0, powerUsed: false };
+      S.tray = newTray(); S.next = newTray();
+    }
+    enterGame("Desafio do dia");
+  }
+  function dailyWin() {
+    store.del("game.daily");
+    music.stop(); music.want = null; sfx.record(); buzz(150);
+    const done = store.get("daily.done", {}), first = !done[S.daily];
+    done[S.daily] = Math.max(done[S.daily] || 0, S.score); store.set("daily.done", done);
+    let streak = 0; for (let d = new Date(); ; d.setDate(d.getDate() - 1)) { const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; if (done[k] == null) break; streak++; }
+    overlay("win", "Desafio do dia concluído!", `Você fez ${fmt(S.score)} pontos. Amanhã tem um desafio novo.`);
+    $("btn-next").hidden = true; $("btn-levels").hidden = true; $("over-badge").hidden = !first;
+    $("over-badge").textContent = "Primeira vez hoje";
+    $("over-rank").textContent = (streak === 1 ? "Primeiro dia da sequência" : `Sequência: ${streak} dias seguidos`);
+    $("btn-again").textContent = "Jogar de novo";
+    const br = $("board").getBoundingClientRect(); Scene.celebrate(br.left + br.width / 2, br.top + br.height * .35);
+    checkAch();
   }
   function startStory(L, fresh, restored) {
     const saved = restored || (fresh ? null : store.get("game.story", null));
@@ -5078,7 +5218,7 @@ window.Scene = (() => {
       S = { mode: "story", rules: lv.rules, n: lv.n, level: L, goal: lv.goal, target: lv.target, marks: lv.marks, marksTotal: lv.marks, need: lv.need,
         board: lv.board, tray: [], score: 0, combo: 0, lines: 0, maxCombo: 0, power: 0, powerEarned: 0, powerTaps: 0,
         moves: 0, bestMulti: 0, powerUsed: false };
-      S.tray = newTray();
+      S.tray = newTray(); S.next = newTray();
       if (lv.key) S.tray[0] = lv.key;
       store.set("played.story", store.get("played.story", 0) + 1);
     }
@@ -5158,7 +5298,7 @@ window.Scene = (() => {
     else if (!S.mat || !S.theme) { S.mat = chosenSkin(); S.theme = MAT_SCENE[S.mat]; }
     applySkin();
     Scene.set(S.theme, wo ? wo.v : 0);
-    const intro = wo ? `Mundo ${worldOf(S.level) + 1}<small>${wo.name}</small>` : `Cenário<small>${Scene.nameOf(S.theme)}</small>`;
+    const intro = S.daily ? `Desafio do dia<small>${S.daily.split("-").reverse().join("/")}</small>` : wo ? `Mundo ${worldOf(S.level) + 1}<small>${wo.name}</small>` : `Cenário<small>${Scene.nameOf(S.theme)}</small>`;
     setTimeout(() => fx("lvl", intro, $("board").clientHeight / 2 - 20, 1900), 250);
     if (S.mode === "story") setTimeout(() => S && S.mode === "story" && !S.over && fx("lvl", `Desafio<small>${challengeFor(S).text}</small>`, $("board").clientHeight / 2 - 20, 2200), 2300);
     if (S.mode === "story") { const L0 = S.level; setTimeout(() => S && S.mode === "story" && S.level === L0 && !S.over && fx("lvl", `Música<small>♪ ${TRACKS[storyTrack(L0)].title}</small>`, $("board").clientHeight / 2 - 20, 1800), 4700); }
@@ -5177,7 +5317,8 @@ window.Scene = (() => {
   $("btn-menu").addEventListener("click", showMenu);
   $("btn-records").addEventListener("click", () => showRecords());
   $("rec-back").addEventListener("click", showMenu);
-  $("btn-again").addEventListener("click", () => (S.mode === "story" ? startStory(S.level, true) : S.mode === "tetris" ? startTetris(true) : startGame(S.mode, true)));
+  $("btn-daily").addEventListener("click", () => { wake(); sfx.ui(); startDaily(false); });
+  $("btn-again").addEventListener("click", () => (S.daily ? startDaily(true) : S.mode === "story" ? startStory(S.level, true) : S.mode === "tetris" ? startTetris(true) : startGame(S.mode, true)));
   window.addEventListener("resize", sizeBoard);
   document.addEventListener("contextmenu", (e) => e.preventDefault());
 
@@ -5295,6 +5436,7 @@ window.Scene = (() => {
         b2.addEventListener("click", () => {
           if (!skinUnlocked(need)) { $("skins-note").textContent = `${name}: ganhe ${need} estrelas no modo História (você tem ${totalStars()})`; return; }
           store.set("skin", k); renderSkins(); sfx.place();
+          stat((x) => { x.tex = [...new Set([...(x.tex || []), k])]; }); checkAch();
           // the start screen previews the material's scene, and saved games switch to it too
           menuScene = MAT_SCENE[k]; Scene.set(menuScene);
           for (const m of ["classic", "sudoku", "tetris"]) { const g = store.get("game." + m, null); if (g && !g.over) { g.mat = k; g.theme = MAT_SCENE[k]; store.set("game." + m, g); } }
