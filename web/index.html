@@ -1,7 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="19">
+<meta name="bau-version" content="20">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -388,6 +388,18 @@ body.themed[data-mode] .bar { box-shadow: inset 0 -3px 0 var(--mode-accent); }
 .chal.done { box-shadow: inset 0 0 0 2px var(--ok), 0 4px 0 var(--shadow); }
 .chal.done .chal-p { color: var(--ok); font-weight: 800; }
 .chal.failed .chal-p { color: var(--danger); }
+/* v20: three equal boxes under the board: what wins the phase, the bonus challenge, the power */
+.power { display: grid !important; grid-template-columns: 1.15fr 1fr .85fr; gap: 6px; }
+.power[hidden] { display: none !important; }
+.chal { padding: 6px 8px; }
+.chal.goal { background: linear-gradient(160deg, color-mix(in srgb, var(--mode-accent) 40%, rgba(18,11,7,.8)), rgba(18,11,7,.75)); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--mode-accent) 75%, transparent), 0 4px 0 var(--shadow); }
+.chal.goal .chal-k { color: #fff; }
+.chal.goal b { font-size: 12.5px; }
+.chal.goal.done { box-shadow: inset 0 0 0 2px var(--ok), 0 4px 0 var(--shadow); }
+.power .power-btn { padding: 6px 7px; gap: 6px; }
+.power .power-btn svg { width: 22px; height: 22px; }
+.power .power-btn .pw-count { min-width: 26px; height: 26px; font-size: 16px; border-radius: 8px; }
+.power .power-btn small { font-size: 10px; }
 .win-story { display: grid; gap: 10px; }
 .stars { display: flex; justify-content: center; gap: 10px; }
 .stars i { width: 46px; height: 46px; background: #4a3a2a; clip-path: polygon(50% 2%, 63% 36%, 99% 37%, 70% 59%, 80% 96%, 50% 74%, 20% 96%, 30% 59%, 1% 37%, 37% 36%); }
@@ -555,7 +567,7 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       </button>
       <button class="mode" id="play-story">
         <span class="thumb" data-thumb="story" aria-hidden="true"></span>
-        <span><b>História</b><small id="story-sub">1000 fases · bata a meta de pontos ou destrua os blocos marcados</small></span>
+        <span><b>História</b><small id="story-sub">1000 fases · bata a meta de pontos ou destrua várias linhas de uma vez</small></span>
         <span class="rec"><em>Fase</em><strong id="rec-story">1</strong></span>
       </button>
     </div>
@@ -603,7 +615,7 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       <span></span>
     </div>
     <div class="lv-progress"><b id="lv-done">0</b> de 1000 fases concluídas</div>
-    <div class="lv-legend"><span><i class="goal-ic score"></i>Meta de pontos</span><span><i class="goal-ic clear"></i>Destruir blocos marcados</span></div>
+    <div class="lv-legend"><span><i class="goal-ic score"></i>Meta de pontos</span><span><i class="goal-ic clear"></i>Linhas de uma vez</span></div>
     <div class="lv-grid" id="lv-grid"></div>
   </section>
 
@@ -631,7 +643,8 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       <div id="board" role="grid" aria-label="Tabuleiro"></div>
     </div>
     <div class="power" id="power" hidden>
-      <div class="chal" id="chal"><span class="chal-k">Desafio</span><b id="chal-text"></b><span class="chal-p" id="chal-p"></span></div>
+      <div class="chal goal" id="goal"><span class="chal-k">Para vencer</span><b id="goal-text"></b><span class="chal-p" id="goal-p"></span></div>
+      <div class="chal" id="chal"><span class="chal-k">Desafio ★</span><b id="chal-text"></b><span class="chal-p" id="chal-p"></span></div>
       <button class="power-btn" id="btn-power">
         <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="14" cy="19" r="10" fill="#2a1d15"/><circle cx="11" cy="16" r="3" fill="#fff" opacity=".25"/><path d="M20 10l3-3" stroke="#bda78c" stroke-width="2.4" stroke-linecap="round"/><path d="M25 3l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1z" fill="#ffd36b"/></svg>
         <span class="pw-text"><b id="pw-title">Destruir 4 blocos</b><small id="pw-sub">Faltam 300 pts</small></span>
@@ -3815,7 +3828,8 @@ window.Scene = (() => {
   function difficulty() {
     if (!S) return 0;
     if (S.mode === "story") return storyDiff(S.level);
-    return Math.min(1, (levelOf(S.score) - 1) / 10);
+    const lv = levelOf(S.score);
+    return Math.min(.8, (lv - 1) / 14) * (lv % 3 === 0 ? .55 : 1);
   }
   function randomPiece() {
     const df = difficulty(), w = BASE.map((b2) => EASY_W[b2] * (1 - df) + HARD_W[b2] * df);
@@ -3903,15 +3917,18 @@ window.Scene = (() => {
   // Every 3rd level (2, 5, 8 …) asks to destroy the marked blocks; the rest ask for a score.
   // Every 5th level uses the Sudoku rules on a 9×9 board. Difficulty grows with N.
   const STORY_LEVELS = 1000, MARK = 7;
-  const storyGoal = (L) => (L % 3 === 2 ? "clear" : "score");
-  // Difficulty 0..1. Inside every world (20 phases) the first phase is the easiest and the last the
-  // hardest; each world starts a bit harder, approaching the top slowly over the 50 worlds.
-  // World 1 stays gentle (0 → 0.25).
+  // v20: phases ending in 8 and 9 (the climax before the music changes) ask to clear 2 or 3 lines
+  // at once; every other phase asks for a score. (Saves from before v20 may still hold "clear".)
+  const storyGoal = (L) => (L % 10 === 8 || L % 10 === 9 ? "multi" : "score");
+  const multiNeed = (L) => (L % 10 === 8 ? 2 : 3);
+  // Difficulty 0..~0.65, in waves: inside every block of 10 phases it goes easy, a bit harder, easy
+  // again…, with 8 and 9 as the peak; the whole curve rises slowly over the 1000 phases.
+  const RHYTHM = [0, .3, .1, .4, .15, .5, .2, .35, .65, .8];
   function storyDiff(L) {
-    const w = 1 - Math.exp(-Math.floor((L - 1) / 20) / 9), l = ((L - 1) % 20) / 19;
-    return w * .55 + l * (.25 + .2 * w);
+    const base = .3 * (1 - Math.exp(-Math.floor((L - 1) / 10) / 14));
+    return base + RHYTHM[(L - 1) % 10] * (.3 + .1 * base / .3);
   }
-  const storyTarget = (L) => Math.round((60 + storyDiff(L) * 1300) / 10) * 10;
+  const storyTarget = (L) => Math.round((60 + storyDiff(L) * 900) / 10) * 10;
   function seeded(a) {
     return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   }
@@ -3920,8 +3937,8 @@ window.Scene = (() => {
     const rules = L % 5 === 0 ? "sudoku" : "classic", n = rules === "sudoku" ? 9 : 8, boxes = rules === "sudoku";
     const goal = storyGoal(L), color = () => (boxes ? 3 : 1 + ri(6));
     const board = new Array(n * n).fill(0), reserved = new Set();
-    // Starting fill grows from about 8% (easiest) to 48% (hardest) of the board.
-    const cap = Math.round(n * n * (.08 + .4 * t));
+    // Starting fill grows from about 6% (easiest) to ~30% (hardest) of the board.
+    const cap = Math.round(n * n * (.06 + .36 * t)) + (goal === "multi" ? multiNeed(L) * (n - 1) : 0);
     let filled = 0;
     // Never start with a complete line: it would clear on the first move.
     const put = (i, v) => {
@@ -3931,8 +3948,17 @@ window.Scene = (() => {
       filled++;
       return true;
     };
+    // 0) Multi-line phases: `need` stacked rows, each missing the same column, so one straight piece
+    //    (dealt first in the tray) clears them all at once.
+    let key = null;
+    if (goal === "multi") {
+      const need = multiNeed(L), r0 = 1 + ri(n - need - 1), hole = ri(n);
+      for (let r = r0; r < r0 + need; r++) for (let c = 0; c < n; c++) if (c !== hole) put(r * n + c, color());
+      for (let r = r0; r < r0 + need; r++) reserved.add(r * n + hole);
+      key = { cells: Array.from({ length: need }, (_, i) => [i, 0]), color: boxes ? 3 : 1 + ri(6) };
+    }
     // 1) Nearly complete lines: easy levels leave one hole (a quick win), hard ones leave two.
-    const lines = Math.min(1 + ri(2) + (t > .5 ? 1 : 0), Math.floor(cap / (n - 1)));
+    const lines = goal === "multi" ? 0 : Math.min(1 + ri(2) + (t > .5 ? 1 : 0), Math.floor(cap / (n - 1)));
     for (let k = 0; k < lines; k++) {
       const row = rng() < .5, x = ri(n), holes = t < .3 ? 1 : 1 + (rng() < t ? 1 : 0);
       const cells = Array.from({ length: n }, (_, j) => (row ? x * n + j : j * n + x));
@@ -3954,7 +3980,7 @@ window.Scene = (() => {
     // 3) Scattered clutter that gets in the way, up to the fill cap.
     for (let a = 0; a < 1500 && filled < cap; a++) put(ri(n * n), color());
     const marks = board.filter((v) => v === MARK).length;
-    return { L, rules, n, goal, board, target: goal === "score" ? storyTarget(L) : 0, marks };
+    return { L, rules, n, goal, board, target: goal === "score" ? storyTarget(L) : 0, marks, need: goal === "multi" ? multiNeed(L) : 0, key };
   }
   // v14: 50 worlds of 20 phases; every world has its own scene (Scene.worlds).
   const LEVELS_PER_WORLD = 20;
@@ -3999,11 +4025,10 @@ window.Scene = (() => {
   const MEDAL_NAME = { bronze: "bronze", silver: "prata", gold: "ouro" }, MEDAL_RANK = { bronze: 1, silver: 2, gold: 3 };
   // One special challenge per phase, built only from things the game already measures.
   function challengeFor(st) {
-    const L = st.level, d = storyDiff(L), type = (L - 1) % 4;
-    if (type === 0) { const n = 2 + Math.floor(d * 3); return { text: `Faça um combo ×${n}`, need: n, val: st.maxCombo || 0, kind: "min" }; }
-    if (type === 1) { const n = d > .6 ? 3 : 2; return { text: `Limpe ${n} linhas de uma vez`, need: n, val: st.bestMulti || 0, kind: "min" }; }
-    if (type === 2) { const n = st.goal === "clear" ? (st.marksTotal || 0) * 3 + 8 : Math.ceil(st.target / 9) + 6; return { text: `Vença em até ${n} jogadas`, need: n, val: st.moves || 0, kind: "max" }; }
-    const n = 3 + Math.floor(d * 6); return { text: `Limpe ${n} linhas no total`, need: n, val: st.lines || 0, kind: "min" };
+    const L = st.level, d = storyDiff(L), type = st.goal === "multi" ? 2 : (L - 1) % 3;
+    if (type === 0) { const n = 2 + Math.floor(d * 2); return { text: `Faça um combo ×${n}`, need: n, val: st.maxCombo || 0, kind: "min" }; }
+    if (type === 2) { const n = st.goal === "clear" ? (st.marksTotal || 0) * 3 + 8 : st.goal === "multi" ? 8 + (st.need || 2) * 4 : Math.ceil(st.target / 8) + 8; return { text: `Vença em até ${n} jogadas`, need: n, val: st.moves || 0, kind: "max" }; }
+    const n = 3 + Math.floor(d * 5); return { text: `Limpe ${n} linhas no total`, need: n, val: st.lines || 0, kind: "min" };
   }
   const challengeMet = (c) => (c.kind === "min" ? c.val >= c.need : c.val <= c.need);
   function renderChallenge() {
@@ -4050,7 +4075,7 @@ window.Scene = (() => {
       }
       done.slice(0, 10).forEach((L, i) => {
         const li = document.createElement("li"); if (i === 0) li.className = "top";
-        li.innerHTML = `<span class="pos">${L}</span><span><span class="sc">${fmt(best[L])}</span><br><span class="meta">Fase ${L} · ${storyGoal(L) === "clear" ? "destruir blocos marcados" : "meta de " + fmt(storyTarget(L)) + " pontos"}</span></span><span class="date">concluída</span>`;
+        li.innerHTML = `<span class="pos">${L}</span><span><span class="sc">${fmt(best[L])}</span><br><span class="meta">Fase ${L} · ${storyGoal(L) === "multi" ? multiNeed(L) + " linhas de uma vez" : "meta de " + fmt(storyTarget(L)) + " pontos"}</span></span><span class="date">concluída</span>`;
         ol.appendChild(li);
       });
       return;
@@ -4175,13 +4200,13 @@ window.Scene = (() => {
   function renderScore() {
     renderPower(); renderChallenge();
     if (S.mode === "story") {
-      const clear = S.goal === "clear";
+      renderGoal();
       $("score").textContent = fmt(S.score);
       $("score").classList.remove("rec");
-      $("best-label").textContent = clear ? "Blocos marcados" : "Meta";
-      $("best").textContent = clear ? S.marks : fmt(S.target);
+      $("best-label").textContent = "Mundo";
+      $("best").textContent = worldOf(S.level) + 1;
       $("level").textContent = levelOf(S.score);
-      const pct = clear ? (S.marksTotal - S.marks) / Math.max(1, S.marksTotal) : S.score / S.target;
+      const pct = S.goal === "clear" ? (S.marksTotal - S.marks) / Math.max(1, S.marksTotal) : S.goal === "multi" ? (S.bestMulti || 0) / S.need : S.score / S.target;
       $("level-fill").style.width = Math.min(100, Math.round(pct * 100)) + "%";
       return;
     }
@@ -4286,7 +4311,7 @@ window.Scene = (() => {
     if (S.mode === "story") {
       checkPowerEarned();
       S.marks = S.board.filter((v) => v === MARK).length;
-      if (S.goal === "clear" ? S.marks === 0 : S.score >= S.target) {
+      if (storyDone()) {
         S.over = true;
         renderTray(); renderScore();
         setTimeout(storyWin, lines ? 800 : 300);
@@ -4308,6 +4333,15 @@ window.Scene = (() => {
   // ---------- story power: destroy 4 blocks ----------
   // No power at the start of a level; every 300 points in the level earns one use.
   const POWER_POINTS = 300, POWER_TAPS = 4;
+  // Has the phase's goal been met? (score, N lines at once, or — old saves — the marked blocks)
+  const storyDone = () => (S.goal === "clear" ? S.marks === 0 : S.goal === "multi" ? (S.bestMulti || 0) >= S.need : S.score >= S.target);
+  const goalText = (st) => (st.goal === "clear" ? "Destrua os blocos marcados" : st.goal === "multi" ? `Destrua ${st.need} linhas de uma vez` : `Faça ${fmt(st.target)} pontos`);
+  function renderGoal() {
+    const done = storyDone();
+    $("goal-text").textContent = goalText(S);
+    $("goal-p").textContent = done ? "✓ Cumprido" : S.goal === "clear" ? `Faltam ${S.marks}` : S.goal === "multi" ? `Melhor jogada: ${Math.min(S.bestMulti || 0, S.need)} / ${S.need}` : `${fmt(S.score)} / ${fmt(S.target)}`;
+    $("goal").classList.toggle("done", done);
+  }
   function renderPower() {
     const show = S && S.mode === "story";
     $("power").hidden = !show;
@@ -4321,7 +4355,7 @@ window.Scene = (() => {
       $("pw-title").textContent = `Toque em ${S.powerTaps} ${S.powerTaps === 1 ? "bloco" : "blocos"}`;
       $("pw-sub").textContent = S.powerTaps === POWER_TAPS ? "Toque p/ cancelar" : "Toque p/ terminar";
     } else {
-      $("pw-title").textContent = "Destruir 4 blocos";
+      $("pw-title").textContent = "Poder";
       const next = POWER_POINTS - (S.score % POWER_POINTS);
       $("pw-sub").textContent = S.power > 0 ? "Pronto para usar" : `Faltam ${fmt(next)} pts`;
     }
@@ -4409,7 +4443,7 @@ window.Scene = (() => {
     if (medal && (MEDAL_RANK[medal] || 0) > (MEDAL_RANK[medals[w]] || 0)) { medals[w] = medal; store.set("story.medals", medals); rewards.push(`Medalha de ${MEDAL_NAME[medal]} · Mundo ${w + 1}`); }
     for (const [, name, need] of Skins.KINDS) if (need && starsBefore < need && starsAfter >= need) rewards.push(`Nova textura: ${name}`);
 
-    const why = S.goal === "clear" ? "Você destruiu todos os blocos marcados." : `Você bateu a meta de ${fmt(S.target)} pontos.`;
+    const why = S.goal === "clear" ? "Você destruiu todos os blocos marcados." : S.goal === "multi" ? `Você destruiu ${S.need} linhas de uma vez!` : `Você bateu a meta de ${fmt(S.target)} pontos.`;
     overlay("win", `Fase ${S.level} concluída!`, why);
     $("over-badge").hidden = true;
     $("over-rank").textContent = S.level < STORY_LEVELS ? `Fase ${S.level + 1} desbloqueada` : `Você completou as ${STORY_LEVELS} fases da História!`;
@@ -4420,7 +4454,7 @@ window.Scene = (() => {
     });
     $("win-stars").setAttribute("aria-label", `${starCount(merged)} de 3 estrelas`);
     const goals = [
-      [true, S.goal === "clear" ? "Destruir os blocos marcados" : `Meta de ${fmt(S.target)} pontos`, `${fmt(S.score)} pontos`],
+      [true, goalText(S), `${fmt(S.score)} pontos`],
       [got[1], `Desafio: ${ch.text}`, ch.kind === "max" ? `${ch.val} jogadas` : `${Math.min(ch.val, ch.need)} / ${ch.need}`],
       [got[2], "Sem usar o poder", got[2] ? "" : "o poder foi usado"],
     ];
@@ -4441,6 +4475,7 @@ window.Scene = (() => {
       store.set("maxcombo.story", Math.max(store.get("maxcombo.story", 0), S.maxCombo || 0));
       const left = S.goal === "clear"
         ? `Faltaram ${S.marks} ${S.marks === 1 ? "bloco marcado" : "blocos marcados"}.`
+        : S.goal === "multi" ? `Faltou destruir ${S.need} linhas de uma vez. Dica: guarde a peça reta para a coluna vazia.`
         : `Faltaram ${fmt(S.target - S.score)} pontos para a meta de ${fmt(S.target)}.`;
       overlay("lose", "Você perdeu", "Nenhuma peça cabe no tabuleiro. " + left);
       $("over-badge").hidden = true;
@@ -4885,7 +4920,7 @@ window.Scene = (() => {
     }
     const ss = store.get("game.story", null);
     $("rec-story").textContent = storyUnlocked();
-    $("story-sub").textContent = ss ? `Continuar fase ${ss.level} · ${fmt(ss.score)} pontos` : "1000 fases · bata a meta de pontos ou destrua os blocos marcados";
+    $("story-sub").textContent = ss ? `Continuar fase ${ss.level} · ${fmt(ss.score)} pontos` : "1000 fases · bata a meta de pontos ou destrua várias linhas de uma vez";
   }
   function showLevels() {
     S = null;
@@ -4902,13 +4937,13 @@ window.Scene = (() => {
         w.className = "world"; w.innerHTML = `Mundo ${wi + 1} · <span>${Scene.names[wi]}</span><span class="wstars">★ ${ws}/${LEVELS_PER_WORLD * 3}${medals[wi] ? `<i class="medal ${medals[wi]}" title="Medalha de ${MEDAL_NAME[medals[wi]]}"></i>` : ""}</span>`;
         grid.appendChild(w);
       }
-      const b = document.createElement("button"), clear = storyGoal(L) === "clear", done = best[L] != null;
+      const b = document.createElement("button"), clear = storyGoal(L) === "multi", done = best[L] != null;
       b.dataset.l = L;
       b.className = "lv" + (done ? " done" : "") + (L === un && !done ? " next" : "");
       b.disabled = L > un;
       const sc = starCount(st[L]);
-      b.innerHTML = `${done ? `<span class="lv-stars"><b>${"★".repeat(sc)}</b>${"★".repeat(3 - sc)}</span>` : ""}${L}<small>${clear ? "<i class=\"goal-ic clear\"></i>" : fmt(storyTarget(L))}</small>`;
-      b.setAttribute("aria-label", `Fase ${L}, ${clear ? "destruir blocos marcados" : "meta de " + storyTarget(L) + " pontos"}${done ? ", concluída" : L > un ? ", bloqueada" : ""}`);
+      b.innerHTML = `${done ? `<span class="lv-stars"><b>${"★".repeat(sc)}</b>${"★".repeat(3 - sc)}</span>` : ""}${L}<small>${clear ? `<i class="goal-ic clear"></i>×${multiNeed(L)}` : fmt(storyTarget(L))}</small>`;
+      b.setAttribute("aria-label", `Fase ${L}, ${clear ? "destruir " + multiNeed(L) + " linhas de uma vez" : "meta de " + storyTarget(L) + " pontos"}${done ? ", concluída" : L > un ? ", bloqueada" : ""}`);
       if (L === un) next = b;
       grid.appendChild(b);
     }
@@ -4954,10 +4989,11 @@ window.Scene = (() => {
       S = saved;
     } else {
       const lv = storyLevel(L);
-      S = { mode: "story", rules: lv.rules, n: lv.n, level: L, goal: lv.goal, target: lv.target, marks: lv.marks, marksTotal: lv.marks,
+      S = { mode: "story", rules: lv.rules, n: lv.n, level: L, goal: lv.goal, target: lv.target, marks: lv.marks, marksTotal: lv.marks, need: lv.need,
         board: lv.board, tray: [], score: 0, combo: 0, lines: 0, maxCombo: 0, power: 0, powerEarned: 0, powerTaps: 0,
         moves: 0, bestMulti: 0, powerUsed: false };
       S.tray = newTray();
+      if (lv.key) S.tray[0] = lv.key;
       store.set("played.story", store.get("played.story", 0) + 1);
     }
     enterGame("Fase " + L);

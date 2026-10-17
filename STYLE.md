@@ -241,6 +241,19 @@ As 7 novas têm percussão leve para servir também durante o jogo. Na História
 | Grama | Torrões com terra embaixo, folhas e pétalas | Folhas + pétalas | Folhas 2×1 + torrões de terra |
 | Fumaça | Sem pedaços: volutas que sobem e se dissolvem | Nuvenzinhas que sobem | Quadrados que sobem e crescem |
 
+## História: metas e dificuldade (v20)
+
+- **Fases terminadas em 8 e 9** (as últimas antes da troca de música): para vencer, é preciso destruir **2 linhas de uma vez** (fase …8) ou **3 linhas de uma vez** (fase …9). O tabuleiro já vem com 2 ou 3 linhas paralelas faltando a mesma casa, e a primeira peça da bandeja é a peça reta que encaixa ali.
+- **Todas as outras fases:** fazer uma meta de pontos (60 a ~650).
+- **Dificuldade em ondas:** em cada bloco de 10 fases, fácil, um pouco difícil, fácil de novo… e as fases 8 e 9 são o pico. A curva geral sobe devagar ao longo das 1000 fases e fica abaixo da antiga.
+- **Clássico:** também em ondas, com um nível de descanso a cada 3, e teto de dificuldade menor.
+- **Requisitos embaixo do tabuleiro, em três quadrados:**
+  - Para vencer: a meta e o progresso;
+  - Desafio ★: bônus que só dá estrela;
+  - Poder.
+
+  No topo ficam os pontos e o mundo.
+
 ## História: 1000 fases (v14)
 
 - 50 mundos de 20 fases. A cada 20 fases o cenário muda.
