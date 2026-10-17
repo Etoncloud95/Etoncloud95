@@ -101,7 +101,38 @@ A cor do modo aparece no nome do modo, na barra de progresso, no filete da barra
 - Medalha por mundo (bronze/prata/ouro) ao concluir as 10 fases, conforme as estrelas.
 - Texturas desbloqueadas por estrelas: Mármore (15) e Metal (40).
 
-## História: mundos e materiais (v12)
+## Fundo segue o estilo (v14)
+
+O cenário animado de fundo acompanha o estilo dos blocos:
+- **Realismo:** pintado em alta resolução, com degradês e brilhos suaves.
+- **Animação:** o mesmo cenário em faixas de cor chapadas, como desenho animado (filtro SVG `#bau-toon`, 9 tons por canal, saturação maior).
+- **Pixel:** o cenário é pintado em ¼ da resolução, ampliado com pixels duros (`image-rendering: pixelated`) e com a paleta reduzida (filtro `#bau-pix`).
+
+## Materiais (v14)
+
+15 materiais, todos nos três estilos, cada um com textura, fragmentos e explosão próprios:
+Madeira, Cimento, Tijolo, Gelo, Água, Lava, **Raio**, **Eletricidade**, **Chuva**, **Futuro**, **Areia**, **Grama**, **Fumaça**, Mármore (15 ★) e Metal (40 ★).
+
+| Material | Realismo | Explosão |
+|---|---|---|
+| Raio | Nuvens de tempestade cortadas por um raio ramificado com brilho | Arcos elétricos, faíscas, clarão branco |
+| Eletricidade | Filamentos de plasma (ruído "ridged") com núcleo branco | Arcos azuis e violeta, clarão azul |
+| Chuva | Vidro molhado: gotas que refratam, escorridos | Pedaços de vidro, gotas, névoa |
+| Futuro | Painel escuro com circuitos neon e malha hexagonal | Pixels neon, linhas, faíscas azuis |
+| Areia | Ondulações do vento, grãos finos | Torrões de arenito, grãos e poeira |
+| Grama | Centenas de folhas, raiz escura e ponta iluminada | Torrões de grama, folhas rodopiando |
+| Fumaça | Volutas de fumaça (ruído distorcido) | Sem pedaços sólidos: nuvens que sobem |
+
+## História: 1000 fases (v14)
+
+- 50 mundos de 20 fases. A cada 20 fases o cenário muda.
+- 17 cenários em ordem: Superfície, Campos Verdes, Céu, Floresta da Chuva, Tempestade, Deserto Dourado, Lua, Espaço Profundo, Nebulosa, Cidade do Futuro, Usina Elétrica, Vulcão, Vale da Fumaça, Mar Aberto, Abismo Oceânico, Vale Assombrado, Campo de Batalha.
+- Depois os cenários voltam em versões "· Crepúsculo" e "· Eclipse" (outra luz e outras cores), então nenhum mundo repete o fundo.
+- Cada cenário tem seu material de bloco; as versões Crepúsculo/Eclipse usam outras paletas.
+- A dificuldade sobe dentro de cada mundo e cresce devagar de um mundo para o outro.
+- Medalhas por mundo: ouro com 54 ★, prata com 36 ★ (de 60). Medalhas dos antigos mundos de 10 fases foram convertidas.
+
+## História: mundos e materiais (v12, substituído pela v14)
 
 | Mundo | Nome | Material dos blocos |
 |---|---|---|

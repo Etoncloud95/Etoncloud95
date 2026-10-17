@@ -1,7 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="13">
+<meta name="bau-version" content="14">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -41,6 +41,7 @@ body {
 #bg, #fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 #bg { z-index: 0; }
 #bg.fade-in { animation: scene-in .9s ease-out; }
+.vs-pixel #bg { image-rendering: pixelated; }
 @keyframes scene-in { from { opacity: 0; } }
 #fx { z-index: 35; }
 /* Code light grade: warm wash from the top-left light, a soft vignette, a light pool over the play area. */
@@ -482,6 +483,7 @@ body.themed[data-mode] .bar { box-shadow: inset 0 -3px 0 var(--mode-accent); }
 }
 </style>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="bau-toon" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="1.35"/><feComponentTransfer><feFuncR type="discrete" tableValues="0 .07 .15 .25 .37 .52 .68 .84 1"/><feFuncG type="discrete" tableValues="0 .07 .15 .25 .37 .52 .68 .84 1"/><feFuncB type="discrete" tableValues="0 .07 .15 .25 .37 .52 .68 .84 1"/></feComponentTransfer></filter><filter id="bau-pix" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="1.2"/><feComponentTransfer><feFuncR type="discrete" tableValues="0 .06 .13 .21 .3 .4 .51 .63 .75 .87 1"/><feFuncG type="discrete" tableValues="0 .06 .13 .21 .3 .4 .51 .63 .75 .87 1"/><feFuncB type="discrete" tableValues="0 .06 .13 .21 .3 .4 .51 .63 .75 .87 1"/></feComponentTransfer></filter></svg>
 <canvas id="bg" aria-hidden="true"></canvas>
 <div id="light" aria-hidden="true"></div>
 <canvas id="fx" aria-hidden="true"></canvas>
@@ -517,7 +519,7 @@ body.themed[data-mode] .bar { box-shadow: inset 0 -3px 0 var(--mode-accent); }
       </button>
       <button class="mode" id="play-story">
         <span class="thumb" data-thumb="story" aria-hidden="true"></span>
-        <span><b>História</b><small id="story-sub">100 fases · bata a meta de pontos ou destrua os blocos marcados</small></span>
+        <span><b>História</b><small id="story-sub">1000 fases · bata a meta de pontos ou destrua os blocos marcados</small></span>
         <span class="rec"><em>Fase</em><strong id="rec-story">1</strong></span>
       </button>
     </div>
@@ -564,7 +566,7 @@ body.themed[data-mode] .bar { box-shadow: inset 0 -3px 0 var(--mode-accent); }
       <h2>História</h2>
       <span></span>
     </div>
-    <div class="lv-progress"><b id="lv-done">0</b> de 100 fases concluídas</div>
+    <div class="lv-progress"><b id="lv-done">0</b> de 1000 fases concluídas</div>
     <div class="lv-legend"><span><i class="goal-ic score"></i>Meta de pontos</span><span><i class="goal-ic clear"></i>Destruir blocos marcados</span></div>
     <div class="lv-grid" id="lv-grid"></div>
   </section>
@@ -730,7 +732,8 @@ window.Skins = (() => {
   const EXTRA = { 8: "#7a4a6e", 9: "#3f6b4f" }; // Tetris T and S pieces
   // Block materials. "stars" = story-mode stars needed to unlock (0 = always available).
   const KINDS = [["wood", "Madeira", 0], ["cement", "Cimento", 0], ["brick", "Tijolo", 0], ["ice", "Gelo", 0], ["water", "Água", 0],
-    ["lava", "Lava", 0], ["marble", "Mármore", 15], ["metal", "Metal", 40]];
+    ["lava", "Lava", 0], ["bolt", "Raio", 0], ["electric", "Eletricidade", 0], ["rain", "Chuva", 0], ["future", "Futuro", 0],
+    ["sand", "Areia", 0], ["grass", "Grama", 0], ["smoke", "Fumaça", 0], ["marble", "Mármore", 15], ["metal", "Metal", 40]];
   // Visual style: "real" (Realismo, natural materials) or "anim" (Animação, stylised cartoon materials).
   let vstyle = "real";
 
@@ -955,6 +958,132 @@ window.Skins = (() => {
       g.fillStyle = sh; g.fillRect(0, 0, SIZE, SIZE);
       return c;
     },
+    // ---- v14 materials (Realismo). Per-pixel work runs on the real 2x pixels for Full HD. ----
+    // Desert sand: wind ripples bent by noise, fine grain and a few darker mineral specks.
+    sand(b) {
+      const [c, g] = canvas(), id = g.createImageData(SIZE * K, SIZE * K), d = id.data, ox = R(0, 100), oy = R(0, 100);
+      const base = mix(b, [214, 182, 128], .74);
+      for (let py = 0; py < SIZE * K; py++) for (let px = 0; px < SIZE * K; px++) { const x = px / K, y = py / K;
+        const warp = fbm2(x * .02 + ox, y * .02 + oy, 3) * 9, ph = y * .36 + x * .05 + warp, rip = Math.sin(ph);
+        // ripples are asymmetric: a lit gentle slope and a short shaded face
+        const lit = rip > 0 ? rip * .1 : rip * .2, broad = (fbm2(x * .012 + oy, y * .012 + ox, 3) - .5) * .22;
+        const grain = (vnoise(px * .9 + ox, py * .9) - .5) * .2 + (HASH[(px * 7 + py * 13) & 511] / 255 - .5) * .1;
+        const f = 1 + lit + broad + grain, i = (py * SIZE * K + px) * 4;
+        for (let k = 0; k < 3; k++) d[i + k] = clamp(base[k] * f);
+        d[i + 3] = 255;
+      }
+      g.putImageData(id, 0, 0);
+      speckle(g, 70, b.map((v) => v * .45), .3, .8, .25, .6);
+      speckle(g, 50, [255, 246, 220], .3, .7, .3, .7);
+      return c;
+    },
+    // Lawn: hundreds of blades drawn back to front, dark at the root and lit at the tip.
+    grass(b) {
+      const [c, g] = canvas(), base = mix(b, [70, 140, 50], .68);
+      const bg = g.createLinearGradient(0, 0, 0, SIZE); bg.addColorStop(0, col(base.map((v) => v * .55))); bg.addColorStop(1, col(base.map((v) => v * .3)));
+      g.fillStyle = bg; g.fillRect(0, 0, SIZE, SIZE);
+      g.lineCap = "round";
+      for (let layer = 0; layer < 3; layer++) for (let i = 0; i < 260; i++) {
+        const x = R(-6, SIZE + 6), y = R(8, SIZE + 12), h = R(14, 30) * (1 + layer * .15), lean = R(-9, 9), t = R(.6, 1.15) * (.65 + layer * .2);
+        const tip = mix(base, [236, 250, 170], R(.15, .45)), root = base.map((v) => v * .45);
+        const gr = g.createLinearGradient(x, y, x + lean, y - h); gr.addColorStop(0, col(root)); gr.addColorStop(1, col(tip.map((v) => v * t)));
+        g.strokeStyle = gr; g.lineWidth = R(1.2, 2.4);
+        g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + lean * .2, y - h * .6, x + lean, y - h); g.stroke();
+      }
+      speckle(g, 18, [255, 250, 210], .4, 1, .2, .45);
+      light(g, .12, .3);
+      return c;
+    },
+    // Smoke: domain-warped noise gives soft curling wisps over a dark haze.
+    smoke(b) {
+      const [c, g] = canvas(), id = g.createImageData(SIZE * K, SIZE * K), d = id.data, ox = R(0, 100), oy = R(0, 100);
+      const dark = mix(b, [40, 40, 48], .62), lite = mix(b, [222, 222, 228], .72);
+      for (let py = 0; py < SIZE * K; py++) for (let px = 0; px < SIZE * K; px++) { const x = px / K, y = py / K;
+        const q = fbm2(x * .018 + ox, y * .018 + oy, 4), r2 = fbm2(x * .03 + q * 4 + oy, y * .03 - q * 3 + ox, 5);
+        const v = Math.pow(Math.max(0, r2 - .28) / .72, 1.6), curl = Math.pow(1 - Math.abs(Math.sin(r2 * 14)), 6) * .18;
+        const t = Math.min(1, v * 1.25 + curl), i = (py * SIZE * K + px) * 4;
+        for (let k = 0; k < 3; k++) d[i + k] = clamp(dark[k] + (lite[k] - dark[k]) * t);
+        d[i + 3] = 255;
+      }
+      g.putImageData(id, 0, 0);
+      return c;
+    },
+    // Rain on glass: blurred tinted background, streaks, then refracting drops with highlights.
+    rain(b) {
+      const [c, g] = canvas(), base = mix(b, [70, 110, 150], .5);
+      const bg = g.createLinearGradient(0, 0, SIZE, SIZE); bg.addColorStop(0, col(mix(base, [210, 230, 245], .35))); bg.addColorStop(1, col(base.map((v) => v * .55)));
+      g.fillStyle = bg; g.fillRect(0, 0, SIZE, SIZE);
+      for (let i = 0; i < 14; i++) { const x = R(0, SIZE), y = R(0, SIZE), r = R(10, 30), gl = g.createRadialGradient(x, y, 0, x, y, r); gl.addColorStop(0, `rgba(255,255,255,${R(.06, .16)})`); gl.addColorStop(1, "rgba(255,255,255,0)"); g.fillStyle = gl; g.fillRect(x - r, y - r, r * 2, r * 2); }
+      g.strokeStyle = "rgba(230,245,255,.18)"; g.lineWidth = .7;
+      for (let i = 0; i < 40; i++) { const x = R(0, SIZE), y = R(-20, SIZE); g.beginPath(); g.moveTo(x, y); g.lineTo(x - 4, y + R(14, 26)); g.stroke(); }
+      for (let i = 0; i < 34; i++) {
+        const x = R(4, SIZE - 4), y = R(4, SIZE - 4), r = R(1.6, 6.5), rx = r * R(.8, 1);
+        if (r > 4.5) { g.strokeStyle = "rgba(220,240,255,.25)"; g.lineWidth = r * .5; g.beginPath(); g.moveTo(x, y - r * 4); g.lineTo(x, y); g.stroke(); }
+        const dg = g.createRadialGradient(x, y + r * .35, 0, x, y, r);
+        dg.addColorStop(0, `rgba(${mix(base, [255, 255, 255], .7).join(",")},.85)`); dg.addColorStop(.7, `rgba(${base.map((v) => v * .6).join(",")},.55)`); dg.addColorStop(1, "rgba(10,20,30,.55)");
+        g.fillStyle = dg; g.beginPath(); g.ellipse(x, y, rx, r, 0, 0, Math.PI * 2); g.fill();
+        g.fillStyle = "rgba(255,255,255,.9)"; g.beginPath(); g.arc(x - rx * .35, y - r * .4, r * .22, 0, Math.PI * 2); g.fill();
+      }
+      return c;
+    },
+    // Lightning: a stormy cloud field split by a branching bolt with a wide glow.
+    bolt(b) {
+      const [c, g] = canvas(), id = g.createImageData(SIZE * K, SIZE * K), d = id.data, ox = R(0, 100), oy = R(0, 100);
+      const dark = mix(b, [22, 24, 52], .7), cloud = mix(b, [96, 100, 150], .55);
+      for (let py = 0; py < SIZE * K; py++) for (let px = 0; px < SIZE * K; px++) { const x = px / K, y = py / K;
+        const t = Math.pow(fbm2(x * .025 + ox, y * .025 + oy, 5), 1.4), i = (py * SIZE * K + px) * 4;
+        for (let k = 0; k < 3; k++) d[i + k] = clamp(dark[k] + (cloud[k] - dark[k]) * t * 1.3);
+        d[i + 3] = 255;
+      }
+      g.putImageData(id, 0, 0);
+      const glowC = col(mix(b, [190, 200, 255], .6));
+      const branch = (x, y, ang, len, w, depth) => {
+        const pts = [[x, y]];
+        for (let k = 0; k < 7; k++) { x += Math.cos(ang) * len / 7 + R(-5, 5); y += Math.sin(ang) * len / 7; pts.push([x, y]); if (depth < 2 && rand() < .22) branch(x, y, ang + R(-.9, .9), len * .45, w * .55, depth + 1); }
+        for (const [lw, sc, blur] of [[w * 4, `rgba(170,190,255,.25)`, 14], [w * 1.6, glowC, 8], [w * .6, "#ffffff", 3]]) {
+          g.save(); g.shadowColor = glowC; g.shadowBlur = blur * K; g.strokeStyle = sc; g.lineWidth = lw; g.lineJoin = "round";
+          g.beginPath(); pts.forEach(([a, b2], i) => (i ? g.lineTo(a, b2) : g.moveTo(a, b2))); g.stroke(); g.restore();
+        }
+      };
+      branch(R(52, 76), -4, Math.PI / 2 + R(-.2, .2), 140, 3, 0);
+      return c;
+    },
+    // Electricity: two layers of ridged noise give plasma filaments with a white-hot core.
+    electric(b) {
+      const [c, g] = canvas(), id = g.createImageData(SIZE * K, SIZE * K), d = id.data, ox = R(0, 100), oy = R(0, 100);
+      const deep = mix(b, [14, 8, 40], .75), arc = mix(b, [90, 210, 255], .55), arc2 = mix(b, [190, 110, 255], .5);
+      for (let py = 0; py < SIZE * K; py++) for (let px = 0; px < SIZE * K; px++) { const x = px / K, y = py / K;
+        const r1 = 1 - Math.abs(2 * fbm2(x * .022 + ox, y * .022 + oy, 5) - 1), r2 = 1 - Math.abs(2 * fbm2(x * .03 + oy, y * .03 + ox, 4) - 1);
+        const e1 = Math.pow(r1, 14), e2 = Math.pow(r2, 18) * .8, core = Math.pow(r1, 60), i = (py * SIZE * K + px) * 4;
+        for (let k = 0; k < 3; k++) d[i + k] = clamp(deep[k] + arc[k] * e1 + arc2[k] * e2 + 255 * core);
+        d[i + 3] = 255;
+      }
+      g.putImageData(id, 0, 0);
+      const gl = g.createRadialGradient(SIZE / 2, SIZE / 2, 0, SIZE / 2, SIZE / 2, SIZE * .7); gl.addColorStop(0, `rgba(${arc.join(",")},.18)`); gl.addColorStop(1, "rgba(0,0,0,0)");
+      g.fillStyle = gl; g.fillRect(0, 0, SIZE, SIZE);
+      return c;
+    },
+    // Future: dark composite panel with glowing circuit traces, nodes and a faint hex mesh.
+    future(b) {
+      const [c, g] = canvas(), base = mix(b, [32, 40, 60], .6), neon = col(mix(b, [0, 235, 255], .55)), neon2 = col(mix(b, [255, 60, 220], .45));
+      g.fillStyle = col(base); g.fillRect(0, 0, SIZE, SIZE);
+      fbm(g, .18, 4, 3);
+      g.strokeStyle = "rgba(255,255,255,.05)"; g.lineWidth = .6;
+      for (let y = 0, r = 0; y < SIZE + 12; y += 11, r++) for (let x = r % 2 ? 6.5 : 0; x < SIZE + 12; x += 13) { g.beginPath(); for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; g.lineTo(x + Math.cos(a) * 6, y + Math.sin(a) * 6); } g.closePath(); g.stroke(); }
+      g.strokeStyle = "rgba(0,0,0,.45)"; g.lineWidth = 1.2; g.strokeRect(10, 10, 108, 108); g.beginPath(); g.moveTo(10, 64); g.lineTo(118, 64); g.stroke();
+      const trace = (color) => {
+        let x = Math.round(R(1, 7)) * 16, y = Math.round(R(1, 7)) * 16; const pts = [[x, y]];
+        for (let k = 0; k < 5; k++) { const dir = Math.floor(R(0, 4)), L = Math.round(R(1, 3)) * 12; x = Math.max(6, Math.min(122, x + [L, 0, -L, 0][dir])); y = Math.max(6, Math.min(122, y + [0, L, 0, -L][dir])); pts.push([x, y]); }
+        g.save(); g.shadowColor = color; g.shadowBlur = 6 * K; g.strokeStyle = color; g.lineWidth = 1.6; g.lineJoin = "round";
+        g.beginPath(); pts.forEach(([a, b2], i) => (i ? g.lineTo(a, b2) : g.moveTo(a, b2))); g.stroke();
+        for (const [a, b2] of [pts[0], pts[pts.length - 1]]) { g.fillStyle = color; g.beginPath(); g.arc(a, b2, 2.6, 0, Math.PI * 2); g.fill(); g.fillStyle = "#ffffff"; g.beginPath(); g.arc(a, b2, 1, 0, Math.PI * 2); g.fill(); }
+        g.restore();
+      };
+      for (let i = 0; i < 5; i++) trace(i % 3 === 2 ? neon2 : neon);
+      const gl = g.createLinearGradient(0, 0, SIZE, SIZE * .7); gl.addColorStop(0, "rgba(255,255,255,.16)"); gl.addColorStop(.4, "rgba(255,255,255,0)");
+      g.fillStyle = gl; g.fillRect(0, 0, SIZE, SIZE);
+      return c;
+    },
     // Brushed metal plate with a specular band and four rivets.
     metal(b) {
       const [c, g] = canvas(), id = g.createImageData(SIZE * K, SIZE * K), d = id.data, ox = R(0, 100);
@@ -1022,8 +1151,54 @@ window.Skins = (() => {
     wood: (b) => mix(b, [214, 150, 80], .12), cement: (b) => mix(b, [190, 190, 186], .5), brick: (b) => mix(b, [196, 84, 54], .4),
     ice: (b) => mix(b, [150, 215, 250], .8), water: (b) => mix(b, [50, 140, 225], .72), lava: (b) => mix(b, [240, 104, 30], .72), marble: (b) => mix(b, [240, 236, 228], .6),
     metal: (b) => mix(b, [160, 168, 180], .55),
+    bolt: (b) => mix(b, [60, 64, 130], .55), electric: (b) => mix(b, [80, 40, 170], .55), rain: (b) => mix(b, [90, 150, 215], .6),
+    future: (b) => mix(b, [40, 60, 110], .55), sand: (b) => mix(b, [236, 196, 120], .72), grass: (b) => mix(b, [90, 180, 70], .66),
+    smoke: (b) => mix(b, [150, 150, 162], .55),
   };
   const MOTIF = {
+    bolt(g) {
+      g.fillStyle = "#ffe14a"; g.strokeStyle = "#3a2414"; g.lineWidth = 4; g.lineJoin = "round";
+      g.beginPath(); g.moveTo(72, 18); g.lineTo(38, 70); g.lineTo(62, 70); g.lineTo(50, 112); g.lineTo(94, 52); g.lineTo(68, 52); g.lineTo(84, 18); g.closePath(); g.fill(); g.stroke();
+      g.fillStyle = "rgba(255,255,255,.7)"; g.beginPath(); g.moveTo(72, 24); g.lineTo(52, 58); g.lineTo(58, 58); g.closePath(); g.fill();
+    },
+    electric(g) {
+      g.lineCap = "round"; g.lineJoin = "round";
+      for (const [y, c2] of [[44, "#7ff6ff"], [76, "#e0a0ff"]]) {
+        g.strokeStyle = "#3a2414"; g.lineWidth = 8; g.beginPath(); for (let k = 0; k <= 8; k++) g.lineTo(20 + k * 11, y + (k % 2 ? -9 : 9)); g.stroke();
+        g.strokeStyle = c2; g.lineWidth = 4; g.beginPath(); for (let k = 0; k <= 8; k++) g.lineTo(20 + k * 11, y + (k % 2 ? -9 : 9)); g.stroke();
+      }
+      star(g, 30, 98, 8, "#ffffff"); star(g, 98, 26, 6, "#ffffff");
+    },
+    rain(g) {
+      g.fillStyle = "#ffffff"; g.strokeStyle = "#3a2414"; g.lineWidth = 3.5;
+      g.beginPath(); g.arc(46, 46, 16, Math.PI * .9, Math.PI * 1.9); g.arc(68, 40, 20, Math.PI * 1.1, Math.PI * 2); g.arc(88, 52, 14, Math.PI * 1.4, Math.PI * .5); g.lineTo(40, 66); g.arc(40, 54, 12, Math.PI * .5, Math.PI * 1.3); g.closePath(); g.fill(); g.stroke();
+      for (const [x, y] of [[44, 84], [66, 98], [88, 84]]) { g.fillStyle = "#5ac8ff"; g.beginPath(); g.moveTo(x, y - 12); g.quadraticCurveTo(x + 9, y + 2, x, y + 6); g.quadraticCurveTo(x - 9, y + 2, x, y - 12); g.fill(); g.stroke(); }
+    },
+    future(g) {
+      g.lineCap = "round"; g.lineWidth = 4;
+      for (const [pts, c2] of [[[[24, 40], [60, 40], [74, 54], [104, 54]], "#3ff2ff"], [[[24, 86], [48, 86], [62, 72], [104, 72]], "#ff5ae0"], [[[40, 104], [40, 96], [90, 96]], "#3ff2ff"]]) {
+        g.strokeStyle = c2; g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.stroke();
+        for (const [x, y] of [pts[0], pts[pts.length - 1]]) { g.fillStyle = "#ffffff"; g.beginPath(); g.arc(x, y, 4.5, 0, Math.PI * 2); g.fill(); }
+      }
+    },
+    sand(g, c) {
+      g.strokeStyle = col(shade(c, .45)); g.lineWidth = 5; g.lineCap = "round";
+      for (const y of [44, 70, 96]) { g.beginPath(); g.moveTo(22, y); g.bezierCurveTo(44, y - 12, 64, y + 10, 106, y - 6); g.stroke(); }
+      g.fillStyle = col(shade(c, -.3)); for (const [x, y] of [[36, 58], [78, 84], [90, 34], [52, 108]]) { g.beginPath(); g.arc(x, y, 2.5, 0, Math.PI * 2); g.fill(); }
+    },
+    grass(g, c) {
+      g.strokeStyle = "#3a2414"; g.lineWidth = 2.5;
+      for (const [x, h, f] of [[26, 46, -.45], [40, 62, .4], [56, 40, -.45], [70, 70, .45], [86, 50, -.4], [100, 60, .35]]) {
+        g.fillStyle = col(shade(c, f)); g.beginPath(); g.moveTo(x - 7, 112); g.quadraticCurveTo(x - 2, 112 - h * .6, x + 5, 112 - h); g.quadraticCurveTo(x + 3, 112 - h * .5, x + 7, 112); g.closePath(); g.fill(); g.stroke();
+      }
+      g.fillStyle = "#ffffff"; for (let k = 0; k < 5; k++) { const a = k * Math.PI * .4; g.beginPath(); g.arc(44 + Math.cos(a) * 6, 40 + Math.sin(a) * 6, 4.5, 0, Math.PI * 2); g.fill(); }
+      g.fillStyle = "#ffd34a"; g.beginPath(); g.arc(44, 40, 4, 0, Math.PI * 2); g.fill();
+    },
+    smoke(g, c) {
+      g.strokeStyle = "#3a2414"; g.lineWidth = 3.5;
+      for (const [x, y, r, f] of [[48, 76, 22, .35], [76, 60, 26, .5], [56, 44, 16, .6], [88, 92, 14, .3]]) { g.fillStyle = col(shade(c, f)); g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); g.stroke(); }
+      g.strokeStyle = col(shade(c, -.2)); g.lineWidth = 3; g.beginPath(); g.arc(76, 60, 12, Math.PI * .2, Math.PI * 1.4); g.stroke();
+    },
     lava(g, c) {
       for (const [x, y, r] of [[44, 46, 13], [84, 76, 16], [42, 92, 9], [92, 36, 7]]) {
         g.fillStyle = col(shade(c, -.35)); g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
@@ -1079,15 +1254,24 @@ window.Skins = (() => {
     wood: (b) => mix(b, [176, 118, 64], .35), cement: (b) => mix(b, [168, 168, 166], .62), brick: (b) => mix(b, [186, 74, 46], .45),
     ice: (b) => mix(b, [176, 226, 250], .8), water: (b) => mix(b, [40, 120, 220], .7), lava: (b) => mix(b, [220, 70, 20], .6),
     marble: (b) => mix(b, [236, 232, 224], .62), metal: (b) => mix(b, [150, 158, 170], .55),
+    rain: (b) => mix(b, [80, 130, 190], .6), sand: (b) => mix(b, [222, 186, 120], .72), grass: (b) => mix(b, [76, 156, 60], .66),
+    smoke: (b) => mix(b, [130, 130, 140], .6),
+  };
+  // Night-sky materials use their own ramp: dark body with neon highlights.
+  const PIX_RAMP = {
+    lava: (b) => [[34, 16, 10], [78, 30, 18], mix(b, [190, 46, 24], .7), [244, 124, 30], [255, 214, 80]],
+    bolt: (b) => [[16, 16, 38], [36, 38, 78], mix(b, [70, 72, 130], .6), [255, 214, 80], [255, 255, 228]],
+    electric: (b) => [[14, 8, 38], [40, 22, 92], mix(b, [92, 52, 172], .6), [90, 222, 255], [236, 255, 255]],
+    future: (b) => [[12, 16, 28], [28, 38, 58], mix(b, [50, 64, 96], .6), [0, 228, 255], [214, 255, 255]],
   };
   function paintPixel(kind, b) {
-    const N = 16, base = (PIX_BASE[kind] || PIX_BASE.wood)(b), ramp = kind === "lava"
-      ? [[34, 16, 10], [78, 30, 18], mix(b, [190, 46, 24], .7), [244, 124, 30], [255, 214, 80]]
+    const N = 16, base = (PIX_BASE[kind] || PIX_BASE.wood)(b), ramp = PIX_RAMP[kind]
+      ? PIX_RAMP[kind](b)
       : [shade(base, -.62), shade(base, -.3), base, shade(base, .3), shade(base, .66)];
     const grid = Array.from({ length: N * N }, () => 2), set = (x, y, v) => { if (x >= 0 && y >= 0 && x < N && y < N) grid[y * N + x] = v; };
     const dith = (x, y, t) => (BAYER[(y % 4) * 4 + (x % 4)] / 16 < t);
     // vertical light-to-shadow gradient via dithering (realism touch)
-    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const t = y / (N - 1); if (t < .22 && dith(x, y, .6 - t * 2.5)) set(x, y, 3); if (t > .72 && dith(x, y, (t - .72) * 2.6)) set(x, y, 1); }
+    if (!PIX_RAMP[kind] || kind === "lava") for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const t = y / (N - 1); if (t < .22 && dith(x, y, .6 - t * 2.5)) set(x, y, 3); if (t > .72 && dith(x, y, (t - .72) * 2.6)) set(x, y, 1); }
     const P = {
       wood() { for (const y0 of [0, 5, 10]) { for (let x = 0; x < N; x++) { set(x, y0, 1); if ((x + y0) % 5 === 2) set(x, y0 + 2, 1); } const j = y0 === 5 ? 9 : 5; for (let y = y0; y < y0 + 5; y++) set(j, y, 0); } for (let x = 0; x < N; x++) set(x, 15, 0); },
       brick() { for (const y0 of [0, 4, 8, 12]) { for (let x = 0; x < N; x++) set(x, y0, 4); const off = (y0 / 4) % 2 ? 4 : 0; for (let x = off; x < N; x += 8) for (let y = y0; y < y0 + 4; y++) set(x, y, 4); for (let x = 0; x < N; x++) if (x % 8 !== off % 8) set(x, y0 + 3, 1); } },
@@ -1105,11 +1289,38 @@ window.Skins = (() => {
       },
       marble() { let x = 0, y = 4; for (let i = 0; i < 20; i++) { set(x, y, 1); x++; if (rand() < .5) y += rand() < .5 ? 1 : -1; } x = 4; y = 15; for (let i = 0; i < 14; i++) { set(x, y, 1); y--; if (rand() < .4) x++; } },
       metal() { for (const [x, y] of [[2, 2], [13, 2], [2, 13], [13, 13]]) { set(x, y, 0); set(x - 1, y - 1, 4); } for (let x = 3; x < 13; x++) { set(x, 6, 3); set(x, 9, 1); } },
+      bolt() {
+        for (let k = 0; k < 18; k++) set(Math.floor(R(1, 15)), Math.floor(R(1, 15)), rand() < .5 ? 1 : 0);
+        let x = Math.floor(R(5, 10)); for (let y = 1; y < 15; y++) { set(x - 1, y, 3); set(x, y, 4); set(x + 1, y, 3); if (y % 3 === 0) x += rand() < .5 ? -2 : 2; x = Math.max(2, Math.min(13, x)); if (y === 7) { let bx = x; for (let y2 = 8; y2 < 13; y2++) { bx += 1; set(bx, y2, 3); } } }
+      },
+      electric() {
+        for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) set(x, y, rand() < .25 ? 1 : 2);
+        for (const y0 of [4, 11]) { let y = y0; for (let x = 0; x < N; x++) { set(x, y - 1, 3); set(x, y + 1, 3); set(x, y, 4); if (rand() < .55) y += rand() < .5 ? -1 : 1; y = Math.max(2, Math.min(13, y)); } }
+      },
+      rain() { for (let k = 0; k < 9; k++) { const x = Math.floor(R(1, 15)), y = Math.floor(R(1, 13)); set(x, y, 4); set(x, y + 1, 3); set(x, y + 2, 3); set(x + 1, y + 2, 1); } for (let k = 0; k < 8; k++) set(Math.floor(R(0, 16)), Math.floor(R(0, 16)), 1); },
+      future() {
+        for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) set(x, y, (x % 8 === 0 || y % 8 === 0) ? 1 : 2);
+        for (const [x0, y0, x1, y1] of [[2, 3, 10, 3], [10, 3, 10, 9], [4, 12, 13, 12], [4, 7, 4, 12]]) { for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) for (let y = Math.min(y0, y1); y <= Math.max(y0, y1); y++) set(x, y, 3); }
+        for (const [x, y] of [[2, 3], [10, 9], [13, 12], [4, 7]]) set(x, y, 4);
+      },
+      sand() { for (const y0 of [2, 6, 10, 14]) for (let x = 0; x < N; x++) { const y = y0 + (Math.floor(x / 3) % 2 ? 0 : -1); set(x, y, 3); set(x, y + 1, 1); } for (let k = 0; k < 10; k++) set(Math.floor(R(0, 16)), Math.floor(R(0, 16)), rand() < .5 ? 4 : 1); },
+      grass() {
+        for (let x = 0; x < N; x++) { set(x, 15, 0); set(x, 14, 1); }
+        for (let x = 0; x < N; x += 1) { const h = Math.floor(R(3, 9)), shadeV = x % 3 === 0 ? 1 : 3; for (let y = 14; y > 14 - h; y--) set(x + (y < 10 && x % 2 ? 1 : 0), y, shadeV); set(x, 14 - h, 4); }
+        set(5, 4, 4); set(4, 5, 4); set(6, 5, 4); set(5, 6, 4);
+      },
+      smoke() {
+        for (const [cx, cy, r] of [[5, 10, 4], [10, 6, 4], [11, 12, 3], [4, 4, 2]]) for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const d2 = i * i + j * j; if (d2 <= r * r) set(cx + i, cy + j, d2 < r * r * .3 ? 4 : 3); }
+        for (let k = 0; k < 10; k++) set(Math.floor(R(0, 16)), Math.floor(R(0, 16)), 1);
+      },
     };
     (P[kind] || P.wood)();
     // 1-pixel bevel: light top/left, dark bottom/right, black outline corners
-    for (let i = 0; i < N; i++) { set(i, 0, Math.max(grid[i], 3)); set(0, i, Math.max(grid[i * N], 3)); set(i, N - 1, 0); set(N - 1, i, 0); }
-    set(0, 0, 4);
+    // Neon ramps (raio, eletricidade, futuro) bevel with a lifted body tone (index 5), not the neon.
+    ramp.push(mix(ramp[2], [255, 255, 255], .3));
+    const bev = PIX_RAMP[kind] && kind !== "lava" ? 5 : 3;
+    for (let i = 0; i < N; i++) { set(i, 0, grid[i] === 4 ? 4 : bev); set(0, i, grid[i * N] === 4 ? 4 : bev); set(i, N - 1, 0); set(N - 1, i, 0); }
+    set(0, 0, bev === 5 ? 5 : 4);
     const sm = document.createElement("canvas"); sm.width = sm.height = N;
     const sg = sm.getContext("2d"), im = sg.createImageData(N, N);
     grid.forEach((v, i) => {
@@ -1402,8 +1613,9 @@ window.Scene = (() => {
   function resize() {
     dpr = Math.min(theme && theme.hd ? 3 : 2, window.devicePixelRatio || 1);
     W = window.innerWidth; H = window.innerHeight;
-    for (const c of [bg, fx]) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
-    b.setTransform(dpr, 0, 0, dpr, 0, 0); f.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const bd = vstyle === "pixel" ? .25 : dpr;
+    bg.width = Math.round(W * bd); bg.height = Math.round(H * bd); fx.width = Math.round(W * dpr); fx.height = Math.round(H * dpr);
+    b.setTransform(bd, 0, 0, bd, 0, 0); f.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (theme) amb = theme.amb ? Array.from({ length: theme.amb.n }, () => theme.amb.make(true)) : [];
     if (theme && theme.onResize) theme.onResize();
   }
@@ -1416,8 +1628,9 @@ window.Scene = (() => {
     b.fillStyle = g; b.fillRect(0, 0, W, H);
   }
   function glow(x, y, r, color, a) {
-    const g = b.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, color); g.addColorStop(1, "rgba(0,0,0,0)");
+    // Fade to the same colour at zero alpha (fading to transparent black leaves a dark ring).
+    const g = b.createRadialGradient(x, y, 0, x, y, r), clear = /^rgba\(/.test(color) ? color.replace(/,[^,]*\)$/, ",0)") : "rgba(0,0,0,0)";
+    g.addColorStop(0, color); g.addColorStop(1, clear);
     b.globalAlpha = a == null ? 1 : a; b.fillStyle = g; b.fillRect(x - r, y - r, r * 2, r * 2); b.globalAlpha = 1;
   }
   function circle(ctx, x, y, r, color) { ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); }
@@ -1472,10 +1685,22 @@ window.Scene = (() => {
   }
   // Animação clear: blocks pop into outlined chunks of their own colour, stars fly out and a
   // comic impact ring snaps outward. Same timing and power scaling as Realismo.
-  function toonExplode(points, power, cfg, per) {
-    const n = Math.max(2, Math.round(4 * per / 5));
+  // Animação accents: each material adds its own extra pieces on top of the outlined chunks.
+  const TOON_ACC = {
+    wood: ["splinter", ["#c27f3c", "#8a5a2b"]], brick: ["brickbit", ["#c4573a", "#e0c8a8"]], cement: ["tpuff", []], marble: ["tpuff", []],
+    ice: ["shard", ["rgba(220,245,255,.95)", "#bfe8ff"]], water: ["drop", ["#ffffff", "#7fd0ff"]], rain: ["drop", ["#ffffff", "#9ad8ff"]],
+    lava: ["ember", ["#ffb347", "#ff6a1a", "#ffe14a"]], metal: ["spark", ["#ffd36b", "#ffffff"]], bolt: ["zap", ["#ffe14a", "#ffffff"]],
+    electric: ["zap", ["#7ff6ff", "#e0a0ff"]], future: ["line", ["#3ff2ff", "#ff5ae0"]], sand: ["sawdust", ["#f0d29a", "#d8b070"]],
+    grass: ["blade", ["#5cb83a", "#8ad84f", "#3f8a2a"]], smoke: ["tpuff", []],
+  };
+  function toonExplode(points, power, cfg, per, material) {
+    const n = Math.max(2, Math.round(4 * per / 5)), acc = TOON_ACC[material];
     for (const pt of points) {
       const s2 = pt.size || 40;
+      if (acc) for (let i = 0; i < 2; i++) {
+        const a = R(0, TAU), sp = R(140, 320), shape = Array.from({ length: 5 }, (_, k) => [Math.cos(k / 5 * TAU) * R(.6, 1), Math.sin(k / 5 * TAU) * R(.6, 1)]);
+        spawn({ kind: acc[0], x: pt.x, y: pt.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 140, g: acc[0] === "tpuff" ? 0 : 700, drag: .97, life: 0, max: R(.6, 1), size: acc[0] === "tpuff" ? s2 * .28 : R(6, 11), color: acc[1].length ? pick(acc[1]) : "#ffffff", shape, rot: R(0, TAU), vr: R(-8, 8), wob: 0 });
+      }
       for (let i = 0; i < n; i++) {
         const a = R(0, TAU), sp = R(140, 340) * (1 + power * .1);
         spawn({ kind: "tchunk", x: pt.x + R(-s2 / 4, s2 / 4), y: pt.y + R(-s2 / 4, s2 / 4), vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - R(120, 260), g: 900, drag: .985, life: 0, max: R(.8, 1.3), size: s2 * R(.22, .36), color: pt.color || "#c27f3c", rot: R(0, TAU), vr: R(-10, 10), wob: 0 });
@@ -1499,6 +1724,13 @@ window.Scene = (() => {
     lava: (c) => [["#ffd04a", "#f07a1e", "#c8301a", "#ff9a30"], 4],
     marble: (c) => [["#f0ece4", "#d6d0c6", c, "#ffffff"], 1],
     metal: (c) => [["#c8ccd4", "#8f96a0", "#ffd36b", "#ffffff"], 5],
+    bolt: (c) => [["#fff6a0", "#ffd84a", "#ffffff", "#c8d4ff"], 6],
+    electric: (c) => [["#7ff6ff", "#3ab8ff", "#ffffff", "#c080ff"], 6],
+    future: (c) => [["#00f0ff", "#ff3ce0", "#ffffff", "#7cff4f"], 6],
+    rain: (c) => [["#8ac8f0", "#4a90d0", "#d8f0ff", "#ffffff"], 3],
+    sand: (c) => [["#e8c88a", "#c9a060", "#f4e0b0", "#b08850"], 1],
+    grass: (c) => [["#4f9a35", "#7cc84a", "#2f6a24", "#a8d86a"], 0],
+    smoke: (c) => [["#9a9aa4", "#6a6a74", "#c8c8d0", "#4a4a54"], 1],
   };
   function shadeHex(h, f2) { const c = hexRgb(h); return `rgb(${c.map((v) => Math.round(f2 >= 1 ? v + (255 - v) * (f2 - 1) : v * f2)).join(",")})`; }
   function pixelExplode(points, power, material, cfg, per) {
@@ -1509,13 +1741,13 @@ window.Scene = (() => {
       for (let i = 0; i < n; i++) {
         const a = R(0, TAU), sp = R(60, 220) * (1 + power * .1), big = i < 2;
         spawn({ kind: "pix", x: pt.x + R(-s2 / 3, s2 / 3), y: pt.y + R(-s2 / 3, s2 / 3), vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - R(60, 200) - (mode === 3 ? 80 : 0),
-          g: mode === 4 ? 520 : 1000, drag: .985, life: 0, max: R(.9, 1.5), size: big ? s2 * .32 : R(s2 * .1, s2 * .2), color: pick(pal), glow: mode === 4 && Math.random() < .6, rot: 0, vr: 0, wob: 0 });
+          g: mode === 4 || mode === 6 ? 520 : 1000, drag: .985, life: 0, max: R(.9, 1.5), size: big ? s2 * .32 : R(s2 * .1, s2 * .2), color: pick(pal), glow: (mode === 4 || mode === 6) && Math.random() < .6, rot: 0, vr: 0, wob: 0 });
       }
       if (mode === 1 || mode === 4) for (let i = 0; i < 2; i++) spawn({ kind: "pix", x: pt.x + R(-s2 / 3, s2 / 3), y: pt.y, vx: R(-30, 30), vy: R(-90, -40), g: -40, drag: .97, life: 0, max: R(.8, 1.2), size: s2 * .22, color: mode === 4 ? "rgba(70,60,56,.75)" : "rgba(200,198,192,.7)", rot: 0, vr: 0, wob: 0 });
       if (mode === 2 || mode === 5) spawn({ kind: "pix", x: pt.x, y: pt.y, vx: R(-120, 120), vy: R(-200, -60), g: 300, drag: .97, life: 0, max: .6, size: 3, color: "#ffffff", glow: true, rot: 0, vr: 0, wob: 0 });
     }
     let cx = 0, cy = 0; for (const pt of points) { cx += pt.x; cy += pt.y; } cx /= points.length; cy /= points.length;
-    rings.push({ x: cx, y: cy, r: 110 + power * 40, w: 6, c: mode === 4 ? "#ffb347" : "#ffffff", t: 0, max: .4, square: true });
+    rings.push({ x: cx, y: cy, r: 110 + power * 40, w: 6, c: mode === 4 ? "#ffb347" : mode === 6 ? cols[0] : "#ffffff", t: 0, max: .4, square: true });
     if (power >= 3) flash = { c: "rgba(255,255,255,.28)", t: .2 };
   }
   // Glowing bokeh specks that drift slowly, like dust caught in the light.
@@ -1538,7 +1770,7 @@ window.Scene = (() => {
       });
     }
   }
-  const ADD = { spark: 1, star: 1, ember: 1, fire: 1, glowdot: 1, line: 1, glint: 1, bokeh: 1, streak: 1, flare: 1 };
+  const ADD = { spark: 1, star: 1, ember: 1, fire: 1, glowdot: 1, line: 1, glint: 1, bokeh: 1, streak: 1, flare: 1, zap: 1 };
 
   // How each block material breaks apart. "own" uses shades of the block's own colour.
   const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
@@ -1552,6 +1784,13 @@ window.Scene = (() => {
     lava: (c) => ({ kinds: ["fire", "ember", "ember", "smoke", "rock"], colors: ["rgba(255,150,30,.95)", "rgba(255,90,20,.9)", "rgba(255,210,80,.95)", "#3a2a24"], n: 10, speed: 330, grav: 260, drag: .955, life: 1.2, size: 10, lift: 120 }),
     marble: (c) => ({ kinds: ["rock", "rock", "dust", "glint"], colors: ["rgb(236,232,224)", "rgb(214,208,200)", shade(c, 1.15), "rgb(250,248,244)"], n: 9, speed: 320, grav: 1000, drag: .972, life: 1.15, size: 9 }),
     metal: (c) => ({ kinds: ["spark", "spark", "spark", "rock"], colors: ["#fff3c4", "#ffd36b", "#ffffff", shade(c, .9)], n: 10, speed: 520, grav: 700, drag: .97, life: .8, size: 6 }),
+    bolt: (c) => ({ kinds: ["zap", "zap", "streak", "glint"], colors: ["#ffffff", "#fff3a0", "#c8d4ff", "#ffe14a"], n: 9, speed: 460, grav: 200, drag: .95, life: .6, size: 8 }),
+    electric: (c) => ({ kinds: ["zap", "zap", "spark", "glint"], colors: ["#7ff6ff", "#d9a0ff", "#ffffff", "#3fb8ff"], n: 10, speed: 420, grav: 120, drag: .95, life: .65, size: 7 }),
+    rain: (c) => ({ kinds: ["drop", "drop", "drop", "mist"], colors: ["#ffffff", "#d6efff", "#8cc8f0", shade(c, 1.2)], n: 11, speed: 400, grav: 1000, drag: .975, life: 1, size: 5, lift: 140 }),
+    future: (c) => ({ kinds: ["pixel", "line", "spark", "glowdot"], colors: ["#00f0ff", "#ff3ce0", "#ffffff", "#7cff4f"], n: 10, speed: 440, grav: 300, drag: .965, life: .9, size: 6 }),
+    sand: (c) => ({ kinds: ["sawdust", "sawdust", "sawdust", "dust", "dust"], colors: ["rgb(232,204,150)", "rgb(206,172,112)", "rgb(244,226,186)", shade(c, .9)], n: 14, speed: 300, grav: 900, drag: .965, life: 1.3, size: 10 }),
+    grass: (c) => ({ kinds: ["blade", "blade", "blade", "sawdust"], colors: ["#4f9a35", "#7cc84a", "#2f6a24", "#a8d86a"], n: 10, speed: 330, grav: 520, drag: .955, life: 1.5, size: 8, lift: 60 }),
+    smoke: (c) => ({ kinds: ["smoke", "smoke", "wisp", "dust"], colors: ["rgba(150,150,160,.7)", "rgba(110,110,122,.7)", "rgba(200,200,208,.6)", shade(c, .8)], n: 9, speed: 160, grav: -80, drag: .95, life: 1.6, size: 14 }),
   };
   function drawPart(p, k) {
     const a = Math.max(0, 1 - k);
@@ -1629,6 +1868,25 @@ window.Scene = (() => {
         f.lineWidth = 1.4;
         f.strokeStyle = p.ice ? "rgba(240,252,255,.95)" : "rgba(255,238,210,.6)"; f.beginPath(); for (const [ax, ay, bx, by] of lit) { f.moveTo(ax, ay); f.lineTo(bx, by); } f.stroke();
         f.strokeStyle = "rgba(20,10,4,.45)"; f.beginPath(); for (const [ax, ay, bx, by] of dark) { f.moveTo(ax, ay); f.lineTo(bx, by); } f.stroke();
+        f.restore(); break;
+      }
+      case "zap": {
+        // A short electric arc that re-jags every frame along the direction of travel.
+        const len = p.size * 3.2, ang = Math.atan2(p.vy, p.vx), n = 5, fl = .55 + .45 * Math.random();
+        f.strokeStyle = p.color; f.lineJoin = "round";
+        for (const [lw, al] of [[p.size * .9, .3], [1.6, 1]]) {
+          f.globalAlpha = a * fl * al; f.lineWidth = lw; f.beginPath(); f.moveTo(p.x, p.y);
+          for (let i = 1; i <= n; i++) { const t2 = i / n, j = i < n ? R(-1, 1) * p.size * .7 : 0; f.lineTo(p.x - Math.cos(ang) * len * t2 - Math.sin(ang) * j, p.y - Math.sin(ang) * len * t2 + Math.cos(ang) * j); }
+          f.stroke();
+        }
+        break;
+      }
+      case "blade": {
+        // A torn grass blade tumbling down: curved leaf with a lighter midrib.
+        f.save(); f.translate(p.x, p.y); f.rotate(p.rot); f.globalAlpha = k > .7 ? (1 - k) / .3 : 1;
+        const L2 = p.size * 1.6, w = p.size * .28;
+        f.fillStyle = p.color; f.beginPath(); f.moveTo(-L2 / 2, 0); f.quadraticCurveTo(0, -w * 2.2, L2 / 2, -w * .4); f.quadraticCurveTo(0, w * 1.2, -L2 / 2, 0); f.fill();
+        f.strokeStyle = "rgba(230,255,190,.55)"; f.lineWidth = .8; f.beginPath(); f.moveTo(-L2 / 2, 0); f.quadraticCurveTo(0, -w * .8, L2 / 2, -w * .4); f.stroke();
         f.restore(); break;
       }
       case "streak": {
@@ -1902,9 +2160,136 @@ window.Scene = (() => {
       ambDraw(p) { b.globalAlpha = .6; circle(b, p.x, p.y, p.r, p.hot ? "#ff9a40" : "#9a928a"); b.globalAlpha = 1; },
       boom: { kinds: ["fire", "fire", "smoke", "smoke", "debris", "ember"], colors: ["rgba(255,170,40,.95)", "rgba(255,90,20,.9)", "#2a2420", "#4a4038"], n: 12, speed: 380, grav: 380, drag: .95, life: 1.2, size: 14, ring: "#ffd28a", flash: "rgba(255,210,140,.3)" },
     },
+    // ---- v14 scenes ----
+    meadow: {
+      name: "Campos Verdes", glow: "rgba(200,255,160,.5)",
+      sky(t) {
+        vgrad("#69b8f0", "#a8dcf5", "#e8f6ff");
+        glow(W * .8, H * .14, Math.min(W, H) * .4, "rgba(255,250,220,.95)", .9); circle(b, W * .8, H * .14, Math.min(W, H) * .06, "#fffbe6");
+        ridge(H * .55, 22, .01, 2, "#86b884"); ridge(H * .63, 26, .016, 4, "#5c9a48"); ridge(H * .74, 16, .022, 1, "#3f7f32");
+        b.fillStyle = "#2f6a24"; b.fillRect(0, H * .82, W, H * .18);
+        // grass in the front sways with the wind
+        b.strokeStyle = "#4f9a35"; b.lineWidth = 2; b.beginPath();
+        for (let x = 0, i = 0; x < W; x += 5, i++) { const h = 14 + SIL[i % 40] * 18, sw = Math.sin(t * 1.6 + x * .05) * 5; b.moveTo(x, H * .83); b.quadraticCurveTo(x + sw * .4, H * .83 - h * .5, x + sw, H * .83 - h); }
+        b.stroke();
+      },
+      amb: drift(22, () => ({ x: R(0, W), y: R(H * .3, H * .85), v: R(10, 26), ph: R(0, TAU), c: pick(["#fff7a8", "#ffffff", "#ffd0e8"]) })),
+      ambStep(p, dt) { p.x += p.v * dt; p.y += Math.sin(clock * 2 + p.ph) * 10 * dt; if (p.x > W + 5) p.x = -5; },
+      ambDraw(p) { const fl = Math.abs(Math.sin(clock * 9 + p.ph)); b.globalAlpha = .85; b.fillStyle = p.c; b.beginPath(); b.ellipse(p.x - 2, p.y, 3 * fl + .5, 2.4, 0, 0, TAU); b.ellipse(p.x + 2, p.y, 3 * fl + .5, 2.4, 0, 0, TAU); b.fill(); b.globalAlpha = 1; },
+      boom: { kinds: ["blade", "blade", "sawdust", "spark"], colors: ["#5cb83a", "#8ad84f", "#fff7a8", "#ffffff"], n: 9, speed: 300, grav: 400, life: 1.1, size: 8, ring: "#d8ffb0" },
+    },
+    rain: {
+      name: "Floresta da Chuva", glow: "rgba(190,230,230,.45)",
+      sky(t) {
+        vgrad("#55686e", "#33454c", "#1d2a2e");
+        // misty pine forest in three layers
+        for (const [y0, c2, sc, k0] of [[.55, "#3f5650", .7, 0], [.67, "#2c403a", .85, 11], [.79, "#1a2a24", 1, 23]]) {
+          b.fillStyle = c2; b.beginPath(); b.moveTo(0, H); let i = k0;
+          for (let x = -20; x < W + 40; x += 26 * sc) { const h = (40 + SIL[i++ % 40] * 60) * sc, y = H * y0; b.lineTo(x, y); b.lineTo(x + 13 * sc, y - h); b.lineTo(x + 26 * sc, y); }
+          b.lineTo(W, H); b.closePath(); b.fill();
+          b.fillStyle = "rgba(200,215,215,.07)"; b.fillRect(0, H * y0 - 24, W, 48);
+        }
+        b.fillStyle = "#14201b"; b.fillRect(0, H * .87, W, H * .13);
+      },
+      amb: drift(140, (init) => ({ x: R(-40, W), y: init ? R(0, H) : R(-40, 0), v: R(700, 1000), l: R(10, 22), a: R(.15, .4) })),
+      ambStep(p, dt) { p.y += p.v * dt; p.x += p.v * .12 * dt; if (p.y > H) { p.y = R(-40, 0); p.x = R(-40, W); } },
+      ambDraw(p) { b.globalAlpha = p.a; b.strokeStyle = "#cfe4ee"; b.lineWidth = 1; b.beginPath(); b.moveTo(p.x, p.y); b.lineTo(p.x - p.l * .12, p.y - p.l); b.stroke(); b.globalAlpha = 1; },
+      boom: { kinds: ["drop", "drop", "drop", "mist"], colors: ["#ffffff", "#cfe4ee", "#8cc8f0", "#5a8aa0"], n: 11, speed: 380, grav: 950, life: 1, size: 5, lift: 140, ring: "#cfe4ee", rings: 2 },
+    },
+    storm: {
+      name: "Tempestade", glow: "rgba(170,190,255,.5)",
+      sky(t) {
+        vgrad("#1b2030", "#262c40", "#121520");
+        for (let k = 0; k < 3; k++) {
+          b.fillStyle = ["#2f3549", "#262b3c", "#1c202d"][k];
+          for (let i = 0; i < 6; i++) { const x = ((t * (6 + k * 5) + i * 170 + k * 90) % (W + 340)) - 170, y = H * (.08 + k * .09) + SIL[i + k * 6] * 30; b.beginPath(); b.ellipse(x, y, 120 + SIL[i] * 60, 34 + k * 8, 0, 0, TAU); b.fill(); }
+        }
+        if (bolt > 0 && this.path) {
+          b.fillStyle = `rgba(200,210,255,${bolt * .28})`; b.fillRect(0, 0, W, H);
+          for (const [lw, c2] of [[10, `rgba(160,180,255,${bolt * .3})`], [4, `rgba(210,220,255,${bolt * .8})`], [1.6, `rgba(255,255,255,${bolt})`]]) {
+            b.strokeStyle = c2; b.lineWidth = lw; b.lineJoin = "round"; b.beginPath(); this.path.forEach(([x, y], i) => (i ? b.lineTo(x, y) : b.moveTo(x, y))); b.stroke();
+          }
+        }
+        ridge(H * .8, 14, .02, 3, "#0c0e16");
+      },
+      extra(t, dt) {
+        bolt = Math.max(0, bolt - dt * 2.5);
+        if (!reduce && Math.random() < dt * .25) { bolt = 1; let x = R(W * .15, W * .85), y = H * .12; const pts = [[x, y]]; while (y < H * .8) { x += R(-26, 26); y += R(18, 36); pts.push([x, y]); } this.path = pts; }
+      },
+      amb: drift(120, (init) => ({ x: R(-60, W), y: init ? R(0, H) : R(-40, 0), v: R(800, 1150), l: R(14, 26), a: R(.15, .35) })),
+      ambStep(p, dt) { p.y += p.v * dt; p.x += p.v * .25 * dt; if (p.y > H) { p.y = R(-40, 0); p.x = R(-60, W); } },
+      ambDraw(p) { b.globalAlpha = p.a; b.strokeStyle = "#b8c4e0"; b.lineWidth = 1; b.beginPath(); b.moveTo(p.x, p.y); b.lineTo(p.x - p.l * .25, p.y - p.l); b.stroke(); b.globalAlpha = 1; },
+      boom: { kinds: ["zap", "zap", "spark", "drop"], colors: ["#ffffff", "#c8d4ff", "#fff3a0", "#9ab0ff"], n: 9, speed: 420, grav: 300, life: .8, size: 7, ring: "#c8d4ff", flash: "rgba(220,230,255,.25)" },
+    },
+    desert: {
+      name: "Deserto Dourado", glow: "rgba(255,210,140,.55)",
+      sky(t) {
+        vgrad("#f2a85a", "#f7d290", "#f3e2b8");
+        glow(W * .3, H * .22, Math.min(W, H) * .5, "rgba(255,240,190,.9)", .9); circle(b, W * .3, H * .22, Math.min(W, H) * .09, "#fff3c8");
+        const dune = (y0, amp, fr, ph, c1, c2) => {
+          const g = b.createLinearGradient(0, y0 - amp, 0, H); g.addColorStop(0, c1); g.addColorStop(1, c2); b.fillStyle = g;
+          b.beginPath(); b.moveTo(0, H); for (let x = 0; x <= W + 10; x += 10) b.lineTo(x, y0 + Math.sin(x * fr + ph) * amp + Math.sin(x * fr * 2.3 + ph * 2) * amp * .3); b.lineTo(W, H); b.closePath(); b.fill();
+        };
+        dune(H * .6, 18, .008, 1, "#e8b46a", "#d29a50"); dune(H * .7, 24, .011, 3, "#f0c27a", "#c98c45");
+        b.fillStyle = "#6b5a30";
+        for (const [fx, hh] of [[.15, 60], [.82, 46]]) { const x = W * fx, y = H * .76; b.fillRect(x - 5, y - hh, 10, hh); b.fillRect(x - 18, y - hh * .7, 8, hh * .35); b.fillRect(x - 18, y - hh * .42, 18, 6); b.fillRect(x + 10, y - hh * .85, 8, hh * .4); b.fillRect(x + 4, y - hh * .5, 14, 6); }
+        dune(H * .82, 20, .015, 5, "#e2a95e", "#b87a38");
+      },
+      amb: drift(60, (init) => ({ x: init ? R(0, W) : -5, y: R(H * .45, H), v: R(120, 260), r: R(.8, 1.8), a: R(.2, .5) })),
+      ambStep(p, dt) { p.x += p.v * dt; p.y += Math.sin(clock * 3 + p.x * .02) * 8 * dt; if (p.x > W + 5) Object.assign(p, THEMES.desert.amb.make(false)); },
+      ambDraw(p) { b.globalAlpha = p.a; circle(b, p.x, p.y, p.r, "#fff0c8"); b.globalAlpha = 1; },
+      boom: { kinds: ["sawdust", "sawdust", "dust", "dust"], colors: ["#f0d29a", "#d8b070", "#c09050", "#fff0c8"], n: 12, speed: 300, grav: 700, life: 1.2, size: 10, ring: "#ffe6b0" },
+    },
+    smoke: {
+      name: "Vale da Fumaça", glow: "rgba(255,170,110,.4)",
+      sky(t) {
+        vgrad("#2b2b2d", "#3c3b3e", "#1b1b1c");
+        glow(W * .7, H * .25, Math.min(W, H) * .4, "rgba(255,150,80,.25)"); circle(b, W * .7, H * .25, Math.min(W, H) * .08, "rgba(255,170,110,.55)");
+        ridge(H * .62, 30, .012, 2, "#24212a");
+        b.fillStyle = "#141218";
+        for (let i = 0; i < 5; i++) { const x = W * (.08 + i * .21), h = H * (.12 + SIL[i] * .18); b.fillRect(x, H * .72 - h, 14, h + H * .3); }
+        b.fillRect(0, H * .72, W, H * .28);
+        for (let k = 0; k < 5; k++) { b.globalAlpha = .15; b.fillStyle = k % 2 ? "#8a8a8a" : "#b0b0b0"; b.beginPath(); b.ellipse(((t * (10 + k * 4) + k * 220) % (W + 700)) - 350, H * (.35 + k * .1), 300, 60, 0, 0, TAU); b.fill(); }
+        b.globalAlpha = 1;
+      },
+      amb: drift(34, (init) => { const i = Math.floor(R(0, 5)); return { x: W * (.08 + i * .21) + 7, y: init ? R(H * .1, H * .7) : H * .72 - H * (.12 + SIL[i] * .18), v: R(14, 30), r: R(6, 12), ph: R(0, TAU), y0: 0 }; }),
+      ambStep(p, dt) { p.y -= p.v * dt; p.x += (6 + Math.sin(clock + p.ph) * 6) * dt; p.r += dt * 5; if (p.y < -30) Object.assign(p, THEMES.smoke.amb.make(false)); },
+      ambDraw(p) { glow(p.x, p.y, p.r * 3, "rgba(166,166,166,.55)", Math.max(0, Math.min(.5, p.y / H * .7))); },
+      boom: { kinds: ["smoke", "smoke", "wisp", "ember"], colors: ["rgba(150,146,156,.7)", "rgba(100,96,108,.7)", "rgba(200,196,204,.6)", "#ff9a50"], n: 9, speed: 180, grav: -60, drag: .95, life: 1.5, size: 14, ring: "#c8c0d0" },
+    },
+    electric: {
+      name: "Usina Elétrica", glow: "rgba(110,220,255,.55)",
+      sky(t) {
+        vgrad("#060a1e", "#0d1236", "#05071a");
+        glow(W / 2, H * .45, Math.max(W, H) * .5, "rgba(80,120,255,.18)");
+        b.strokeStyle = "#26306a"; b.lineWidth = 3;
+        const tops = [];
+        for (const fx of [.18, .82]) {
+          const x = W * fx, y0 = H * .82, y1 = H * .38;
+          b.beginPath(); b.moveTo(x - 28, y0); b.lineTo(x, y1); b.lineTo(x + 28, y0);
+          for (let k = 1; k < 6; k++) { const yy = y1 + (y0 - y1) * k / 6, ww = 28 * k / 6; b.moveTo(x - ww, yy); b.lineTo(x + ww, yy); }
+          b.moveTo(x - 30, y1 + 20); b.lineTo(x + 30, y1 + 20); b.stroke();
+          tops.push([x, y1]); glow(x, y1, 40, "rgba(127,246,255,.5)"); circle(b, x, y1, 6, "#7ff6ff");
+        }
+        // the arc between the towers re-jags every frame and flares on surges
+        const surge = .35 + bolt * .65, [ax, ay] = tops[0], [bx, by] = tops[1];
+        for (const [lw, c2] of [[8, `rgba(90,200,255,${.18 * surge})`], [3, `rgba(160,230,255,${.6 * surge})`], [1.2, `rgba(255,255,255,${surge})`]]) {
+          b.strokeStyle = c2; b.lineWidth = lw; b.beginPath(); b.moveTo(ax, ay);
+          for (let i = 1; i < 14; i++) { const u = i / 14; b.lineTo(ax + (bx - ax) * u, ay + (by - ay) * u + Math.sin(u * Math.PI) * 40 + R(-14, 14)); }
+          b.lineTo(bx, by); b.stroke();
+        }
+        b.fillStyle = "#04050f"; b.fillRect(0, H * .82, W, H * .18);
+        b.strokeStyle = "rgba(80,140,255,.25)"; b.lineWidth = 1; b.beginPath(); for (let x = 0; x < W; x += 24) { b.moveTo(x, H * .82); b.lineTo(x, H); } b.stroke();
+      },
+      extra(t, dt) { bolt = Math.max(0, bolt - dt * 3); if (!reduce && Math.random() < dt * .6) bolt = 1; },
+      amb: drift(30, (init) => ({ x: R(0, W), y: init ? R(0, H) : H + 5, v: R(20, 60), r: R(.8, 2), ph: R(0, TAU) })),
+      ambStep(p, dt) { p.y -= p.v * dt; p.x += Math.sin(clock * 3 + p.ph) * 14 * dt; if (p.y < -5) Object.assign(p, THEMES.electric.amb.make(false)); },
+      ambDraw(p) { b.globalAlpha = .4 + .6 * Math.abs(Math.sin(clock * 8 + p.ph)); circle(b, p.x, p.y, p.r, "#7ff6ff"); b.globalAlpha = 1; },
+      boom: { kinds: ["zap", "zap", "spark", "glint"], colors: ["#7ff6ff", "#ffffff", "#c080ff", "#3fb8ff"], n: 10, speed: 420, grav: 150, life: .7, size: 7, ring: "#7ff6ff", flash: "rgba(120,230,255,.2)" },
+    },
     // Start screen only: a high-definition 3D starfield drifting towards the viewer.
     deepspace: {
-      name: "Espaço profundo", glow: "rgba(150,170,255,.4)", hd: true,
+      name: "Nebulosa", glow: "rgba(150,170,255,.4)", hd: true,
       onResize() {
         // Nebula, dust and thousands of faint stars are painted once into an offscreen canvas.
         const c = document.createElement("canvas"), m = 1.15;
@@ -1967,7 +2352,21 @@ window.Scene = (() => {
       boom: { kinds: ["star"], colors: ["#ffffff"], n: 6, speed: 300, grav: 0, life: .8, size: 5, ring: "#9be7ff" },
     },
   };
-  const ORDER = ["ground", "sky", "moon", "space", "future", "lava", "water", "ocean", "horror", "war"];
+  // v14: 17 scenes. The story has 50 worlds of 20 phases: the scenes in this order, then again at
+  // dusk ("Crepúsculo") and in eclipse light ("Eclipse"), so no two worlds look the same.
+  const ORDER = ["ground", "meadow", "sky", "rain", "storm", "desert", "moon", "space", "deepspace", "future", "electric", "lava", "smoke", "water", "ocean", "horror", "war"];
+  const VARIANTS = [["", ""], ["Crepúsculo", "hue-rotate(-24deg) saturate(1.3) brightness(.9)"], ["Eclipse", "hue-rotate(155deg) saturate(1.1) brightness(.82)"]];
+  const WORLDS = Array.from({ length: 50 }, (_, i) => { const id = ORDER[i % ORDER.length], v = Math.floor(i / ORDER.length); return { id, v, name: THEMES[id].name + (v ? " · " + VARIANTS[v][0] : "") }; });
+  let variant = 0;
+  // The background follows the block style: Animação posterises it into flat cartoon bands (SVG
+  // filter), Pixel paints it at a quarter of the resolution and scales it up with hard pixels.
+  function bgFilter() {
+    const parts = [];
+    if (vstyle === "anim") parts.push("url(#bau-toon)");
+    if (vstyle === "pixel") parts.push("url(#bau-pix)");
+    if (variant) parts.push(VARIANTS[variant][1]);
+    bg.style.filter = parts.join(" ");
+  }
 
   function frame(now) {
     raf = requestAnimationFrame(frame);
@@ -2042,9 +2441,9 @@ window.Scene = (() => {
   }
 
   return {
-    names: ORDER.map((id) => THEMES[id].name),
+    names: WORLDS.map((w) => w.name),
     hitstop(ms) { freezeUntil = performance.now() + ms; },
-    setStyle(st) { vstyle = st === "anim" || st === "pixel" ? st : "real"; },
+    setStyle(st) { const prev = vstyle; vstyle = st === "anim" || st === "pixel" ? st : "real"; if (theme && (prev === "pixel") !== (vstyle === "pixel")) resize(); bgFilter(); },
     // rect: {x, y, w, h} of one cleared row/column in screen space.
     sweep(rect, delay) {
       if (!theme) return;
@@ -2092,11 +2491,14 @@ window.Scene = (() => {
       }
     },
     ids: ORDER,
+    worlds: WORLDS,
     nameOf: (id) => (THEMES[id] ? THEMES[id].name : ""),
     current: () => (theme ? theme.id : null),
-    set(id) {
-      const t = THEMES[id] || null;
+    set(id, v) {
+      const t = THEMES[id] || null, nv = t ? (v | 0) % VARIANTS.length : 0;
       if (t) t.id = id;
+      if (t === theme && nv === variant) return;
+      variant = nv; bgFilter();
       if (t === theme) return;
       theme = t; parts = []; rings = []; bursts = []; sweeps = []; flash = null; bolt = 0;
       document.body.classList.toggle("themed", !!t);
@@ -2112,21 +2514,24 @@ window.Scene = (() => {
     explode(points, power, material) {
       if (!theme || !points.length) return;
       const cfg = theme.boom, per = Math.max(1, Math.round(5 / Math.sqrt(points.length / 8)));
-      if (vstyle === "anim") return toonExplode(points, power, cfg, per);
+      if (vstyle === "anim") return toonExplode(points, power, cfg, per, material);
       if (vstyle === "pixel") return pixelExplode(points, power, material, cfg, per);
-      const mat = MATERIAL[material] || MATERIAL.wood, cold = material === "ice" || material === "water", many = points.length > 14;
+      const mat = MATERIAL[material] || MATERIAL.wood, cold = material === "ice" || material === "water" || material === "rain", many = points.length > 14;
       for (const pt of points) {
         const m = mat(pt.color || "#c27f3c");
         // Solid materials shatter into falling textured shards; water bursts into droplets instead.
-        if (material !== "water") fracture({ ...pt, ice: material === "ice" }, power, many);
+        // Solid materials break into slabs; water and smoke have no solid body (they burst/billow).
+        if (material !== "water" && material !== "smoke") fracture({ ...pt, ice: material === "ice" || material === "rain" }, power, many);
+        if (material === "smoke") for (let i = 0; i < 3; i++) spawn({ kind: "smoke", x: pt.x + R(-8, 8), y: pt.y + R(-8, 8), vx: R(-40, 40), vy: R(-90, -30), g: -30, drag: .96, life: 0, max: R(1.4, 2), size: (pt.size || 40) * R(.35, .5), color: pick(["rgba(120,120,132,.55)", "rgba(170,170,180,.5)", "rgba(80,80,92,.55)"]), rot: 0, vr: 0, wob: 0 });
         // Impact light and hot sparks (cold white for ice/water, orange for lava).
-        const hot = material === "lava", sparkC = cold ? ["#e8f8ff", "#bfe8ff"] : hot ? ["#ffb347", "#ff7a1a"] : ["#ffe6b0", "#ffd36b"];
+        const hot = material === "lava", sparkC = cold ? ["#e8f8ff", "#bfe8ff"] : hot ? ["#ffb347", "#ff7a1a"] : material === "electric" || material === "future" ? ["#7ff6ff", "#ffffff"] : ["#ffe6b0", "#ffd36b"];
         if (!many || Math.random() < .35) spawn({ kind: "flare", x: pt.x, y: pt.y, vx: 0, vy: 0, g: 0, drag: 1, life: 0, max: .28, size: (pt.size || 40) * 1.3, color: cold ? "rgba(190,230,255,.6)" : "rgba(255,200,120,.6)", rot: 0, vr: 0, wob: 0 });
         for (let i = 0; i < Math.max(1, Math.round(3 * per / 5)); i++) { const a = R(0, TAU), sp = R(300, 700) * (1 + power * .1); spawn({ kind: "streak", x: pt.x, y: pt.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 120, g: 600, drag: .955, life: 0, max: R(.35, .7), size: R(1.4, 2.4), color: pick(sparkC), rot: 0, vr: 0, wob: 0 }); }
         burst(pt.x, pt.y, { ...m, n: Math.max(1, Math.round(m.n * per / 5 * (material === "water" ? 1 : .45))) }, power);
         burst(pt.x, pt.y, { ...cfg, n: Math.max(1, Math.round(cfg.n * per / 5 * .2)) }, power);
       }
-      if (material === "water" || material === "ice") rings.push({ x: points[0].x, y: points[0].y, r: 60, w: 4, c: "#e6fbff", t: 0, max: .5 });
+      if (material === "bolt" || material === "electric") flash = { c: material === "bolt" ? "rgba(230,235,255,.35)" : "rgba(120,230,255,.25)", t: .3 };
+      if (material === "water" || material === "ice" || material === "rain") rings.push({ x: points[0].x, y: points[0].y, r: 60, w: 4, c: "#e6fbff", t: 0, max: .5 });
       let cx = 0, cy = 0; for (const pt of points) { cx += pt.x; cy += pt.y; } cx /= points.length; cy /= points.length;
       bokeh(cx, cy, Math.min(14 + points.length * 2 + power * 6, 60), !cold);
       const nr = 12 + power * 3;
@@ -2660,12 +3065,13 @@ window.Scene = (() => {
   // Levels are generated from a fixed seed, so level N is always the same board.
   // Every 3rd level (2, 5, 8 …) asks to destroy the marked blocks; the rest ask for a score.
   // Every 5th level uses the Sudoku rules on a 9×9 board. Difficulty grows with N.
-  const STORY_LEVELS = 100, MARK = 7;
+  const STORY_LEVELS = 1000, MARK = 7;
   const storyGoal = (L) => (L % 3 === 2 ? "clear" : "score");
-  // Difficulty 0..1. Inside every world level 1 is the easiest and level 10 the hardest;
-  // later worlds start and end harder. World 1 stays gentle (0 → 0.25).
+  // Difficulty 0..1. Inside every world (20 phases) the first phase is the easiest and the last the
+  // hardest; each world starts a bit harder, approaching the top slowly over the 50 worlds.
+  // World 1 stays gentle (0 → 0.25).
   function storyDiff(L) {
-    const w = Math.min(Math.floor((L - 1) / 10), 9) / 9, l = ((L - 1) % 10) / 9;
+    const w = 1 - Math.exp(-Math.floor((L - 1) / 20) / 9), l = ((L - 1) % 20) / 19;
     return w * .55 + l * (.25 + .2 * w);
   }
   const storyTarget = (L) => Math.round((60 + storyDiff(L) * 1300) / 10) * 10;
@@ -2713,9 +3119,16 @@ window.Scene = (() => {
     const marks = board.filter((v) => v === MARK).length;
     return { L, rules, n, goal, board, target: goal === "score" ? storyTarget(L) : 0, marks };
   }
-  // Ten worlds of ten levels each, in this order: chão, céu, lua, espaço, futuro, lava, água, fundo do oceano, terror, guerra.
-  const LEVELS_PER_WORLD = 10;
-  const worldOf = (L) => Math.min(Math.floor((L - 1) / LEVELS_PER_WORLD), 9);
+  // v14: 50 worlds of 20 phases; every world has its own scene (Scene.worlds).
+  const LEVELS_PER_WORLD = 20;
+  const worldOf = (L) => Math.min(Math.floor((L - 1) / LEVELS_PER_WORLD), 49);
+  // Medals earned on the old 10-phase worlds become medals of the new 20-phase world that contains
+  // both halves (the lower of the two), once.
+  if (!store.get("story.medals20")) {
+    const old = store.get("story.medals", {}), nw = {}, RANK = { bronze: 1, silver: 2, gold: 3 };
+    for (let w = 0; w < 10; w += 2) { const a = old[w], c = old[w + 1]; if (a && c) nw[w / 2] = RANK[a] <= RANK[c] ? a : c; }
+    store.set("story.medals", nw); store.set("story.medals20", 1);
+  }
   function randomTheme(not) { let t; do t = Scene.ids[rnd(Scene.ids.length)]; while (t === not); return t; }
   // ---------- story rewards ----------
   // Three stars per phase: ★ finish it, ★ beat its special challenge, ★ finish without using the power.
@@ -2730,8 +3143,8 @@ window.Scene = (() => {
   function totalStars() { const st = storyStars(); let n = 0; for (const L in st) n += starCount(st[L]); return n; }
   function worldMedal(w, st) {
     const best = storyBest(); let stars = 0;
-    for (let L = w * 10 + 1; L <= w * 10 + 10; L++) { if (best[L] == null) return null; stars += starCount(st[L]); }
-    return stars >= 27 ? "gold" : stars >= 18 ? "silver" : "bronze";
+    for (let L = w * LEVELS_PER_WORLD + 1; L <= (w + 1) * LEVELS_PER_WORLD; L++) { if (best[L] == null) return null; stars += starCount(st[L]); }
+    return stars >= 54 ? "gold" : stars >= 36 ? "silver" : "bronze";
   }
   const MEDAL_NAME = { bronze: "bronze", silver: "prata", gold: "ouro" }, MEDAL_RANK = { bronze: 1, silver: 2, gold: 3 };
   // One special challenge per phase, built only from things the game already measures.
@@ -3152,7 +3565,7 @@ window.Scene = (() => {
     const why = S.goal === "clear" ? "Você destruiu todos os blocos marcados." : `Você bateu a meta de ${fmt(S.target)} pontos.`;
     overlay("win", `Fase ${S.level} concluída!`, why);
     $("over-badge").hidden = true;
-    $("over-rank").textContent = S.level < STORY_LEVELS ? `Fase ${S.level + 1} desbloqueada` : "Você completou as 100 fases da História!";
+    $("over-rank").textContent = S.level < STORY_LEVELS ? `Fase ${S.level + 1} desbloqueada` : `Você completou as ${STORY_LEVELS} fases da História!`;
     const merged = st[S.level];
     [...$("win-stars").children].forEach((el, i) => {
       el.className = merged[i] ? "on" : ""; el.style.setProperty("--d", 250 + i * 260 + "ms");
@@ -3625,7 +4038,7 @@ window.Scene = (() => {
     }
     const ss = store.get("game.story", null);
     $("rec-story").textContent = storyUnlocked();
-    $("story-sub").textContent = ss ? `Continuar fase ${ss.level} · ${fmt(ss.score)} pontos` : "100 fases · bata a meta de pontos ou destrua os blocos marcados";
+    $("story-sub").textContent = ss ? `Continuar fase ${ss.level} · ${fmt(ss.score)} pontos` : "1000 fases · bata a meta de pontos ou destrua os blocos marcados";
   }
   function showLevels() {
     S = null;
@@ -3638,8 +4051,8 @@ window.Scene = (() => {
     for (let L = 1; L <= STORY_LEVELS; L++) {
       if ((L - 1) % LEVELS_PER_WORLD === 0) {
         const w = document.createElement("div"), wi = worldOf(L);
-        let ws = 0; for (let k = wi * 10 + 1; k <= wi * 10 + 10; k++) ws += starCount(st[k]);
-        w.className = "world"; w.innerHTML = `Mundo ${wi + 1} · <span>${Scene.names[wi]}</span><span class="wstars">★ ${ws}/30${medals[wi] ? `<i class="medal ${medals[wi]}" title="Medalha de ${MEDAL_NAME[medals[wi]]}"></i>` : ""}</span>`;
+        let ws = 0; for (let k = wi * LEVELS_PER_WORLD + 1; k <= (wi + 1) * LEVELS_PER_WORLD; k++) ws += starCount(st[k]);
+        w.className = "world"; w.innerHTML = `Mundo ${wi + 1} · <span>${Scene.names[wi]}</span><span class="wstars">★ ${ws}/${LEVELS_PER_WORLD * 3}${medals[wi] ? `<i class="medal ${medals[wi]}" title="Medalha de ${MEDAL_NAME[medals[wi]]}"></i>` : ""}</span>`;
         grid.appendChild(w);
       }
       const b = document.createElement("button"), clear = storyGoal(L) === "clear", done = best[L] != null;
@@ -3649,12 +4062,12 @@ window.Scene = (() => {
       const sc = starCount(st[L]);
       b.innerHTML = `${done ? `<span class="lv-stars"><b>${"★".repeat(sc)}</b>${"★".repeat(3 - sc)}</span>` : ""}${L}<small>${clear ? "<i class=\"goal-ic clear\"></i>" : fmt(storyTarget(L))}</small>`;
       b.setAttribute("aria-label", `Fase ${L}, ${clear ? "destruir blocos marcados" : "meta de " + storyTarget(L) + " pontos"}${done ? ", concluída" : L > un ? ", bloqueada" : ""}`);
-      b.addEventListener("click", () => startStory(L, false));
       if (L === un) next = b;
       grid.appendChild(b);
     }
     if (next) next.scrollIntoView({ block: "center" });
   }
+  $("lv-grid").addEventListener("click", (e) => { const b = e.target.closest(".lv"); if (b && !b.disabled) startStory(+b.dataset.l, false); });
   function renderSettings() {
     const box = $("menu-music"), cur = menuTrack();
     if (!box.children.length) {
@@ -3708,10 +4121,17 @@ window.Scene = (() => {
   const chosenSkin = () => { const k = store.get("skin", "wood"), m = Skins.KINDS.find(([x]) => x === k); return m && totalStars() >= m[2] ? k : "wood"; };
   // Story: each world has its own material and two palettes that alternate per phase; the colour
   // order also rotates every phase, so no two phases of a world look the same.
-  const WORLD_SKIN = [["wood", 0, 13], ["marble", 3, 11], ["cement", 14, 9], ["metal", 12, 6], ["ice", 7, 8],
-    ["lava", 4, 5], ["water", 3, 8], ["water", 7, 12], ["cement", 9, 10], ["brick", 10, 1]];
+  const WORLD_SKIN = {
+    ground: ["wood", 0, 13], meadow: ["grass", 2, 13], sky: ["marble", 3, 11], rain: ["rain", 3, 7], storm: ["bolt", 12, 14],
+    desert: ["sand", 13, 10], moon: ["cement", 14, 9], space: ["metal", 12, 6], deepspace: ["electric", 12, 9], future: ["future", 8, 11],
+    electric: ["electric", 6, 1], lava: ["lava", 4, 5], smoke: ["smoke", 14, 7], water: ["water", 3, 8], ocean: ["water", 7, 12],
+    horror: ["cement", 9, 10], war: ["brick", 10, 1],
+  };
   const applySkin = () => {
-    if (S && S.mode === "story") { const [k, a, b] = WORLD_SKIN[worldOf(S.level)], i = (S.level - 1) % LEVELS_PER_WORLD; return Skins.apply(k, i % 2 ? b : a, Math.floor(i / 2)); }
+    if (S && S.mode === "story") {
+      const wo = Scene.worlds[worldOf(S.level)], [k, a, b] = WORLD_SKIN[wo.id], i = (S.level - 1) % LEVELS_PER_WORLD, sh = wo.v * 5;
+      return Skins.apply(k, (i % 2 ? b : a) + sh, Math.floor(i / 2));
+    }
     Skins.apply(S && (S.mode === "classic" || S.mode === "sudoku") ? chosenSkin() : "wood", S ? paletteFor() : 0);
   };
   function enterGame(label) {
@@ -3719,10 +4139,11 @@ window.Scene = (() => {
     show("game");
     applySkin();
     setModeAccent(S.mode);
-    if (S.mode === "story") S.theme = Scene.ids[worldOf(S.level)];
+    const wo = S.mode === "story" ? Scene.worlds[worldOf(S.level)] : null;
+    if (wo) S.theme = wo.id;
     else if (!S.theme) S.theme = randomTheme();
-    Scene.set(S.theme);
-    const intro = S.mode === "story" ? `Mundo ${worldOf(S.level) + 1}<small>${Scene.nameOf(S.theme)}</small>` : `Cenário<small>${Scene.nameOf(S.theme)}</small>`;
+    Scene.set(S.theme, wo ? wo.v : 0);
+    const intro = wo ? `Mundo ${worldOf(S.level) + 1}<small>${wo.name}</small>` : `Cenário<small>${Scene.nameOf(S.theme)}</small>`;
     setTimeout(() => fx("lvl", intro, $("board").clientHeight / 2 - 20, 1900), 250);
     if (S.mode === "story") setTimeout(() => S && S.mode === "story" && !S.over && fx("lvl", `Desafio<small>${challengeFor(S).text}</small>`, $("board").clientHeight / 2 - 20, 2200), 2300);
     $("mode-label").textContent = label;
