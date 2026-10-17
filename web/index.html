@@ -1,7 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="20">
+<meta name="bau-version" content="21">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -201,6 +201,25 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
 #game { max-width: 480px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .bar { width: 100%; display: grid; grid-template-columns: 96px 1fr 96px; align-items: center; }
 .bar .right { display: flex; gap: 8px; justify-content: flex-end; }
+.bar .left { display: flex; gap: 6px; }
+.undo-btn { position: relative; }
+.undo-btn i { position: absolute; top: -4px; right: -4px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--amber); color: #2a1a0c; font-style: normal; font-size: 11px; font-weight: 800; line-height: 17px; text-align: center; }
+.undo-btn:disabled { opacity: .35; }
+.set-row > span { text-align: left; }
+.set-hint { display: block; font-weight: 400; font-size: 11px; color: var(--muted); }
+.switch { width: 48px; height: 28px; border-radius: 14px; background: rgba(255,255,255,.15); position: relative; flex: none; transition: background .2s; }
+.switch i { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform .2s; }
+.switch[aria-checked="true"] { background: var(--amber); }
+.switch[aria-checked="true"] i { transform: translateX(20px); }
+.tut-card { gap: 10px; }
+.tut-art { height: 150px; border-radius: 14px; background: rgba(0,0,0,.28); display: grid; place-items: center; overflow: hidden; }
+.tut-art svg { width: 100%; height: 100%; }
+.tut-dots { display: flex; justify-content: center; gap: 6px; }
+.tut-dots i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.25); }
+.tut-dots i.on { background: var(--amber); }
+#btn-continue { background: linear-gradient(135deg, #6cc070, #3f8f4a); color: #10260f; }
+/* Modo leve: no looping decorations */
+.lite #board::before, .lite #board::after, .lite .tboard::before, .lite .tboard::after, .lite #play-story::after, .lite .power-btn.ready, .lite .cell.will { animation: none !important; }
 .scores { text-align: center; font-variant-numeric: tabular-nums; }
 .scores .best { color: var(--muted); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
 .scores .best b { color: var(--amber); }
@@ -621,8 +640,10 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
 
   <section id="game" class="screen" hidden aria-label="Partida">
     <div class="bar">
-      <div><button class="icon-btn" id="btn-home" aria-label="Voltar ao menu">
+      <div class="left"><button class="icon-btn" id="btn-home" aria-label="Voltar ao menu">
         <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+      </button><button class="icon-btn undo-btn" id="btn-undo" aria-label="Desfazer jogada" hidden>
+        <svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg><i id="undo-n">2</i>
       </button></div>
       <div class="scores">
         <div class="mode-label"><span id="mode-label">Clássico</span> · Nível <b id="level">1</b></div>
@@ -710,6 +731,10 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
         <span class="set-label">Música do menu</span>
         <div class="music-list" id="menu-music" role="radiogroup" aria-label="Música do menu"></div>
       </div>
+      <div class="set-row"><span>Modo leve<small class="set-hint">Fundo parado e menos efeitos, para celulares mais simples</small></span>
+        <button class="switch" id="lite-toggle" role="switch" aria-checked="false" aria-label="Modo leve"><i></i></button>
+      </div>
+      <button class="btn ghost" id="btn-tutorial">Como jogar</button>
       <div class="set-row"><span>Música</span>
         <button class="icon-btn music-toggle" aria-label="Música" aria-pressed="true">
           <svg viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/><path class="off" d="M3 3l18 18"/></svg>
@@ -721,6 +746,17 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
         </button>
       </div>
       <button class="btn primary" id="set-close">Pronto</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="tut" hidden>
+    <div class="card tut-card" role="dialog" aria-modal="true" aria-labelledby="tut-title">
+      <div class="tut-art" id="tut-art" aria-hidden="true"></div>
+      <h2 id="tut-title"></h2>
+      <p id="tut-text"></p>
+      <div class="tut-dots" id="tut-dots"><i></i><i></i><i></i></div>
+      <button class="btn primary" id="tut-next">Próximo</button>
+      <button class="btn ghost" id="tut-skip">Pular</button>
     </div>
   </div>
 
@@ -746,6 +782,8 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       <div class="badge" id="over-badge" hidden>Novo recorde!</div>
       <p id="over-rank"></p>
       <div class="line"><span>Linhas <b id="over-lines">0</b></span><span>Maior combo <b id="over-combo">0</b></span><span>Nível <b id="over-level">1</b></span></div>
+      <button class="btn primary" id="btn-continue" hidden>Continuar · limpar 3 linhas</button>
+      <button class="btn ghost" id="btn-undo-over" hidden>Desfazer última jogada</button>
       <button class="btn primary" id="btn-next" hidden>Próxima fase</button>
       <button class="btn primary" id="btn-again">Jogar de novo</button>
       <button class="btn ghost" id="btn-levels" hidden>Fases</button>
@@ -1978,6 +2016,7 @@ window.Scene = (() => {
     bg.width = Math.round(W * bd); bg.height = Math.round(H * bd); fx.width = Math.round(W * dpr); fx.height = Math.round(H * dpr);
     b.setTransform(bd, 0, 0, bd, 0, 0); f.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (theme) amb = theme.amb ? Array.from({ length: theme.amb.n }, () => theme.amb.make(true)) : [];
+    bgDirty = true;
     if (theme && theme.onResize) theme.onResize();
   }
   window.addEventListener("resize", resize);
@@ -2005,7 +2044,8 @@ window.Scene = (() => {
   const SIL = seededList(40, 7);
 
   // ---- particle kinds used by explosions ----
-  function spawn(p) { if (parts.length < 1400) parts.push(p); }
+  let lite = false, bgDirty = true;
+  function spawn(p) { if (parts.length < (lite ? 320 : 1400)) parts.push(p); }
   let bursts = [], sweeps = [], freezeUntil = 0, vstyle = "real";
   const imgCache = new Map();
   function texImg(url) {
@@ -3164,8 +3204,9 @@ window.Scene = (() => {
     const frozen = now < freezeUntil; // hitstop: effects hold still for a beat on big impacts
     // background: repainted at ~30 fps (it moves slowly; halves the cost of the biggest layer)
     bgT += dt;
-    if (bgT >= 1 / 31) {
-      const bdt = bgT; bgT = 0;
+    // Modo leve: the background is painted once (on scene/size/style change) and then stays still.
+    if (lite ? bgDirty : bgT >= 1 / 31) {
+      const bdt = bgT; bgT = 0; bgDirty = false;
       theme.sky(clock);
       if (theme.extra) theme.extra(clock, bdt);
       if (theme.ambDraw) for (const p of amb) { if (!reduce) theme.ambStep(p, bdt); theme.ambDraw(p); }
@@ -3239,6 +3280,7 @@ window.Scene = (() => {
   return {
     names: WORLDS.map((w) => w.name),
     hitstop(ms) { freezeUntil = performance.now() + ms; },
+    setLite(on) { lite = !!on; bgDirty = true; },
     setStyle(st) { const prev = vstyle; vstyle = st === "anim" || st === "pixel" ? st : "real"; if (theme && (prev === "pixel") !== (vstyle === "pixel")) resize(); bgFilter(); },
     // rect: {x, y, w, h} of one cleared row/column in screen space.
     sweep(rect, delay) {
@@ -4198,7 +4240,7 @@ window.Scene = (() => {
     });
   }
   function renderScore() {
-    renderPower(); renderChallenge();
+    renderPower(); renderChallenge(); renderUndo();
     if (S.mode === "story") {
       renderGoal();
       $("score").textContent = fmt(S.score);
@@ -4250,6 +4292,8 @@ window.Scene = (() => {
   function place(ti, r0, c0) {
     const p = S.tray[ti];
     if (!p || !canPlace(S.board, S.n, p.cells, r0, c0)) return false;
+    // Story: remember the state before this move so it can be undone (2 per phase).
+    if (S.mode === "story") { const snap = { ...S }; delete snap.undoSnap; S.undoSnap = JSON.stringify(snap); }
     for (const [r, c] of p.cells) S.board[(r0 + r) * S.n + c0 + c] = p.color;
     S.tray[ti] = null;
     selected = -1;
@@ -4324,7 +4368,7 @@ window.Scene = (() => {
     if (!left.some(fitsAnywhere)) {
       // In story mode an unused power keeps the level alive.
       if (S.mode === "story" && S.power > 0) setTimeout(() => fx("lvl", "Sem espaço!<small>Use o poder</small>", $("board").clientHeight / 2, 2000), lines ? 800 : 300);
-      else setTimeout(gameOver, lines ? 800 : 400);
+      else overTimer = setTimeout(gameOver, lines ? 800 : 400);
     }
     return true;
   }
@@ -4419,8 +4463,11 @@ window.Scene = (() => {
     $("btn-again").textContent = story && kind === "lose" ? "Tentar de novo" : "Jogar de novo";
     if (story && kind === "win") $("btn-again").textContent = "Repetir fase";
     $("win-story").hidden = true;
+    $("btn-continue").hidden = !(story && kind === "lose" && !S.continued);
+    $("btn-undo-over").hidden = !(story && kind === "lose" && S.undoSnap && undosLeft() > 0);
+    if (!$("btn-undo-over").hidden) $("btn-undo-over").textContent = `Desfazer última jogada (${undosLeft()})`;
     $("over").hidden = false;
-    ($("btn-next").hidden ? $("btn-again") : $("btn-next")).focus();
+    (!$("btn-continue").hidden ? $("btn-continue") : $("btn-next").hidden ? $("btn-again") : $("btn-next")).focus();
   }
   function storyWin() {
     store.del("game.story");
@@ -4496,6 +4543,45 @@ window.Scene = (() => {
     $("over-badge").textContent = prev > 0 ? `Superou ${fmt(prev)}` : "Primeiro recorde";
     $("over-rank").textContent = rank ? `${rank}º lugar no ranking do modo ${MODES[S.mode].label}` : `Recorde: ${fmt(prev)}`;
   }
+
+  // ---------- v21: undo and continue (story) ----------
+  let overTimer = 0;
+  const UNDOS = 2;
+  const undosLeft = () => UNDOS - (S.undoUsed || 0);
+  function renderUndo() {
+    const show = !!S && S.mode === "story", btn = $("btn-undo");
+    btn.hidden = !show;
+    if (!show) return;
+    $("undo-n").textContent = undosLeft();
+    btn.disabled = !S.undoSnap || S.over || undosLeft() <= 0 || S.powerTaps > 0;
+  }
+  function undo() {
+    if (!S || S.mode !== "story" || !S.undoSnap || undosLeft() <= 0) return;
+    clearTimeout(overTimer);
+    const used = (S.undoUsed || 0) + 1;
+    S = Object.assign(JSON.parse(S.undoSnap), { undoUsed: used, undoSnap: null, over: false });
+    $("over").hidden = true; $("board").classList.remove("dead");
+    if (!music.track) music.play(storyTrack(S.level));
+    selected = -1; renderBoard(); renderTray(); renderScore(); save(); sfx.ui();
+    fx("lvl", `Jogada desfeita<small>${undosLeft()} ${undosLeft() === 1 ? "restante" : "restantes"} nesta fase</small>`, $("board").clientHeight / 2 - 20, 1400);
+  }
+  // Once per phase after losing: the three fullest rows are cleared (no points) and a fresh hand dealt.
+  function continueStory() {
+    if (!S || S.mode !== "story" || S.continued) return;
+    S.continued = true; S.over = false;
+    $("over").hidden = true; $("board").classList.remove("dead");
+    const n = S.n, rows = [...Array(n).keys()].map((r) => [r, S.board.slice(r * n, r * n + n).filter(Boolean).length]).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    const pts = [];
+    for (const [r] of rows) for (let c = 0; c < n; c++) { const i = r * n + c, v = S.board[i]; if (!v) continue; const rc = cellEls[i].getBoundingClientRect(); pts.push({ x: rc.left + rc.width / 2, y: rc.top + rc.height / 2, size: rc.width, color: Skins.colorOf(v), tex: Skins.texOf(v) }); S.board[i] = 0; }
+    if (pts.length) Scene.explode(pts, 2, Skins.material());
+    S.marks = S.board.filter((v) => v === MARK).length;
+    S.tray = newTray(); S.undoSnap = null;
+    music.play(storyTrack(S.level)); sfx.levelUp();
+    renderBoard(); renderTray(); renderScore(); save();
+  }
+  $("btn-undo").addEventListener("click", undo);
+  $("btn-undo-over").addEventListener("click", undo);
+  $("btn-continue").addEventListener("click", continueStory);
 
   // ---------- drag & tap ----------
   let drag = null;
@@ -5035,6 +5121,34 @@ window.Scene = (() => {
     }
     Skins.apply(S ? S.mat || chosenSkin() : chosenSkin(), S ? paletteFor() : 0);
   };
+  // ---------- v21: first-time tutorial (also in Settings → Como jogar) ----------
+  const TUT = [
+    ["Arraste as peças", "Toque numa peça embaixo e arraste até o tabuleiro. Se a peça ficar colorida, ela cabe ali; se ficar vermelha, não cabe.",
+      `<svg viewBox="0 0 240 150"><rect x="20" y="14" width="120" height="120" rx="10" fill="#3a2a1c"/>${[0, 1, 2, 3].map((r) => [0, 1, 2, 3].map((c) => `<rect x="${26 + c * 29}" y="${20 + r * 29}" width="25" height="25" rx="4" fill="rgba(255,255,255,.1)"/>`).join("")).join("")}<rect x="55" y="78" width="25" height="25" rx="4" fill="#eaa53c" opacity=".7" stroke="#fff" stroke-dasharray="3 2"/><rect x="84" y="78" width="25" height="25" rx="4" fill="#eaa53c" opacity=".7" stroke="#fff" stroke-dasharray="3 2"/><rect x="170" y="100" width="22" height="22" rx="4" fill="#eaa53c"/><rect x="194" y="100" width="22" height="22" rx="4" fill="#eaa53c"/><path d="M175 92 C150 70 130 80 112 88" stroke="#ffd36b" stroke-width="3" fill="none" stroke-dasharray="5 4"/><path d="M112 88 l10 -8 m-10 8 l12 4" stroke="#ffd36b" stroke-width="3"/><circle cx="205" cy="128" r="9" fill="#f4e7d4" opacity=".85"/></svg>`],
+    ["Complete linhas", "Uma linha ou coluna cheia explode e dá pontos. Limpar várias de uma vez ou em sequência faz combos, que valem muito mais!",
+      `<svg viewBox="0 0 240 150"><rect x="50" y="14" width="140" height="122" rx="10" fill="#3a2a1c"/>${[0, 1, 2, 3, 4].map((c) => `<rect x="${57 + c * 26}" y="62" width="22" height="22" rx="4" fill="#ffd36b"/>`).join("")}<rect x="53" y="58" width="134" height="30" rx="6" fill="none" stroke="#fff" stroke-width="2"/><g fill="#fff3a0">${[[40, 50], [200, 52], [36, 96], [204, 94], [120, 40]].map(([x, y]) => `<path d="M${x} ${y - 7}l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/>`).join("")}</g><text x="120" y="122" fill="#ffd36b" font-size="20" font-weight="800" text-anchor="middle" font-family="sans-serif">COMBO ×2</text></svg>`],
+    ["Na História", "Embaixo do tabuleiro ficam os quadrados: Para vencer (a meta da fase), Desafio ★ (bônus de estrela) e Poder. Errou? Use ↶ para desfazer (2 por fase).",
+      `<svg viewBox="0 0 240 150"><rect x="14" y="20" width="212" height="52" rx="8" fill="#3a2a1c"/><rect x="14" y="84" width="76" height="46" rx="8" fill="#5a3a24" stroke="#d9824a" stroke-width="2"/><rect x="96" y="84" width="66" height="46" rx="8" fill="#2a1d15"/><rect x="168" y="84" width="58" height="46" rx="8" fill="#2a1d15"/><text x="52" y="102" fill="#fff" font-size="9" font-weight="800" text-anchor="middle" font-family="sans-serif">PARA VENCER</text><text x="52" y="118" fill="#f4e7d4" font-size="10" text-anchor="middle" font-family="sans-serif">140 pontos</text><text x="129" y="102" fill="#d9824a" font-size="9" font-weight="800" text-anchor="middle" font-family="sans-serif">DESAFIO ★</text><text x="197" y="102" fill="#f4e7d4" font-size="9" font-weight="800" text-anchor="middle" font-family="sans-serif">PODER</text><path d="M30 40 l-8 6 8 6 M22 46 h14 a8 8 0 0 1 0 16 h-4" stroke="#eaa53c" stroke-width="3" fill="none"/><text x="120" y="52" fill="#f4e7d4" font-size="13" text-anchor="middle" font-family="sans-serif">desfazer · 2 por fase</text></svg>`],
+  ];
+  let tutStep = 0;
+  function showTutorial() {
+    tutStep = 0; renderTut(); $("tut").hidden = false; $("tut-next").focus();
+  }
+  function renderTut() {
+    const [t, x, art] = TUT[tutStep];
+    $("tut-title").textContent = t; $("tut-text").textContent = x; $("tut-art").innerHTML = art;
+    [...$("tut-dots").children].forEach((d, i) => d.classList.toggle("on", i === tutStep));
+    $("tut-next").textContent = tutStep === TUT.length - 1 ? "Jogar!" : "Próximo";
+  }
+  const closeTut = () => { $("tut").hidden = true; store.set("tutorialSeen", 1); };
+  $("tut-next").addEventListener("click", () => { sfx.ui(); if (tutStep < TUT.length - 1) { tutStep++; renderTut(); } else closeTut(); });
+  $("tut-skip").addEventListener("click", closeTut);
+  $("btn-tutorial").addEventListener("click", () => { $("settings").hidden = true; showTutorial(); });
+  // ---------- v21: Modo leve ----------
+  const liteOn = () => !!store.get("lite", false);
+  function applyLite() { const on = liteOn(); document.body.classList.toggle("lite", on); Scene.setLite(on); $("lite-toggle").setAttribute("aria-checked", String(on)); }
+  $("lite-toggle").addEventListener("click", () => { store.set("lite", !liteOn()); applyLite(); sfx.ui(); });
+  applyLite();
   function enterGame(label) {
     selected = -1;
     show("game");
@@ -5049,6 +5163,7 @@ window.Scene = (() => {
     if (S.mode === "story") setTimeout(() => S && S.mode === "story" && !S.over && fx("lvl", `Desafio<small>${challengeFor(S).text}</small>`, $("board").clientHeight / 2 - 20, 2200), 2300);
     if (S.mode === "story") { const L0 = S.level; setTimeout(() => S && S.mode === "story" && S.level === L0 && !S.over && fx("lvl", `Música<small>♪ ${TRACKS[storyTrack(L0)].title}</small>`, $("board").clientHeight / 2 - 20, 1800), 4700); }
     $("mode-label").textContent = label;
+    if (!store.get("tutorialSeen", 0)) setTimeout(showTutorial, 350);
     music.play(S.mode === "story" ? storyTrack(S.level) : S.rules);
     music.setRate(rateFor(S.score));
     buildBoard(); sizeBoard(); renderScore(); save();

@@ -241,6 +241,13 @@ As 7 novas têm percussão leve para servir também durante o jogo. Na História
 | Grama | Torrões com terra embaixo, folhas e pétalas | Folhas + pétalas | Folhas 2×1 + torrões de terra |
 | Fumaça | Sem pedaços: volutas que sobem e se dissolvem | Nuvenzinhas que sobem | Quadrados que sobem e crescem |
 
+## Ajudas ao jogador (v21)
+
+- **Tutorial:** 3 telas ilustradas (arrastar peças, completar linhas, quadrados da História) na primeira partida. Pode ser revisto em Ajustes → Como jogar.
+- **Desfazer (História):** botão ↶ ao lado de "voltar", com 2 usos por fase (o contador fica no botão). Também aparece na tela de derrota.
+- **Continuar (História):** uma vez por fase, ao perder, limpa as 3 linhas mais cheias (sem pontos) e dá peças novas.
+- **Modo leve (Ajustes):** o fundo é desenhado uma vez e fica parado, o limite de partículas cai para 320 e as animações em loop (moldura elétrica, neon, pulsos) param. Medido com o processador 6× mais lento: 19 → 61 quadros por segundo.
+
 ## História: metas e dificuldade (v20)
 
 - **Fases terminadas em 8 e 9** (as últimas antes da troca de música): para vencer, é preciso destruir **2 linhas de uma vez** (fase …8) ou **3 linhas de uma vez** (fase …9). O tabuleiro já vem com 2 ou 3 linhas paralelas faltando a mesma casa, e a primeira peça da bandeja é a peça reta que encaixa ali.
