@@ -1,7 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="15">
+<meta name="bau-version" content="16">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -416,6 +416,42 @@ body.themed[data-mode] .bar { box-shadow: inset 0 -3px 0 var(--mode-accent); }
 
 /* Tetris: coloured ghost, bumping counters, level & speed box, held buttons. */
 .vs-real .tboard .cell.ghost { background: color-mix(in srgb, var(--gh, #fff) 22%, #c2955f); box-shadow: none; outline: 2px dashed var(--gh, #fff); outline-offset: -3px; }
+/* v16: living electricity on Raio / Eletricidade blocks (board, tray, dragged piece, logo). */
+.mat-bolt .cell.b, .mat-bolt .blk, .mat-electric .cell.b, .mat-electric .blk { position: relative; }
+.mat-bolt .cell.b::after, .mat-bolt .blk::after, .mat-electric .cell.b::after, .mat-electric .blk::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: var(--arc-sheet) 0 0 / 100% 800% no-repeat; animation: arcs .64s steps(8) infinite; }
+.mat-bolt .cell.b::after, .mat-bolt .blk::after { animation-duration: 1.7s; }
+.mat-electric .cell.b::before, .mat-electric .blk::before, .mat-bolt .cell.b::before, .mat-bolt .blk::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; animation: elglow .23s steps(2) infinite alternate; }
+.mat-bolt .cell.b::before, .mat-bolt .blk::before { animation: boltglow 1.7s steps(8) infinite; }
+.cell.b:nth-child(2n)::after, .blk:nth-child(2n)::after { animation-delay: -.31s; }
+.cell.b:nth-child(3n)::after, .blk:nth-child(3n)::after { animation-direction: reverse; }
+.cell.b:nth-child(5n+1)::after, .blk:nth-child(5n+1)::after { animation-delay: -.83s; }
+.cell.b:nth-child(7n+2)::after { animation-delay: -1.2s; }
+.cell.b:nth-child(4n+3)::before, .blk:nth-child(4n+3)::before { animation-delay: -.11s; }
+.vs-pixel .cell.b::after, .vs-pixel .blk::after { image-rendering: pixelated; }
+@keyframes arcs { to { background-position: 0 114.2857%; } }
+@keyframes elglow { from { box-shadow: inset 0 0 6px rgba(120,240,255,.35), 0 0 4px rgba(120,240,255,.25); } to { box-shadow: inset 0 0 12px rgba(190,150,255,.6), 0 0 10px rgba(120,240,255,.55); } }
+@keyframes boltglow { 0%, 60% { box-shadow: inset 0 0 5px rgba(255,236,140,.25); } 62.5% { box-shadow: inset 0 0 22px rgba(255,255,240,.95), 0 0 16px rgba(255,236,140,.9); } 75% { box-shadow: inset 0 0 10px rgba(255,236,140,.5); } }
+
+/* v16: the board is made of the game's material, in the game's style, tinted and patterned by the
+   mode: --tray-img is painted per (mode, material, style); --tray-over is the mode's pattern. */
+body[data-mode="classic"] { --tray-over: radial-gradient(120% 90% at 50% 0%, rgba(255,200,120,.2), transparent 60%), linear-gradient(rgba(20,10,0,.28), rgba(20,10,0,.38)); }
+body[data-mode="sudoku"] { --tray-over: repeating-linear-gradient(45deg, rgba(63,181,154,.16) 0 6px, transparent 6px 14px), linear-gradient(rgba(0,22,16,.34), rgba(0,22,16,.4)); }
+body[data-mode="tetris"] { --tray-over: repeating-linear-gradient(0deg, rgba(166,107,224,.18) 0 2px, transparent 2px 6px), linear-gradient(rgba(20,0,40,.36), rgba(20,0,40,.44)); }
+body[data-mode="story"] { --tray-over: radial-gradient(circle at 0 0, rgba(217,130,74,.4), transparent 38%), radial-gradient(circle at 100% 100%, rgba(217,130,74,.4), transparent 38%), linear-gradient(rgba(30,10,0,.3), rgba(30,10,0,.4)); }
+body.boarded #board, body.boarded .tboard { background: var(--tray-over, none), var(--tray-img) center / 100% 100%; }
+/* empty cells are recessed, see-through holes: the material board shows through them */
+body.boarded #board .cell:not(.b):not(.preview):not(.bad), body.boarded .tboard .cell:not(.b):not(.ghost) { background: var(--cell-hole, rgba(0,0,0,.3)); }
+body.boarded #board .cell.alt:not(.b):not(.preview):not(.bad) { --cell-hole: rgba(0,0,0,.42); }
+body.boarded.vs-anim #board .cell:not(.b):not(.preview):not(.bad), body.boarded.vs-anim .tboard .cell:not(.b):not(.ghost) { background: var(--cell-hole, rgba(255,250,240,.2)); }
+body.boarded.vs-anim #board .cell.alt:not(.b):not(.preview):not(.bad) { --cell-hole: rgba(255,250,240,.1); }
+/* Animação and Pixel tile the board texture in 2×2-cell tiles aligned with the grid */
+body.boarded.vs-anim #board, body.boarded.vs-pixel #board { background: var(--tray-over, none), var(--tray-img) 0 0 / calc((var(--cell) + var(--gap)) * 2) repeat; background-origin: border-box, content-box; }
+body.boarded.vs-anim .tboard, body.boarded.vs-pixel .tboard { background: var(--tray-over, none), var(--tray-img) 0 0 / calc((var(--tcell) + 2px) * 2) repeat; background-origin: border-box, content-box; }
+body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: pixelated; }
+
 /* Pixel (v12): square cells, hard 1-step shadows, animations in discrete steps like a 16-bit console. */
 .vs-pixel #board, .vs-pixel .tboard { background: #8a5a34; border-radius: 0; box-shadow: inset 0 0 0 4px #2a1a10, 6px 6px 0 #1a0f08, 0 0 36px var(--scene-glow, transparent); }
 .vs-pixel .cell { background: #b88454; border-radius: 0; box-shadow: inset 3px 3px 0 #9a6a40, inset -3px -3px 0 #d2a070; }
@@ -1570,6 +1606,72 @@ window.Skins = (() => {
   pixCss.textContent = ".vs-pixel .cell.b, .vs-pixel .blk, .vs-pixel .skin i, .vs-pixel .drag i, .vs-pixel .piece i, .vs-opt .tiles i.px { image-rendering: pixelated; }";
   document.head.appendChild(pixCss);
   let current = "", now = { kind: "wood", colors: {} }, lastArgs = null;
+  // ---- v16: living electricity. Raio and Eletricidade blocks carry an 8-frame overlay (sprite
+  // sheet) that the CSS steps through: static sparks crawling along the edges (friction), arcs
+  // jumping across the face, and for Raio a branching strike with a flash every cycle. ----
+  const ARC_FRAMES = 8, arcCache = new Map();
+  function arcPath(x0, y0, x1, y1, amp, segs) {
+    const pts = [[x0, y0]], dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+    for (let i = 1; i < segs; i++) { const t = i / segs, j = R(-amp, amp); pts.push([x0 + dx * t + nx * j, y0 + dy * t + ny * j]); }
+    pts.push([x1, y1]); return pts;
+  }
+  const edgePt = (side, t, inset) => [[t, inset], [SIZE - inset, t], [t, SIZE - inset], [inset, t]][side];
+  function arcSheet(kind, st) {
+    const key = kind + st;
+    if (arcCache.has(key)) return arcCache.get(key);
+    seed = 4242 + kind.length * 31;
+    const px = st === "pixel", F = SIZE * K, c = document.createElement("canvas"); c.width = F; c.height = F * ARC_FRAMES;
+    const g = c.getContext("2d"), bolt = kind === "bolt";
+    const colA = bolt ? "255,236,140" : "120,240,255", colB = bolt ? "210,220,255" : "200,140,255";
+    for (let fr = 0; fr < ARC_FRAMES; fr++) {
+      const lines = [], sparks = [];
+      // friction: short arcs crawling along the edges
+      for (let k = 0; k < (bolt ? 1 : 3); k++) { const side = Math.floor(R(0, 4)), t = R(10, 90), [x0, y0] = edgePt(side, t, R(3, 7)), [x1, y1] = edgePt(side, t + R(18, 34), R(3, 7)); lines.push([arcPath(x0, y0, x1, y1, 4, 6), pick2([colA, colB]), .9]); }
+      // static: arcs jumping across the face between random edge points
+      if (!bolt) for (let k = 0; k < 2; k++) { const a = Math.floor(R(0, 4)), b = (a + 1 + Math.floor(R(0, 3))) % 4, [x0, y0] = edgePt(a, R(14, 114), 6), [x1, y1] = edgePt(b, R(14, 114), 6); lines.push([arcPath(x0, y0, x1, y1, 12, 9), k ? colB : colA, 1.1]); }
+      for (let k = 0; k < (bolt ? 3 : 5); k++) sparks.push([R(8, 120), R(8, 120), R(1.2, 2.6)]);
+      // Raio: a branching strike on frame 5, its afterglow on frame 6
+      let flash = 0;
+      if (bolt && (fr === 5 || fr === 6)) {
+        const x = R(44, 84), main = arcPath(x, -4, x + R(-24, 24), SIZE + 4, 14, 10); lines.push([main, colA, fr === 5 ? 2 : .9]);
+        for (let b = 2; b < 8; b += 3) { const [bx, by] = main[b]; lines.push([arcPath(bx, by, bx + R(-40, 40), by + R(20, 44), 7, 5), colB, fr === 5 ? 1.2 : .6]); }
+        flash = fr === 5 ? .32 : .1;
+      }
+      const oy = fr * F;
+      g.save(); g.translate(0, oy); g.beginPath(); g.rect(0, 0, F, F); g.clip(); g.scale(K, K);
+      if (flash) { g.fillStyle = `rgba(255,252,235,${flash})`; g.fillRect(0, 0, SIZE, SIZE); }
+      for (const [pts, cc, w] of lines) {
+        const path = () => { g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); };
+        g.lineJoin = "round"; g.lineCap = "round";
+        if (st === "anim") {
+          path(); g.strokeStyle = "#3a2414"; g.lineWidth = 6 * w; g.stroke();
+          path(); g.strokeStyle = `rgb(${cc})`; g.lineWidth = 3.4 * w; g.stroke();
+          path(); g.strokeStyle = "#ffffff"; g.lineWidth = 1.2 * w; g.stroke();
+        } else if (!px) {
+          g.shadowColor = `rgba(${cc},1)`; g.shadowBlur = 10 * K;
+          path(); g.strokeStyle = `rgba(${cc},.35)`; g.lineWidth = 6 * w; g.stroke();
+          path(); g.strokeStyle = `rgba(${cc},.95)`; g.lineWidth = 2.2 * w; g.stroke();
+          g.shadowBlur = 3 * K; path(); g.strokeStyle = "#ffffff"; g.lineWidth = .9 * w; g.stroke(); g.shadowBlur = 0;
+        }
+      }
+      for (const [x, y, r] of sparks) {
+        if (st === "anim") { g.fillStyle = "#3a2414"; star(g, x, y, r * 3.4, "#3a2414"); star(g, x, y, r * 2.4, `rgb(${colA})`); }
+        else if (!px) { const gr = g.createRadialGradient(x, y, 0, x, y, r * 4); gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(.3, `rgba(${colA},.8)`); gr.addColorStop(1, `rgba(${colA},0)`); g.fillStyle = gr; g.fillRect(x - r * 4, y - r * 4, r * 8, r * 8); }
+      }
+      g.restore();
+      if (px) {
+        // Pixel: plot the same arcs on a 16×16 grid (white core, coloured halo) and scale up hard.
+        const N = 16, sm = document.createElement("canvas"); sm.width = sm.height = N; const sg = sm.getContext("2d");
+        const plot = (x, y, cc, a) => { sg.fillStyle = `rgba(${cc},${a})`; sg.fillRect(Math.floor(x / 8), Math.floor(y / 8), 1, 1); };
+        if (flash) { sg.fillStyle = `rgba(255,252,235,${flash})`; sg.fillRect(0, 0, N, N); }
+        for (const [pts, cc] of lines) for (let i = 1; i < pts.length; i++) { const [ax, ay] = pts[i - 1], [bx, by] = pts[i]; for (let t = 0; t <= 1; t += .2) { const x = ax + (bx - ax) * t, y = ay + (by - ay) * t; plot(x + 8, y, cc, .45); plot(x - 8, y, cc, .45); plot(x, y, "255,255,255", 1); } }
+        for (const [x, y] of sparks) { plot(x, y, "255,255,255", 1); plot(x + 8, y, colA, .7); plot(x - 8, y, colA, .7); plot(x, y + 8, colA, .7); plot(x, y - 8, colA, .7); }
+        g.imageSmoothingEnabled = false; g.drawImage(sm, 0, oy, F, F);
+      }
+    }
+    const url = c.toDataURL("image/png"); arcCache.set(key, url); return url;
+  }
+  const pick2 = (a) => a[Math.floor(rand() * a.length)];
   function apply(kind, pal, rot) {
     kind = PAINT[kind] ? kind : "wood"; pal = ((pal % PALETTES.length) + PALETTES.length) % PALETTES.length; rot = rot || 0;
     const key = vstyle + kind + pal + "r" + rot;
@@ -1581,6 +1683,9 @@ window.Skins = (() => {
     for (const i in colors) rules += `.skinned .c${i}{background-color:${colors[i]}!important;background-image:url(${tex(kind, colors[i])})!important;background-size:100% 100%!important}`;
     rules += `.skinned .c7{background-color:#2e2219!important;background-image:radial-gradient(circle,#ffd36b 0 17%,#b9852e 18% 24%,transparent 26%),url(${tex(kind, "#2e2219")})!important;background-size:100% 100%!important}`;
     style.textContent = rules;
+    const live = kind === "bolt" || kind === "electric";
+    document.body.classList.toggle("mat-bolt", kind === "bolt"); document.body.classList.toggle("mat-electric", kind === "electric");
+    if (live) document.body.style.setProperty("--arc-sheet", `url(${arcSheet(kind, vstyle)})`);
   }
   return {
     KINDS, PALETTES, apply,
@@ -4323,7 +4428,21 @@ window.Scene = (() => {
     electric: ["electric", 6, 1], lava: ["lava", 4, 5], smoke: ["smoke", 14, 7], water: ["water", 3, 8], ocean: ["ice", 7, 12],
     horror: ["cement", 9, 10], war: ["brick", 10, 1],
   };
-  const applySkin = () => {
+  // v16: the board itself is painted with the game's material, in the current style, tinted by the
+  // mode's colour; the empty cells are see-through holes in it, so every mode × material ×
+  // style combination has its own board.
+  const MODE_TINT = { classic: "#eaa53c", sudoku: "#3fb59a", tetris: "#a66be0", story: "#d9824a" };
+  const TRAY_BASE = { wood: "#6b4226", cement: "#7a7872", brick: "#8a3a22", ice: "#3a7ab0", water: "#1f5f8f", lava: "#4a1a0c", marble: "#c8c0b4",
+    metal: "#5a6270", bolt: "#2a2a5a", electric: "#2a1650", rain: "#3a5a70", future: "#1a2438", sand: "#c09050", grass: "#2f6a24", smoke: "#4a4a52" };
+  const mixHex = (a, b, t, f) => { const A = [1, 3, 5].map((i) => parseInt(a.slice(i, i + 2), 16)), B = [1, 3, 5].map((i) => parseInt(b.slice(i, i + 2), 16)); return "#" + A.map((v, i) => Math.max(0, Math.min(255, Math.round((v + (B[i] - v) * t) * f))).toString(16).padStart(2, "0")).join(""); };
+  function applyBoard() {
+    if (!S) return;
+    const k = Skins.material(), st = visualStyle(), acc = MODE_TINT[S.mode] || MODE_TINT.classic, base = TRAY_BASE[k] || TRAY_BASE.wood, bs = document.body.style;
+    bs.setProperty("--tray-img", `url(${Skins.texture(k, mixHex(base, acc, .3, .7), st)})`);
+    document.body.classList.add("boarded");
+  }
+  const applySkin = () => { applySkinOnly(); applyBoard(); };
+  const applySkinOnly = () => {
     if (S && S.mode === "story") {
       const wo = Scene.worlds[worldOf(S.level)], [k, a, b] = WORLD_SKIN[wo.id], i = (S.level - 1) % LEVELS_PER_WORLD, sh = wo.v * 5;
       return Skins.apply(k, (i % 2 ? b : a) + sh, Math.floor(i / 2));
@@ -4443,6 +4562,7 @@ window.Scene = (() => {
     document.body.classList.toggle("vs-real", st === "real");
     document.body.classList.toggle("vs-pixel", st === "pixel");
     Skins.setStyle(st); Scene.setStyle(st);
+    if (S) applyBoard();
     // The wordmark is filled with the game's own wood: pale maple for BLOCK/UNO, amber for ALT.
     for (const [id, hex] of [["wm-a", "#ead1a2"], ["wm-b", "#f0a63a"], ["wm-c", "#ead1a2"]]) $(id).style.backgroundImage = `url(${Skins.texture("wood", hex)})`;
     $("skins").innerHTML = "";

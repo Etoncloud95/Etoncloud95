@@ -150,6 +150,39 @@ Nebulosa usa Eletricidade e Vale Assombrado usa Cimento.
 - **Escolher uma textura no menu:** o fundo do menu passa para o cenário dela, e as partidas salvas de Clássico, Sudoku e Tetris mudam para esse material e cenário.
 - **Cenário que muda com os pontos** (Clássico, Sudoku e Tetris): os blocos passam a ser do material do novo cenário. O sorteio só usa cenários cujo material já está desbloqueado.
 
+## Tabuleiro (v16)
+
+O tabuleiro (bandeja onde os blocos são colocados) é feito do material do jogo, no estilo atual, e muda com o modo:
+- **Textura:** a bandeja é pintada pelo mesmo pintor dos blocos (material + estilo), com a cor-base do material misturada à cor do modo (âmbar, verde-azulado, roxo ou cobre). O resultado é escurecido, para os blocos se destacarem.
+- **Padrão por modo:**
+  - Clássico: luz âmbar no alto;
+  - Sudoku: listras diagonais verde-azuladas;
+  - Tetris: linhas horizontais roxas;
+  - História: cantos acobreados.
+- **Casas vazias:** são buracos translúcidos rebaixados, com o tabuleiro aparecendo por baixo; uma casa sim, outra não, mais escura.
+- **Realismo:** a textura cobre o tabuleiro inteiro.
+- **Animação e Pixel:** a textura vira ladrilhos de 2×2 casas, alinhados com a grade.
+
+Assim nenhuma combinação modo × material × estilo tem o mesmo tabuleiro.
+
+## Raio e Eletricidade vivos (v16)
+
+Os blocos de Raio e de Eletricidade ficam em movimento o tempo todo: no tabuleiro, na bandeja de peças, na peça arrastada e no logotipo.
+- **Como funciona:** uma sobreposição de 8 quadros é desenhada por código para cada estilo e trocada em degraus.
+- **Eletricidade (0,64 s por ciclo):**
+  - faíscas de atrito correm pelas bordas;
+  - dois arcos pulam de borda a borda;
+  - pontos de eletricidade estática piscam;
+  - um brilho interno/externo pulsa em ciano e violeta.
+- **Raio (1,7 s por ciclo):**
+  - eletricidade estática fraca nas bordas;
+  - num quadro, um raio ramificado corta o bloco com clarão branco, e no seguinte fica o rastro.
+- **Variação:** cada bloco tem fase, sentido ou atraso diferentes, para não piscarem todos juntos.
+- **Por estilo:**
+  - Realismo: arcos com brilho;
+  - Animação: arcos com contorno marrom e estrelinhas;
+  - Pixel: arcos em grade 16×16 sem suavização.
+
 ## Explosões únicas por material (v15)
 
 | Material | Realismo | Animação | Pixel |
