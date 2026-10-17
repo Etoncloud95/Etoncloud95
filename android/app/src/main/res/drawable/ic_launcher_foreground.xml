@@ -1,13 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 2x2 wooden blocks on a maple tray, inside the 66dp safe zone of the 108dp canvas. -->
+<!-- Maple tray with wooden blocks lit from the top left and a glowing gold row (inside the 66dp safe zone). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path android:fillColor="#D6AE7B" android:pathData="M28,28h52v52h-52z" />
-    <path android:fillColor="#A8452C" android:pathData="M32,32h21v21h-21z" />
-    <path android:fillColor="#EAA53C" android:pathData="M55,32h21v21h-21z" />
-    <path android:fillColor="#6B4226" android:pathData="M32,55h21v21h-21z" />
-    <path android:fillColor="#C99F6B" android:pathData="M55,55h21v21h-21z" />
+    <!-- tray shadow and tray -->
+    <path android:fillColor="#3A2414" android:pathData="M27,30h54a4,4 0,0 1,4 4v50a4,4 0,0 1,-4 4h-54a4,4 0,0 1,-4 -4v-50a4,4 0,0 1,4 -4z" />
+    <path android:pathData="M27,26h54a4,4 0,0 1,4 4v50a4,4 0,0 1,-4 4h-54a4,4 0,0 1,-4 -4v-50a4,4 0,0 1,4 -4z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="23" android:startY="26" android:endX="85" android:endY="84">
+                <item android:offset="0" android:color="#E8C48C" />
+                <item android:offset="1" android:color="#B8875A" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- top row: cherry, walnut, teak -->
+    <path android:fillColor="#A8452C" android:pathData="M29,32h15v15h-15z" />
+    <path android:fillColor="#C96A4C" android:pathData="M29,32h15v3h-15z" />
+    <path android:fillColor="#6B4226" android:pathData="M46.5,32h15v15h-15z" />
+    <path android:fillColor="#8E6040" android:pathData="M46.5,32h15v3h-15z" />
+    <path android:fillColor="#C99F6B" android:pathData="M64,32h15v15h-15z" />
+    <!-- middle row: the completed gold row -->
+    <path android:pathData="M29,49.5h50v15h-50z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="29" android:startY="49.5" android:endX="29" android:endY="64.5">
+                <item android:offset="0" android:color="#FFE29A" />
+                <item android:offset="1" android:color="#EAA53C" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:fillColor="#FFF4D6" android:pathData="M29,49.5h50v2.5h-50z" />
+    <path android:fillColor="#B9781F" android:pathData="M44,49.5h2.5v15h-2.5zM61.5,49.5h2.5v15h-2.5z" />
+    <!-- bottom row: slate, empty, olive -->
+    <path android:fillColor="#4F6873" android:pathData="M29,67h15v15h-15z" />
+    <path android:fillColor="#6F8A96" android:pathData="M29,67h15v3h-15z" />
+    <path android:fillColor="#C99F6B" android:pathData="M46.5,67h15v15h-15z" />
+    <path android:fillColor="#7C7A3C" android:pathData="M64,67h15v15h-15z" />
+    <path android:fillColor="#9A985A" android:pathData="M64,67h15v3h-15z" />
 </vector>
