@@ -1,7 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="8">
+<meta name="bau-version" content="9">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -427,7 +427,7 @@ h1 span { color: var(--amber); }
     <div class="power" id="power" hidden>
       <button class="power-btn" id="btn-power">
         <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="14" cy="19" r="10" fill="#2a1d15"/><circle cx="11" cy="16" r="3" fill="#fff" opacity=".25"/><path d="M20 10l3-3" stroke="#bda78c" stroke-width="2.4" stroke-linecap="round"/><path d="M25 3l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1z" fill="#ffd36b"/></svg>
-        <span class="pw-text"><b id="pw-title">Destruir 4 blocos</b><small id="pw-sub">Faça 1.000 pontos para liberar</small></span>
+        <span class="pw-text"><b id="pw-title">Destruir 4 blocos</b><small id="pw-sub">Faça 300 pontos para liberar</small></span>
         <span class="pw-count" id="pw-count">0</span>
       </button>
     </div>
@@ -757,6 +757,7 @@ window.Skins = (() => {
     preview: (kind, i) => tex(kind, PALETTES[0][i == null ? 2 : i]),
     material: () => now.kind,
     colorOf: (i) => (i === 7 ? "#2e2219" : now.colors[i] || "#c27f3c"),
+    texOf: (i) => tex(now.kind, i === 7 ? "#2e2219" : now.colors[i] || "#c27f3c"),
   };
 })();
 </script>
@@ -808,7 +809,43 @@ window.Scene = (() => {
   const SIL = seededList(40, 7);
 
   // ---- particle kinds used by explosions ----
-  function spawn(p) { if (parts.length < 900) parts.push(p); }
+  function spawn(p) { if (parts.length < 1400) parts.push(p); }
+  let bursts = [];
+  const imgCache = new Map();
+  function texImg(url) {
+    if (!url) return null;
+    let im = imgCache.get(url);
+    if (!im) { im = new Image(); im.src = url; imgCache.set(url, im); if (imgCache.size > 80) imgCache.delete(imgCache.keys().next().value); }
+    return im;
+  }
+  // Break one block into textured shards: a fan of triangles around an off-centre point.
+  function fracture(pt, power, many) {
+    const s2 = pt.size || 40, im = texImg(pt.tex), x0 = pt.x - s2 / 2, y0 = pt.y - s2 / 2;
+    const m = () => R(.25, .75);
+    // Few, large chunks (4–5 per block) read better than many slivers.
+    const ring = [[0, 0], [1, 0], [1, 1], [0, 1]];
+    if (!many) { const e = Math.floor(R(0, 4)), at = [[m(), 0], [1, m()], [m(), 1], [0, m()]][e]; ring.splice(e + 1, 0, at); }
+    const P = [R(.35, .65), R(.35, .65)];
+    for (let i = 0; i < ring.length; i++) {
+      const tri = [P, ring[i], ring[(i + 1) % ring.length]].map(([u, v]) => [u * s2, v * s2]);
+      const cx = (tri[0][0] + tri[1][0] + tri[2][0]) / 3, cy = (tri[0][1] + tri[1][1] + tri[2][1]) / 3;
+      const dir = Math.atan2(cy - s2 / 2, cx - s2 / 2), sp = R(60, 200) * (1 + power * .12);
+      spawn({
+        kind: "frag", x: x0 + cx, y: y0 + cy, vx: Math.cos(dir) * sp + R(-40, 40), vy: Math.sin(dir) * sp - R(120, 300) * (1 + power * .08),
+        g: R(520, 760), drag: .986, life: 0, max: R(2.2, 3.2), size: s2 * .3, color: pt.color || "#c27f3c", img: im,
+        poly: tri.map(([x, y]) => [x - cx, y - cy]), ox: cx, oy: cy, s: s2,
+        rot: 0, vr: R(-5, 5), flip: R(-.6, .6), vf: R(-6, 6), wob: 0, bounces: 0, ice: pt.ice,
+      });
+    }
+  }
+  // Glowing bokeh specks that drift slowly, like dust caught in the light.
+  function bokeh(x, y, n, warm) {
+    for (let i = 0; i < n; i++) {
+      const a = R(0, TAU), sp = R(30, 220);
+      spawn({ kind: "bokeh", x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - R(20, 90), g: R(-30, 60), drag: .965, life: 0, max: R(1.2, 2.4),
+        size: R(1.5, 5), color: warm ? pick(["255,214,140", "255,240,210", "255,190,110"]) : pick(["210,236,255", "255,255,255", "170,215,255"]), rot: 0, vr: 0, wob: R(0, TAU) });
+    }
+  }
   function burst(x, y, cfg, power) {
     const n = Math.round(cfg.n * (1 + power * .25));
     for (let i = 0; i < n; i++) {
@@ -821,7 +858,7 @@ window.Scene = (() => {
       });
     }
   }
-  const ADD = { spark: 1, star: 1, ember: 1, fire: 1, glowdot: 1, line: 1, glint: 1 };
+  const ADD = { spark: 1, star: 1, ember: 1, fire: 1, glowdot: 1, line: 1, glint: 1, bokeh: 1 };
 
   // How each block material breaks apart. "own" uses shades of the block's own colour.
   const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
@@ -889,6 +926,26 @@ window.Scene = (() => {
         const r2 = p.size * .8; f.beginPath(); f.moveTo(p.x - r2, p.y); f.lineTo(p.x + r2, p.y); f.moveTo(p.x, p.y - r2); f.lineTo(p.x, p.y + r2); f.stroke(); break;
       }
       case "mist": { f.globalAlpha = a * .4; circle(f, p.x, p.y, p.size * (1.5 + k * 3), p.color); break; }
+      case "frag": {
+        // A textured shard tumbling in 3D: squashing one axis fakes the flip, the edge glints as it turns to the light.
+        const fade = k > .75 ? (1 - k) / .25 : 1, fl = Math.cos(p.flip);
+        f.save(); f.translate(p.x, p.y); f.rotate(p.rot); f.scale(Math.max(.06, Math.abs(fl)), 1);
+        f.globalAlpha = fade * (p.ice ? .88 : 1);
+        f.beginPath(); p.poly.forEach(([x, y], i) => (i ? f.lineTo(x, y) : f.moveTo(x, y))); f.closePath();
+        f.save(); f.clip();
+        if (p.img && p.img.complete && p.img.naturalWidth) f.drawImage(p.img, -p.ox, -p.oy, p.s, p.s); else { f.fillStyle = p.color; f.fillRect(-p.s, -p.s, p.s * 2, p.s * 2); }
+        f.fillStyle = fl < 0 ? "rgba(0,0,0,.22)" : `rgba(255,255,255,${Math.pow(fl, 10) * .35})`; f.fillRect(-p.s, -p.s, p.s * 2, p.s * 2);
+        f.restore();
+        const glintA = .2 + .75 * Math.pow(Math.abs(Math.sin(p.flip)), 8);
+        f.strokeStyle = p.ice ? `rgba(235,250,255,${glintA})` : `rgba(255,236,200,${glintA * .8})`; f.lineWidth = 1.2 / Math.max(.3, Math.abs(fl)); f.stroke();
+        f.restore(); break;
+      }
+      case "bokeh": {
+        const r2 = p.size * (1.6 + .4 * Math.sin(p.wob * 2)), tw = .5 + .5 * Math.sin(p.wob * 3);
+        const g2 = f.createRadialGradient(p.x, p.y, 0, p.x, p.y, r2 * 2.2);
+        g2.addColorStop(0, `rgba(${p.color},${.95 * a * tw})`); g2.addColorStop(.35, `rgba(${p.color},${.5 * a * tw})`); g2.addColorStop(1, `rgba(${p.color},0)`);
+        f.globalAlpha = 1; f.fillStyle = g2; f.fillRect(p.x - r2 * 2.2, p.y - r2 * 2.2, r2 * 4.4, r2 * 4.4); break;
+      }
       case "drop": {
         f.globalAlpha = a; f.fillStyle = p.color; f.save(); f.translate(p.x, p.y);
         f.rotate(Math.atan2(p.vy, p.vx)); f.beginPath(); f.ellipse(0, 0, p.size * 1.6, p.size * .7, 0, 0, TAU); f.fill(); f.restore(); break;
@@ -1189,11 +1246,35 @@ window.Scene = (() => {
       f.globalAlpha = (1 - k) * .9; f.strokeStyle = r.c; f.lineWidth = r.w * (1 - k) + 1;
       f.beginPath(); f.arc(r.x, r.y, r.r * (.15 + k), 0, TAU); f.stroke(); f.globalAlpha = 1;
     }
+    // Light bursts: a hot core and soft god-rays fanning out, fading fast.
+    for (let i = bursts.length - 1; i >= 0; i--) {
+      const bu = bursts[i]; bu.t += dt; const k = bu.t / bu.max;
+      if (k >= 1) { bursts.splice(i, 1); continue; }
+      const a = Math.pow(1 - k, 2), r = bu.r * (.6 + k * .6);
+      f.globalCompositeOperation = "lighter";
+      for (const ray of bu.rays) {
+        const len = r * ray.l, a1 = ray.a + bu.spin * k;
+        const gr = f.createRadialGradient(bu.x, bu.y, 0, bu.x, bu.y, len);
+        gr.addColorStop(0, `rgba(${bu.c},${.55 * a})`); gr.addColorStop(1, `rgba(${bu.c},0)`);
+        f.fillStyle = gr; f.beginPath(); f.moveTo(bu.x, bu.y);
+        f.lineTo(bu.x + Math.cos(a1 - ray.w) * len, bu.y + Math.sin(a1 - ray.w) * len);
+        f.lineTo(bu.x + Math.cos(a1 + ray.w) * len, bu.y + Math.sin(a1 + ray.w) * len); f.closePath(); f.fill();
+      }
+      const core = f.createRadialGradient(bu.x, bu.y, 0, bu.x, bu.y, r * .45);
+      core.addColorStop(0, `rgba(255,255,255,${.9 * a})`); core.addColorStop(.3, `rgba(${bu.c},${.6 * a})`); core.addColorStop(1, `rgba(${bu.c},0)`);
+      f.fillStyle = core; f.fillRect(bu.x - r, bu.y - r, r * 2, r * 2);
+      f.globalCompositeOperation = "source-over";
+    }
     for (let i = parts.length - 1; i >= 0; i--) {
       const p = parts[i]; p.life += dt;
       const k = p.life / p.max;
       if (k >= 1) { parts.splice(i, 1); continue; }
       p.vx *= p.drag; p.vy = p.vy * p.drag + p.g * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.rot += p.vr * dt; p.wob += dt * 6;
+      if (p.kind === "frag") {
+        p.flip += p.vf * dt;
+        const floor = H - 6;
+        if (p.y > floor && p.vy > 0) { p.y = floor; p.vy *= -.33; p.vx *= .55; p.vr *= .5; p.vf *= .45; p.bounces++; }
+      }
       drawPart(p, k);
     }
   }
@@ -1207,7 +1288,7 @@ window.Scene = (() => {
       const t = THEMES[id] || null;
       if (t) t.id = id;
       if (t === theme) return;
-      theme = t; parts = []; rings = []; flash = null; bolt = 0;
+      theme = t; parts = []; rings = []; bursts = []; flash = null; bolt = 0;
       document.body.classList.toggle("themed", !!t);
       document.documentElement.style.setProperty("--scene-glow", t ? t.glow : "transparent");
       if (!t) { b.clearRect(0, 0, W, H); f.clearRect(0, 0, W, H); cancelAnimationFrame(raf); raf = 0; return; }
@@ -1221,14 +1302,20 @@ window.Scene = (() => {
     explode(points, power, material) {
       if (!theme || !points.length) return;
       const cfg = theme.boom, per = Math.max(1, Math.round(5 / Math.sqrt(points.length / 8)));
-      const mat = MATERIAL[material] || MATERIAL.wood;
+      const mat = MATERIAL[material] || MATERIAL.wood, cold = material === "ice" || material === "water", many = points.length > 14;
       for (const pt of points) {
         const m = mat(pt.color || "#c27f3c");
-        burst(pt.x, pt.y, { ...m, n: Math.max(2, Math.round(m.n * per / 5)) }, power);
-        burst(pt.x, pt.y, { ...cfg, n: Math.max(1, Math.round(cfg.n * per / 5 * .3)) }, power);
+        // Solid materials shatter into falling textured shards; water bursts into droplets instead.
+        if (material !== "water") fracture({ ...pt, ice: material === "ice" }, power, many);
+        burst(pt.x, pt.y, { ...m, n: Math.max(1, Math.round(m.n * per / 5 * (material === "water" ? 1 : .45))) }, power);
+        burst(pt.x, pt.y, { ...cfg, n: Math.max(1, Math.round(cfg.n * per / 5 * .2)) }, power);
       }
       if (material === "water" || material === "ice") rings.push({ x: points[0].x, y: points[0].y, r: 60, w: 4, c: "#e6fbff", t: 0, max: .5 });
       let cx = 0, cy = 0; for (const pt of points) { cx += pt.x; cy += pt.y; } cx /= points.length; cy /= points.length;
+      bokeh(cx, cy, Math.min(14 + points.length * 2 + power * 6, 60), !cold);
+      const nr = 12 + power * 3;
+      bursts.push({ x: cx, y: cy, t: 0, max: .5 + power * .07, r: 150 + power * 55, spin: R(-.4, .4), c: cold ? "190,225,255" : "255,215,150",
+        rays: Array.from({ length: nr }, (_, i) => ({ a: i / nr * TAU + R(-.15, .15), w: R(.02, .07), l: R(.6, 1.25) })) });
       const count = (cfg.rings || 1) + (power >= 3 ? 1 : 0);
       for (let i = 0; i < count; i++) rings.push({ x: cx, y: cy, r: 120 + power * 40, w: 10 + power * 3, c: cfg.ring, t: -i * .12, max: .6 + power * .05 });
       if (cfg.flash && power >= 2) flash = { c: cfg.flash, t: .35 };
@@ -1633,8 +1720,23 @@ window.Scene = (() => {
     return out;
   });
   const rnd = (n) => Math.floor(Math.random() * n);
+  // Piece weights at the easiest (EASY) and hardest (HARD) point; the mix follows difficulty().
+  const EASY_W = { x: 3, xx: 3, xxx: 2.5, xxxx: 1.2, xxxxx: .25, "xx/xx": 2.5, "xxx/xxx": .5, "xxx/xxx/xxx": .12,
+    "xx/x.": 2.2, "xxx/x../x..": .25, "xxx/x..": 1, "xxx/.x.": 1, "xx./.xx": .35 };
+  const HARD_W = { x: .5, xx: .9, xxx: 1, xxxx: 1.2, xxxxx: 1.2, "xx/xx": 1, "xxx/xxx": 1, "xxx/xxx/xxx": .9,
+    "xx/x.": 1, "xxx/x../x..": 1.1, "xxx/x..": 1.2, "xxx/.x.": 1.2, "xx./.xx": 1.3 };
+  // 0 = easiest, 1 = hardest. Classic and Sudoku ramp up over the first 10 levels (1.000 points);
+  // story follows the level's own difficulty.
+  function difficulty() {
+    if (!S) return 0;
+    if (S.mode === "story") return storyDiff(S.level);
+    return Math.min(1, (levelOf(S.score) - 1) / 10);
+  }
   function randomPiece() {
-    const v = VARIANTS[rnd(VARIANTS.length)];
+    const df = difficulty(), w = BASE.map((b2) => EASY_W[b2] * (1 - df) + HARD_W[b2] * df);
+    let r = Math.random() * w.reduce((a, c) => a + c, 0), k = 0;
+    while (r > w[k] && k < w.length - 1) { r -= w[k]; k++; }
+    const v = VARIANTS[k];
     return { cells: v[rnd(v.length)], color: S.rules === "sudoku" ? 3 : 1 + rnd(6) };
   }
   const dims = (cells) => [1 + Math.max(...cells.map((p) => p[0])), 1 + Math.max(...cells.map((p) => p[1]))];
@@ -1682,13 +1784,32 @@ window.Scene = (() => {
     }
     return { idx, lines };
   }
-  function newTray() {
-    let tray;
-    for (let t = 0; t < 25; t++) {
-      tray = [randomPiece(), randomPiece(), randomPiece()];
-      if (tray.some(fitsAnywhere)) break;
+  // Can this piece complete a line somewhere right now?
+  function helps(piece) {
+    for (let r = 0; r < S.n; r++) for (let c = 0; c < S.n; c++) {
+      if (!canPlace(S.board, S.n, piece.cells, r, c)) continue;
+      const b2 = S.board.slice();
+      for (const [pr, pc] of piece.cells) b2[(r + pr) * S.n + c + pc] = 1;
+      if (findClears(b2).lines) return true;
     }
-    return tray;
+    return false;
+  }
+  // Early on the game deals a helpful hand (pieces that fit and that can finish lines);
+  // as difficulty rises it looks at fewer hands and helps less often.
+  function newTray() {
+    const df = difficulty(), tries = Math.round(10 - 7 * df), helpChance = .9 - .65 * df;
+    let best = null, bestScore = -1;
+    for (let t = 0; t < tries; t++) {
+      const tray = [randomPiece(), randomPiece(), randomPiece()];
+      const fit = tray.filter(fitsAnywhere).length;
+      if (!best && fit) { best = tray; bestScore = 0; }
+      if (Math.random() > helpChance) { if (fit) return tray; continue; }
+      const score = fit * 2 + tray.filter((p2) => fitsAnywhere(p2) && helps(p2)).length * 3 + Math.random();
+      if (score > bestScore) { best = tray; bestScore = score; }
+    }
+    if (best) return best;
+    for (let t = 0; t < 25; t++) { const tray = [randomPiece(), randomPiece(), randomPiece()]; if (tray.some(fitsAnywhere)) return tray; }
+    return [randomPiece(), randomPiece(), randomPiece()];
   }
 
   // ---------- story: 100 handmade-by-formula levels ----------
@@ -1697,17 +1818,23 @@ window.Scene = (() => {
   // Every 5th level uses the Sudoku rules on a 9×9 board. Difficulty grows with N.
   const STORY_LEVELS = 100, MARK = 7;
   const storyGoal = (L) => (L % 3 === 2 ? "clear" : "score");
-  const storyTarget = (L) => Math.round((80 + L * 16) / 10) * 10;
+  // Difficulty 0..1. Inside every world level 1 is the easiest and level 10 the hardest;
+  // later worlds start and end harder. World 1 stays gentle (0 → 0.25).
+  function storyDiff(L) {
+    const w = Math.min(Math.floor((L - 1) / 10), 9) / 9, l = ((L - 1) % 10) / 9;
+    return w * .55 + l * (.25 + .2 * w);
+  }
+  const storyTarget = (L) => Math.round((60 + storyDiff(L) * 1300) / 10) * 10;
   function seeded(a) {
     return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   }
   function storyLevel(L) {
-    const rng = seeded(L * 7919 + 101), ri = (k) => Math.floor(rng() * k), t = (L - 1) / (STORY_LEVELS - 1);
+    const rng = seeded(L * 7919 + 101), ri = (k) => Math.floor(rng() * k), t = storyDiff(L);
     const rules = L % 5 === 0 ? "sudoku" : "classic", n = rules === "sudoku" ? 9 : 8, boxes = rules === "sudoku";
     const goal = storyGoal(L), color = () => (boxes ? 3 : 1 + ri(6));
     const board = new Array(n * n).fill(0), reserved = new Set();
-    // Starting fill grows from about 18% to 50% of the board.
-    const cap = Math.round(n * n * (.18 + .32 * t));
+    // Starting fill grows from about 8% (easiest) to 48% (hardest) of the board.
+    const cap = Math.round(n * n * (.08 + .4 * t));
     let filled = 0;
     // Never start with a complete line: it would clear on the first move.
     const put = (i, v) => {
@@ -1717,20 +1844,22 @@ window.Scene = (() => {
       filled++;
       return true;
     };
-    // 1) Nearly complete lines with one or two holes: tempting, but they need the exact piece.
-    const lines = Math.min(1 + Math.floor(t * 3) + ri(2), Math.floor(cap / (n - 1)));
+    // 1) Nearly complete lines: easy levels leave one hole (a quick win), hard ones leave two.
+    const lines = Math.min(1 + ri(2) + (t > .5 ? 1 : 0), Math.floor(cap / (n - 1)));
     for (let k = 0; k < lines; k++) {
-      const row = rng() < .5, x = ri(n), holes = 1 + (rng() < .3 + t * .5 ? 1 : 0);
+      const row = rng() < .5, x = ri(n), holes = t < .3 ? 1 : 1 + (rng() < t ? 1 : 0);
       const cells = Array.from({ length: n }, (_, j) => (row ? x * n + j : j * n + x));
       for (let h = 0; h < holes; h++) reserved.add(cells[ri(n)]);
       for (const i of cells) put(i, color());
     }
     // 2) Marked blocks to destroy (clear levels only).
     if (goal === "clear") {
-      const want = 3 + Math.round(t * 17) + ri(3);
+      const want = 2 + Math.round(t * 15) + (t > .3 ? ri(3) : 0);
+      const lineBlocks = board.map((v, i) => (v ? i : -1)).filter((i) => i >= 0);
       let marks = 0;
       for (let a = 0; a < 600 && marks < want; a++) {
-        const i = ri(n * n);
+        // Easy levels put the marks inside the almost-complete lines, so they go fast.
+        const i = t < .4 && lineBlocks.length && a < 200 ? lineBlocks[ri(lineBlocks.length)] : ri(n * n);
         if (board[i] === MARK) continue;
         if (board[i]) { board[i] = MARK; marks++; } else if (put(i, MARK)) marks++;
       }
@@ -1948,7 +2077,7 @@ window.Scene = (() => {
       sfx.clear(lines, S.combo);
       buzz(power >= 4 ? 90 : power >= 2 ? 55 : 30);
       shake(power >= 3);
-      Scene.explode([...was].map(([i, v]) => { const r = cellEls[i].getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, color: Skins.colorOf(v) }; }), power, Skins.material());
+      Scene.explode([...was].map(([i, v]) => { const r = cellEls[i].getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, size: r.width, color: Skins.colorOf(v), tex: Skins.texOf(v) }; }), power, Skins.material());
       if (lines >= 2) fx("praise", PRAISE[Math.min(lines, 5)], midTop - 70);
       if (S.combo > 1) fx("combo", "Combo ×" + S.combo, 30);
     } else {
@@ -1998,8 +2127,8 @@ window.Scene = (() => {
   function save() { store.set("game." + S.mode, S); }
 
   // ---------- story power: destroy 4 blocks ----------
-  // No power at the start of a level; every 1.000 points in the level earns one use.
-  const POWER_POINTS = 1000, POWER_TAPS = 4;
+  // No power at the start of a level; every 300 points in the level earns one use.
+  const POWER_POINTS = 300, POWER_TAPS = 4;
   function renderPower() {
     const show = S && S.mode === "story";
     $("power").hidden = !show;
@@ -2046,7 +2175,7 @@ window.Scene = (() => {
     cellEls[i].classList.add("c" + v, "b", "clearing");
     setTimeout(() => renderBoard(), 360);
     const r = cellEls[i].getBoundingClientRect();
-    Scene.explode([{ x: r.left + r.width / 2, y: r.top + r.height / 2, color: Skins.colorOf(v) }], 3, Skins.material());
+    Scene.explode([{ x: r.left + r.width / 2, y: r.top + r.height / 2, size: r.width, color: Skins.colorOf(v), tex: Skins.texOf(v) }], 3, Skins.material());
     sfx.clear(1, 2); buzz(70); shake(false);
     S.powerTaps--;
     S.marks = S.board.filter((x) => x === MARK).length;
@@ -2226,12 +2355,19 @@ window.Scene = (() => {
     }
   }
   const KICKS = [[0, 0], [-1, 0], [1, 0], [-2, 0], [2, 0], [0, -1]];
+  const pick2 = (a) => a[rnd(a.length)];
   const LINE_POINTS = [0, 10, 30, 60, 100];
-  const tInterval = (score) => Math.max(70, Math.round(800 * Math.pow(.85, levelOf(score) - 1)));
+  const tInterval = (score) => Math.max(70, Math.round(1000 * Math.pow(.86, levelOf(score) - 1)));
   let T = null; // runtime only: { raf, last, acc, lockAt, lockMoves, clearRows, clearUntil, paused, soft, cells, dirty }
 
   function tBag() {
-    if (!S.bag.length) { S.bag = Object.keys(TSHAPES); for (let i = S.bag.length - 1; i > 0; i--) { const j = rnd(i + 1); [S.bag[i], S.bag[j]] = [S.bag[j], S.bag[i]]; } }
+    if (!S.bag.length) {
+      S.bag = Object.keys(TSHAPES);
+      // Early levels swap the awkward S and Z for friendlier pieces now and then.
+      const df = Math.min(1, (levelOf(S.score) - 1) / 8);
+      S.bag = S.bag.map((t) => ((t === "S" || t === "Z") && Math.random() < (1 - df) * .6 ? pick2(["I", "O", "T", "L", "J"]) : t));
+      for (let i = S.bag.length - 1; i > 0; i--) { const j = rnd(i + 1); [S.bag[i], S.bag[j]] = [S.bag[j], S.bag[i]]; }
+    }
     return S.bag.pop();
   }
   function tFits(t, r, x, y) {
@@ -2291,7 +2427,7 @@ window.Scene = (() => {
       T.clearRows = full; T.clearUntil = performance.now() + 300;
       tRender();
       const pts = [];
-      for (const y of full) if (y >= HID) for (let x = 0; x < TW; x++) { const r = T.cells[(y - HID) * TW + x].getBoundingClientRect(); pts.push({ x: r.left + r.width / 2, y: r.top + r.height / 2, color: Skins.colorOf(S.board[y * TW + x]) }); }
+      for (const y of full) if (y >= HID) for (let x = 0; x < TW; x++) { const r = T.cells[(y - HID) * TW + x].getBoundingClientRect(); pts.push({ x: r.left + r.width / 2, y: r.top + r.height / 2, size: r.width, color: Skins.colorOf(S.board[y * TW + x]), tex: Skins.texOf(S.board[y * TW + x]) }); }
       Scene.explode(pts, power, "wood");
       sfx.clear(n, S.combo);
       buzz(power >= 4 ? 90 : power >= 2 ? 55 : 30);
