@@ -1,7 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="17">
+<meta name="bau-version" content="18">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -416,13 +416,28 @@ body.themed[data-mode] .bar { box-shadow: inset 0 -3px 0 var(--mode-accent); }
 
 /* Tetris: coloured ghost, bumping counters, level & speed box, held buttons. */
 .vs-real .tboard .cell.ghost { background: color-mix(in srgb, var(--gh, #fff) 22%, #c2955f); box-shadow: none; outline: 2px dashed var(--gh, #fff); outline-offset: -3px; }
-/* v17: Raio / Eletricidade. The board's blocks are animated on ONE canvas over the board (class
-   .live, ~15 fps, see Live in the game script); pieces in the tray, the dragged piece and the logo
-   carry a still frame. No per-block CSS animation (that made phones lag in v16). */
-.mat-bolt .blk, .mat-electric .blk { position: relative; }
-.mat-bolt .blk::after, .mat-electric .blk::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; background: var(--arc-still) 0 0 / 100% 100% no-repeat; }
-.vs-pixel .blk::after { image-rendering: pixelated; }
-.live { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+/* v18: Raio / Eletricidade. Blocks show the electricity still (no per-block animation); the
+   movement is on the board's frame: two layers of edge arcs and, for Raio, a strike layer, animated
+   with opacity only (runs on the compositor, nothing is repainted). */
+.mat-bolt .blk, .mat-electric .blk, .mat-bolt .cell.b, .mat-electric .cell.b { position: relative; }
+.mat-bolt .blk::after, .mat-electric .blk::after, .mat-bolt .cell.b::after, .mat-electric .cell.b::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; background: var(--arc-still) 0 0 / 100% 100% no-repeat; }
+.vs-pixel .blk::after, .vs-pixel .cell.b::after { image-rendering: pixelated; }
+.mat-bolt #board, .mat-electric #board, .mat-bolt .tboard, .mat-electric .tboard { position: relative; }
+.mat-bolt #board::before, .mat-electric #board::before, .mat-bolt .tboard::before, .mat-electric .tboard::before,
+.mat-bolt #board::after, .mat-electric #board::after, .mat-bolt .tboard::after, .mat-electric .tboard::after {
+  content: ""; position: absolute; inset: -9px; z-index: 3; pointer-events: none; background: var(--edge-a) center / 100% 100% no-repeat; will-change: opacity; animation: edge-a .42s steps(1) infinite; }
+.mat-bolt #board::after, .mat-electric #board::after, .mat-bolt .tboard::after, .mat-electric .tboard::after { background-image: var(--edge-b); animation: edge-b .58s steps(1) infinite; }
+.mat-bolt #board::after, .mat-bolt .tboard::after { inset: 0; background-image: var(--edge-f); animation: strike 2.3s steps(1) infinite; }
+.vs-pixel #board::before, .vs-pixel #board::after, .vs-pixel .tboard::before, .vs-pixel .tboard::after { image-rendering: pixelated; }
+@keyframes edge-a { 0% { opacity: 1; } 30% { opacity: .2; } 55% { opacity: .85; } 80% { opacity: .45; } }
+@keyframes edge-b { 0% { opacity: .15; } 35% { opacity: 1; } 60% { opacity: .3; } 85% { opacity: .9; } }
+@keyframes strike { 0% { opacity: 0; } 82% { opacity: 1; } 86% { opacity: .15; } 89% { opacity: .9; } 93% { opacity: 0; } }
+
+/* v18: Story is the main mode: a softly glowing neon edge (opacity-only pulse). */
+#play-story { box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 6px 0 rgba(0,0,0,.4), 0 0 18px rgba(255,120,70,.55), 0 0 2px rgba(255,190,140,.9); }
+#play-story::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; border: 2px solid #ffb37a;
+  box-shadow: inset 0 0 14px rgba(255,110,60,.75), inset 0 0 3px rgba(255,240,220,.9); will-change: opacity; animation: neon 2.6s ease-in-out infinite alternate; }
+@keyframes neon { from { opacity: .55; } to { opacity: 1; } }
 
 /* v16: the board is made of the game's material, in the game's style, tinted and patterned by the
    mode: --tray-img is painted per (mode, material, style); --tray-over is the mode's pattern. */
@@ -521,10 +536,6 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       <h1 class="wordmark"><span class="wm" id="wm-a">BLOCK</span> <span class="wm" id="wm-b">ALT</span> <span class="wm" id="wm-c">UNO</span></h1>
       <span class="ver" id="ver"></span>
       <p class="tag">Quebra-cabeça de blocos</p>
-    </div>
-    <div class="skin-pick">
-      <div class="skins" id="skins" role="radiogroup" aria-label="Textura dos blocos"></div>
-      <p class="skins-note" id="skins-note">Textura dos blocos · o cenário acompanha</p>
     </div>
     <div class="modes">
       <button class="mode" id="play-classic" data-mode="classic">
@@ -676,6 +687,11 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
           <button class="vs-opt" data-vs="real" role="radio"><span class="tiles"></span><b>Realismo</b><small>Materiais naturais, luz e sombras</small></button>
           <button class="vs-opt" data-vs="pixel" role="radio"><span class="tiles"></span><b>Pixel</b><small>Pixel art 16-bit, blocos e efeitos quadradinhos</small></button>
         </div>
+      </div>
+      <div class="skin-pick">
+        <span class="set-label">Textura dos blocos</span>
+        <div class="skins" id="skins" role="radiogroup" aria-label="Textura dos blocos"></div>
+        <p class="skins-note" id="skins-note">O cenário acompanha a textura</p>
       </div>
       <div>
         <span class="set-label">Música do menu</span>
@@ -1664,6 +1680,53 @@ window.Skins = (() => {
     const res = { canvas: c, F, still: still.toDataURL("image/png") }; arcCache.set(key, res); return res;
   }
   const pick2 = (a) => a[Math.floor(rand() * a.length)];
+  // v18: the moving electricity lives on the board's frame, not on every block. Three transparent
+  // layers (two of edge arcs, one strike for Raio) are painted once; the CSS only flickers their
+  // opacity, which the phone's compositor does without repainting anything.
+  const edgeCache = new Map();
+  function edgeArcs(kind, st) {
+    const key = kind + st;
+    if (edgeCache.has(key)) return edgeCache.get(key);
+    seed = 777 + kind.length * 13;
+    const bolt = kind === "bolt", colA = bolt ? "255,236,140" : "120,240,255", colB = bolt ? "210,220,255" : "200,140,255";
+    const layer = (strike) => {
+      const F = SIZE * K, c = document.createElement("canvas"); c.width = c.height = F; const g = c.getContext("2d"); g.scale(K, K);
+      const lines = [], sparks = [];
+      if (strike) {
+        const x = R(40, 88), main = arcPath(x, 0, x + R(-30, 30), SIZE, 10, 14); lines.push([main, colA, 1.6]);
+        for (let b = 3; b < 12; b += 3) { const [bx, by] = main[b]; lines.push([arcPath(bx, by, bx + R(-40, 40), by + R(16, 36), 6, 6), colB, .9]); }
+        g.fillStyle = "rgba(255,252,235,.14)"; g.fillRect(0, 0, SIZE, SIZE);
+      } else {
+        for (let side = 0; side < 4; side++) for (let k = 0; k < 2; k++) {
+          const t = R(4, 84), [x0, y0] = edgePt(side, t, R(2, 5)), [x1, y1] = edgePt(side, t + R(22, 40), R(2, 5));
+          lines.push([arcPath(x0, y0, x1, y1, 3.5, 7), pick2([colA, colB]), .8]);
+        }
+        for (const [x, y] of [[3, 3], [125, 3], [3, 125], [125, 125]]) sparks.push([x, y, 2.4]);
+        for (let k = 0; k < 6; k++) { const side = Math.floor(R(0, 4)); sparks.push([...edgePt(side, R(6, 122), 3), R(1.2, 2)]); }
+      }
+      if (st === "pixel") {
+        const N = 64, sm = document.createElement("canvas"); sm.width = sm.height = N; const sg = sm.getContext("2d"), q = SIZE / N;
+        const plot = (x, y, cc, a) => { sg.fillStyle = `rgba(${cc},${a})`; sg.fillRect(Math.floor(x / q), Math.floor(y / q), 1, 1); };
+        for (const [pts, cc] of lines) for (let i = 1; i < pts.length; i++) { const [ax, ay] = pts[i - 1], [bx, by] = pts[i]; for (let t = 0; t <= 1; t += .15) { const x = ax + (bx - ax) * t, y = ay + (by - ay) * t; plot(x + q, y, cc, .95); plot(x - q, y, cc, .95); plot(x, y + q, cc, .7); plot(x, y, "255,255,255", 1); } }
+        for (const [x, y] of sparks) { plot(x, y, "255,255,255", 1); plot(x + q, y, colA, .8); plot(x, y + q, colA, .8); }
+        g.setTransform(1, 0, 0, 1, 0, 0); g.imageSmoothingEnabled = false; g.drawImage(sm, 0, 0, F, F);
+      } else {
+        g.lineJoin = "round"; g.lineCap = "round";
+        for (const [pts, cc, w] of lines) {
+          const path = () => { g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); };
+          if (st === "anim") { path(); g.strokeStyle = "#3a2414"; g.lineWidth = 4.4 * w; g.stroke(); path(); g.strokeStyle = `rgb(${cc})`; g.lineWidth = 2.6 * w; g.stroke(); path(); g.strokeStyle = "#fff"; g.lineWidth = .9 * w; g.stroke(); }
+          else { g.shadowColor = `rgba(${cc},1)`; g.shadowBlur = 8 * K; path(); g.strokeStyle = `rgba(${cc},.4)`; g.lineWidth = 4 * w; g.stroke(); path(); g.strokeStyle = `rgba(${cc},.95)`; g.lineWidth = 1.6 * w; g.stroke(); g.shadowBlur = 0; path(); g.strokeStyle = "#fff"; g.lineWidth = .6 * w; g.stroke(); }
+        }
+        for (const [x, y, r] of sparks) {
+          if (st === "anim") star(g, x, y, r * 2.2, `rgb(${colA})`);
+          else { const gr = g.createRadialGradient(x, y, 0, x, y, r * 4); gr.addColorStop(0, "#fff"); gr.addColorStop(.3, `rgba(${colA},.8)`); gr.addColorStop(1, `rgba(${colA},0)`); g.fillStyle = gr; g.fillRect(x - r * 4, y - r * 4, r * 8, r * 8); }
+        }
+      }
+      return c.toDataURL("image/png");
+    };
+    const res = [layer(false), layer(false), layer(true)];
+    edgeCache.set(key, res); return res;
+  }
   function apply(kind, pal, rot) {
     kind = PAINT[kind] ? kind : "wood"; pal = ((pal % PALETTES.length) + PALETTES.length) % PALETTES.length; rot = rot || 0;
     const key = vstyle + kind + pal + "r" + rot;
@@ -1677,7 +1740,11 @@ window.Skins = (() => {
     style.textContent = rules;
     const live = kind === "bolt" || kind === "electric";
     document.body.classList.toggle("mat-bolt", kind === "bolt"); document.body.classList.toggle("mat-electric", kind === "electric");
-    if (live) document.body.style.setProperty("--arc-still", `url(${arcSheet(kind, vstyle).still})`);
+    if (live) {
+      const bs = document.body.style, [ea, eb, ef] = edgeArcs(kind, vstyle);
+      bs.setProperty("--arc-still", `url(${arcSheet(kind, vstyle).still})`);
+      bs.setProperty("--edge-a", `url(${ea})`); bs.setProperty("--edge-b", `url(${eb})`); bs.setProperty("--edge-f", `url(${ef})`);
+    }
   }
   return {
     KINDS, PALETTES, apply,
@@ -1686,7 +1753,6 @@ window.Skins = (() => {
     preview: (kind, i, st) => tex(kind, PALETTES[0][i == null ? 2 : i], st),
     texture: (kind, hex, st) => tex(kind, hex, st),
     material: () => now.kind,
-    arcFrames: () => (now.kind === "bolt" || now.kind === "electric" ? arcSheet(now.kind, vstyle) : null),
     colorOf: (i) => (i === 7 ? "#2e2219" : now.colors[i] || "#c27f3c"),
     texOf: (i) => tex(now.kind, i === 7 ? "#2e2219" : now.colors[i] || "#c27f3c"),
   };
@@ -3012,10 +3078,65 @@ window.Scene = (() => {
     ["menu", "Cânone em Ré", "Johann Pachelbel"],
     ["menu_bach", "Prelúdio em Dó maior", "Johann Sebastian Bach"],
     ["menu_satie", "Gymnopédie nº 1", "Erik Satie"],
+    ["menu_elise", "Para Elise", "Ludwig van Beethoven"],
+    ["menu_ode", "Ode à Alegria", "Ludwig van Beethoven"],
+    ["menu_brahms", "Canção de Ninar", "Johannes Brahms"],
+    ["menu_mozart", "Pequena Serenata Noturna", "Wolfgang Amadeus Mozart"],
+    ["menu_grieg", "Manhã (Peer Gynt)", "Edvard Grieg"],
+    ["menu_green", "Greensleeves", "Tradicional inglesa"],
+    ["menu_minuet", "Minueto em Sol", "Christian Petzold"],
   ];
+  // v18: story music changes every 10 phases, cycling through all the pieces.
+  const STORY_TRACKS = ["menu", "menu_elise", "classic", "menu_ode", "menu_bach", "menu_mozart", "sudoku", "menu_grieg", "menu_brahms", "menu_green", "menu_satie", "menu_minuet"];
+  const storyTrack = (L) => STORY_TRACKS[Math.floor((L - 1) / 10) % STORY_TRACKS.length];
   const menuTrack = () => { const t = store.get("menuMusic", "menu"); return MENU_TRACKS.some(([k]) => k === t) ? t : "menu"; };
 
   const TRACKS = {
+    // v18: seven more public-domain pieces, soft percussion so they also work during play.
+    menu_elise: { title: "Beethoven · Para Elise", bpm: 66, vol: 0.5, wet: 0.36, voices: [
+      { i: "piano", v: 0.2, s: "E5:.5 D#5:.5 E5:.5 D#5:.5 E5:.5 B4:.5 D5:.5 C5:.5 A4:1.5 C4:.5 E4:.5 A4:.5 B4:1.5 E4:.5 G#4:.5 B4:.5 C5:1.5 E4:.5 E5:.5 D#5:.5 E5:.5 D#5:.5 E5:.5 B4:.5 D5:.5 C5:.5 A4:1.5 C4:.5 E4:.5 A4:.5 B4:1.5 E4:.5 C5:.5 B4:.5 A4:3 -:2" },
+      { i: "harp", v: 0.16, s: "-:4 A2:.5 E3:.5 A3:.5 -:1.5 E2:.5 E3:.5 G#3:.5 -:1.5 A2:.5 E3:.5 A3:.5 -:.5 -:4 A2:.5 E3:.5 A3:.5 -:1.5 E2:.5 E3:.5 G#3:.5 -:1.5 A2:.5 E3:.5 A3:.5 -:1.5 -:2" },
+      { i: "kick", v: .07, s: "C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2" },
+      { i: "hat", v: .022, s: "-:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5" },
+    ] },
+    menu_ode: { title: "Beethoven · Ode à Alegria", bpm: 96, vol: 0.5, wet: 0.3, voices: [
+      { i: "piano", v: 0.2, s: "E4:1 E4:1 F4:1 G4:1 G4:1 F4:1 E4:1 D4:1 C4:1 C4:1 D4:1 E4:1 E4:1.5 D4:.5 D4:2 E4:1 E4:1 F4:1 G4:1 G4:1 F4:1 E4:1 D4:1 C4:1 C4:1 D4:1 E4:1 D4:1.5 C4:.5 C4:2 D4:1 D4:1 E4:1 C4:1 D4:1 E4:.5 F4:.5 E4:1 C4:1 D4:1 E4:.5 F4:.5 E4:1 D4:1 C4:1 D4:1 G3:2 E4:1 E4:1 F4:1 G4:1 G4:1 F4:1 E4:1 D4:1 C4:1 C4:1 D4:1 E4:1 D4:1.5 C4:.5 C4:2", tr: 12 },
+      { i: "bass", v: 0.28, s: "C3:4 G2:4 C3:4 G2:4 C3:4 G2:4 C3:4 G2:2 C3:2 G2:4 C3:4 G2:4 G2:4 C3:4 G2:4 C3:4 G2:2 C3:2" },
+      { i: "harp", v: 0.08, s: "C4:1 E4:1 G4:1 E4:1 B3:1 D4:1 G4:1 D4:1 C4:1 E4:1 G4:1 E4:1 B3:1 D4:1 G4:1 D4:1 C4:1 E4:1 G4:1 E4:1 B3:1 D4:1 G4:1 D4:1 C4:1 E4:1 G4:1 E4:1 B3:1 D4:1 C4:1 E4:1 B3:1 D4:1 G4:1 D4:1 C4:1 E4:1 G4:1 E4:1 B3:1 D4:1 G4:1 D4:1 B3:1 D4:1 G4:1 D4:1 C4:1 E4:1 G4:1 E4:1 B3:1 D4:1 G4:1 D4:1 C4:1 E4:1 G4:1 E4:1 B3:1 D4:1 C4:1 E4:1" },
+      { i: "kick", v: .07, s: "C2:1 -:3 C2:1 -:3 C2:1 -:3 C2:1 -:3 C2:1 -:3 C2:1 -:3 C2:1 -:3 C2:1 -:3 C2:1 -:3 C2:1 -:3 C2:1 -:3 C2:1 -:3 C2:1 -:3 C2:1 -:3 C2:1 -:3 C2:1 -:3" },
+      { i: "hat", v: .022, s: "-:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5" },
+    ] },
+    menu_brahms: { title: "Brahms · Canção de Ninar", bpm: 78, vol: 0.5, wet: 0.42, voices: [
+      { i: "piano", v: 0.18, s: "E4:.5 E4:.5 G4:2 E4:.5 E4:.5 G4:2 E4:.5 G4:.5 C5:1 B4:1.5 A4:.5 A4:1 G4:1 D4:.5 E4:.5 F4:1 D4:1 D4:.5 E4:.5 F4:2 D4:.5 F4:.5 B4:.5 A4:.5 G4:1 B4:1 C5:3 -:2", tr: 12 },
+      { i: "harp", v: 0.13, s: "-:1 C3:1 G3:1 E3:1 C3:1 G3:1 E3:1 F2:1 C3:1 A3:1 G2:1 D3:1 B3:1 G2:1 D3:1 B3:1 G2:1 D3:1 F3:1 G2:1 D3:1 B3:1 C3:1 G3:1 C4:1 -:2" },
+      { i: "kick", v: .07, s: "C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2" },
+      { i: "hat", v: .022, s: "-:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5" },
+    ] },
+    menu_mozart: { title: "Mozart · Pequena Serenata Noturna", bpm: 104, vol: 0.5, wet: 0.26, voices: [
+      { i: "piano", v: 0.2, s: "G4:1 -:.5 D4:.5 G4:1 -:.5 D4:.5 G4:.5 D4:.5 G4:.5 B4:.5 D5:2 C5:1 -:.5 A4:.5 C5:1 -:.5 A4:.5 C5:.5 A4:.5 F#4:.5 A4:.5 D4:2 G5:1 -:.5 D6:.5 G5:1 -:.5 D6:.5 G5:.5 D6:.5 G5:.5 B5:.5 D6:2 C6:1 -:.5 A5:.5 C6:1 -:.5 A5:.5 C6:.5 A5:.5 F#5:.5 A5:.5 D6:2" },
+      { i: "pluck", v: 0.22, s: "G2:.5 G3:.5 G2:.5 G3:.5 G2:.5 G3:.5 G2:.5 G3:.5 G2:.5 G3:.5 G2:.5 G3:.5 G2:.5 G3:.5 G2:.5 G3:.5 D2:.5 D3:.5 D2:.5 D3:.5 D2:.5 D3:.5 D2:.5 D3:.5 D2:.5 D3:.5 D2:.5 D3:.5 D2:.5 D3:.5 D2:.5 D3:.5 G2:.5 G3:.5 G2:.5 G3:.5 G2:.5 G3:.5 G2:.5 G3:.5 G2:.5 G3:.5 G2:.5 G3:.5 G2:.5 G3:.5 G2:.5 G3:.5 D2:.5 D3:.5 D2:.5 D3:.5 D2:.5 D3:.5 D2:.5 D3:.5 D2:.5 D3:.5 D2:.5 D3:.5 D2:.5 D3:.5 D2:.5 D3:.5" },
+      { i: "kick", v: .07, s: "C2:1 -:3 C2:1 -:3 C2:1 -:3 C2:1 -:3 C2:1 -:3 C2:1 -:3 C2:1 -:3 C2:1 -:3" },
+      { i: "hat", v: .022, s: "-:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5" },
+    ] },
+    menu_grieg: { title: "Grieg · Manhã (Peer Gynt)", bpm: 60, vol: 0.5, wet: 0.42, voices: [
+      { i: "reed", v: 0.14, s: "G5:.75 E5:.25 D5:.5 C5:.5 D5:.5 E5:.5 G5:.75 E5:.25 D5:.5 C5:.5 D5:.5 E5:.5 G5:.75 E5:.25 G5:.5 A5:.5 E5:.5 A5:.5 G5:.75 E5:.25 D5:.5 C5:1.5 G5:.75 E5:.25 D5:.5 C5:.5 D5:.5 E5:.5 G5:.75 E5:.25 D5:.5 C5:.5 D5:.5 E5:.5 G5:.75 E5:.25 G5:.5 A5:.5 E5:.5 A5:.5 G5:.75 E5:.25 D5:.5 C5:1.5" },
+      { i: "harp", v: 0.12, s: "C3:.5 G3:.5 E4:.5 G3:.5 E4:.5 G3:.5 C3:.5 G3:.5 E4:.5 G3:.5 E4:.5 G3:.5 F2:.5 C3:.5 A3:.5 C3:.5 A3:.5 C3:.5 C3:.5 G3:.5 E4:.5 G3:.5 E4:.5 G3:.5 C3:.5 G3:.5 E4:.5 G3:.5 E4:.5 G3:.5 C3:.5 G3:.5 E4:.5 G3:.5 E4:.5 G3:.5 F2:.5 C3:.5 A3:.5 C3:.5 A3:.5 C3:.5 C3:.5 G3:.5 E4:.5 G3:.5 E4:.5 G3:.5" },
+      { i: "bass", v: 0.24, s: "C3:3 C3:3 F2:3 C3:3 C3:3 C3:3 F2:3 C3:3", tr: -12 },
+      { i: "kick", v: .07, s: "C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2" },
+      { i: "hat", v: .022, s: "-:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5" },
+    ] },
+    menu_green: { title: "Tradicional · Greensleeves", bpm: 84, vol: 0.5, wet: 0.38, voices: [
+      { i: "harp", v: 0.17, s: "A4:1 C5:2 D5:1 E5:1.5 F5:.5 E5:1 D5:2 B4:1 G4:1.5 A4:.5 B4:1 C5:2 A4:1 A4:1.5 G#4:.5 A4:1 B4:2 G#4:1 E4:2 A4:1 C5:2 D5:1 E5:1.5 F5:.5 E5:1 D5:2 B4:1 G4:1.5 A4:.5 B4:1 C5:1.5 B4:.5 A4:1 G#4:1.5 F#4:.5 G#4:1 A4:2" },
+      { i: "bass", v: 0.24, s: "-:1 A2:3 C3:3 G2:3 E2:3 A2:3 A2:3 E2:3 E2:3 A2:3 C3:3 G2:3 E2:3 A2:3 E2:3 A2:2" },
+      { i: "kick", v: .07, s: "C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2" },
+      { i: "hat", v: .022, s: "-:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5" },
+    ] },
+    menu_minuet: { title: "Petzold · Minueto em Sol", bpm: 100, vol: 0.5, wet: 0.3, voices: [
+      { i: "harp", v: 0.17, s: "D5:1 G4:.5 A4:.5 B4:.5 C5:.5 D5:1 G4:1 G4:1 E5:1 C5:.5 D5:.5 E5:.5 F#5:.5 G5:1 G4:1 G4:1 C5:1 D5:.5 C5:.5 B4:.5 A4:.5 B4:1 C5:.5 B4:.5 A4:.5 G4:.5 F#4:1 G4:.5 A4:.5 B4:.5 G4:.5 A4:3 D5:1 G4:.5 A4:.5 B4:.5 C5:.5 D5:1 G4:1 G4:1 E5:1 C5:.5 D5:.5 E5:.5 F#5:.5 G5:1 G4:1 G4:1 C5:1 D5:.5 C5:.5 B4:.5 A4:.5 B4:1 C5:.5 B4:.5 A4:.5 G4:.5 A4:1 B4:.5 A4:.5 G4:.5 F#4:.5 G4:3" },
+      { i: "bass", v: 0.24, s: "G2:3 B2:3 C3:3 B2:3 A2:3 G2:3 D3:3 D2:3 G2:3 B2:3 C3:3 B2:3 A2:3 G2:3 D3:3 G2:3" },
+      { i: "kick", v: .07, s: "C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2 C2:1 -:2" },
+      { i: "hat", v: .022, s: "-:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5 -:.5 C6:.5" },
+    ] },
     menu_bach: { title: "Bach · Prelúdio em Dó", bpm: 62, vol: .5, wet: .36, voices: [
       { i: "harp", v: .13, s: PRELUDE_ARP },
       { i: "bass", v: .26, s: PRELUDE_BASS, tr: -12 },
@@ -4314,7 +4435,6 @@ window.Scene = (() => {
   let menuScene = null; // the start screen shows the chosen material's scene once one is picked
   function show(id) {
     if (id !== "tetris") tStop();
-    setTimeout(() => Live.update(), 0);
     if (id !== "game" && id !== "tetris") setModeAccent(null);
     for (const s of ["menu", "records", "levels", "game", "tetris"]) $(s).hidden = s !== id;
     const sc = $(id); sc.classList.remove("enter"); void sc.offsetWidth; sc.classList.add("enter");
@@ -4382,7 +4502,7 @@ window.Scene = (() => {
     }
     for (const b2 of box.children) b2.setAttribute("aria-checked", String(b2.dataset.track === cur));
   }
-  $("btn-settings").addEventListener("click", () => { renderSettings(); renderVisualPick(); $("settings").hidden = false; $("set-close").focus(); });
+  $("btn-settings").addEventListener("click", () => { renderSettings(); renderVisualPick(); renderSkins(); $("settings").hidden = false; $("set-close").focus(); });
   $("set-close").addEventListener("click", () => { $("settings").hidden = true; });
   function showRecords(mode) {
     S = null;
@@ -4429,50 +4549,6 @@ window.Scene = (() => {
     electric: ["electric", 6, 1], lava: ["lava", 4, 5], smoke: ["smoke", 14, 7], water: ["water", 3, 8], ocean: ["ice", 7, 12],
     horror: ["cement", 9, 10], war: ["brick", 10, 1],
   };
-  // ---------- v17: living electricity ----------
-  // Raio / Eletricidade blocks on the board are drawn by ONE canvas laid over the board, refreshed
-  // ~15 times a second (electric flicker reads naturally at that rate) from pre-rendered frames:
-  // a few dozen drawImage calls per update instead of animating every block in CSS.
-  const Live = (() => {
-    const cvs = new Map(), reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let raf = 0, last = 0, tick = 0;
-    const canvasFor = (wrap) => { let c = cvs.get(wrap); if (!c) { c = document.createElement("canvas"); c.className = "live"; c.setAttribute("aria-hidden", "true"); wrap.appendChild(c); cvs.set(wrap, c); } return c; };
-    const clearAll = () => { for (const c of cvs.values()) c.getContext("2d").clearRect(0, 0, c.width, c.height); };
-    function target() {
-      if (!S || S.over) return null;
-      const sheet = Skins.arcFrames(); if (!sheet) return null;
-      if (S.mode === "tetris") return $("tetris").hidden || !T ? null : { wrap: $("t-wrap"), cells: T.cells, cols: TW, sheet };
-      return $("game").hidden ? null : { wrap: $("board-wrap"), cells: cellEls, cols: S.n, sheet };
-    }
-    function draw() {
-      const tg = target();
-      if (!tg) { clearAll(); return false; }
-      const { wrap, cells, cols, sheet } = tg, c = canvasFor(wrap), W = wrap.clientWidth, H = wrap.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
-      if (c.width !== Math.round(W * dpr) || c.height !== Math.round(H * dpr)) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
-      const g = c.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
-      if (cells.length <= cols) return true;
-      const c0 = cells[0], x0 = c0.offsetLeft, y0 = c0.offsetTop, px = cells[1].offsetLeft - x0, py = cells[cols].offsetTop - y0, cs = c0.offsetWidth;
-      const bolt = Skins.material() === "bolt", F = sheet.F;
-      g.imageSmoothingEnabled = visualStyle() !== "pixel";
-      for (let i = 0; i < cells.length; i++) {
-        if (!cells[i].classList.contains("b")) continue;
-        // every block has its own phase; Raio only strikes (frames 5–6) once per 1.6 s cycle
-        const off = (i * 7 + (i >> 3) * 3) % 24, st = (tick + off) % 24, f = bolt ? (st === 10 ? 5 : st === 11 ? 6 : st % 5) : (tick + off) % 8;
-        g.globalAlpha = .78 + Math.random() * .22;
-        g.drawImage(sheet.canvas, 0, f * F, F, F, x0 + (i % cols) * px, y0 + Math.floor(i / cols) * py, cs, cs);
-      }
-      g.globalAlpha = 1;
-      return true;
-    }
-    function loop(t) {
-      raf = requestAnimationFrame(loop);
-      if (t - last < 66) return;
-      last = t; tick++;
-      if (!draw() || reduce) { cancelAnimationFrame(raf); raf = 0; }
-    }
-    return { update() { if (!raf) { last = 0; raf = requestAnimationFrame(loop); } } };
-  })();
-
   // v16: the board itself is painted with the game's material, in the current style, tinted by the
   // mode's colour; the empty cells are see-through holes in it, so every mode × material ×
   // style combination has its own board.
@@ -4486,7 +4562,7 @@ window.Scene = (() => {
     bs.setProperty("--tray-img", `url(${Skins.texture(k, mixHex(base, acc, .3, .7), st)})`);
     document.body.classList.add("boarded");
   }
-  const applySkin = () => { applySkinOnly(); applyBoard(); Live.update(); };
+  const applySkin = () => { applySkinOnly(); applyBoard(); };
   const applySkinOnly = () => {
     if (S && S.mode === "story") {
       const wo = Scene.worlds[worldOf(S.level)], [k, a, b] = WORLD_SKIN[wo.id], i = (S.level - 1) % LEVELS_PER_WORLD, sh = wo.v * 5;
@@ -4506,8 +4582,9 @@ window.Scene = (() => {
     const intro = wo ? `Mundo ${worldOf(S.level) + 1}<small>${wo.name}</small>` : `Cenário<small>${Scene.nameOf(S.theme)}</small>`;
     setTimeout(() => fx("lvl", intro, $("board").clientHeight / 2 - 20, 1900), 250);
     if (S.mode === "story") setTimeout(() => S && S.mode === "story" && !S.over && fx("lvl", `Desafio<small>${challengeFor(S).text}</small>`, $("board").clientHeight / 2 - 20, 2200), 2300);
+    if (S.mode === "story") { const L0 = S.level; setTimeout(() => S && S.mode === "story" && S.level === L0 && !S.over && fx("lvl", `Música<small>♪ ${TRACKS[storyTrack(L0)].title}</small>`, $("board").clientHeight / 2 - 20, 1800), 4700); }
     $("mode-label").textContent = label;
-    music.play(S.rules);
+    music.play(S.mode === "story" ? storyTrack(S.level) : S.rules);
     music.setRate(rateFor(S.score));
     buildBoard(); sizeBoard(); renderScore(); save();
   }
@@ -4611,7 +4688,7 @@ window.Scene = (() => {
     // The wordmark is filled with the game's own wood: pale maple for BLOCK/UNO, amber for ALT.
     for (const [id, hex] of [["wm-a", "#ead1a2"], ["wm-b", "#f0a63a"], ["wm-c", "#ead1a2"]]) $(id).style.backgroundImage = `url(${Skins.texture("wood", hex)})`;
     $("skins").innerHTML = "";
-    if (!$("menu").hidden) renderSkins();
+    if (!$("menu").hidden || !$("settings").hidden) renderSkins();
   }
   function renderVisualPick() {
     const cur = visualStyle();
@@ -4651,7 +4728,7 @@ window.Scene = (() => {
       b2.querySelector("span").textContent = locked ? `★ ${b2.dataset.need}` : Skins.KINDS.find(([k]) => k === b2.dataset.skin)[1];
       b2.setAttribute("aria-checked", String(b2.dataset.skin === cur));
     }
-    $("skins-note").textContent = "Textura dos blocos · o cenário acompanha";
+    $("skins-note").textContent = "O cenário acompanha a textura";
     Skins.apply(cur, 0);
   }
 

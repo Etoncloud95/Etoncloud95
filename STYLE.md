@@ -165,18 +165,37 @@ O tabuleiro (bandeja onde os blocos são colocados) é feito do material do jogo
 
 Assim nenhuma combinação modo × material × estilo tem o mesmo tabuleiro.
 
-## Raio e Eletricidade vivos (v16, otimizado na v17)
+## Raio e Eletricidade (v18)
 
-Os blocos de Raio e de Eletricidade no tabuleiro ficam em movimento o tempo todo.
-- **Quadros:** 8 por estilo, desenhados por código.
-- **Eletricidade:** faíscas de atrito nas bordas, arcos de eletricidade estática e pontos piscando.
-- **Raio:** eletricidade fraca nas bordas e, uma vez a cada 1,6 s, um raio ramificado com clarão.
-- **Variação:** cada bloco tem a sua fase e um leve tremor de brilho.
+- **Blocos:** mostram a eletricidade parada, um quadro de arcos por cima da textura. Não há animação por bloco: nas v16/v17 isso travava o celular.
+- **Movimento:** fica no cenário (Tempestade e Usina Elétrica) e na moldura do tabuleiro.
+- **Moldura:** três camadas transparentes desenhadas uma única vez:
+  - arcos de borda A;
+  - arcos de borda B;
+  - para o Raio, um raio atravessando o tabuleiro.
+- **Animação da moldura:** só a opacidade varia (`edge-a` 0,42 s, `edge-b` 0,58 s, `strike` 2,3 s). O chip de vídeo faz isso sem redesenhar nada.
+- **Custo medido:** igual ao da Madeira.
 
-**Como é desenhado (v17):**
-- Uma única tela (`canvas.live`) fica sobre o tabuleiro e é atualizada cerca de 15 vezes por segundo, copiando quadros prontos (`drawImage`).
-- Peças da bandeja, peça arrastada e logotipo usam um quadro parado.
-- Não há animação CSS por bloco: na v16, as cerca de 130 camadas animadas com brilho em movimento travavam o celular.
+## Menu e Ajustes (v18)
+
+- **Texturas:** a escolha dos blocos fica só em Ajustes → Textura dos blocos (15 materiais, rolagem lateral). O menu inicial mostra só os modos.
+- **História:** é o modo principal e tem borda neon acobreada pulsando devagar (só opacidade).
+
+## Música (v18)
+
+10 peças de domínio público, todas sintetizadas no jogo:
+- Pachelbel – Cânone em Ré
+- Bach – Prelúdio em Dó
+- Satie – Gymnopédie nº 1
+- Beethoven – Para Elise
+- Beethoven – Ode à Alegria
+- Brahms – Canção de Ninar
+- Mozart – Pequena Serenata Noturna
+- Grieg – Manhã
+- Tradicional – Greensleeves
+- Petzold – Minueto em Sol
+
+As 7 novas têm percussão leve para servir também durante o jogo. Na História, a música muda a cada 10 fases, em rodízio de 12 faixas (as 10 acima mais Grieg – Na Gruta do Rei da Montanha e Mozart – Marcha Turca). O nome da música aparece ao entrar na fase.
 
 ## Desempenho (v17)
 
