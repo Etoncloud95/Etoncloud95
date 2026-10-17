@@ -1,7 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="12">
+<meta name="bau-version" content="13">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -708,15 +708,24 @@ window.Skins = (() => {
   const SIZE = 128; // logical units used by every painter
   let K = 2;        // real pixels per logical unit (2 → 256 px textures, sharp on full-HD screens)
   // Colour sets for blocks 1–6. Classic shifts through them every level; story changes them every phase.
+  // v13: 15 colour sets covering the whole colour wheel. Wood, ice, fire and stone tones were sampled
+  // from the player's reference photos; inside every set the six colours differ in hue and value.
   const PALETTES = [
-    ["#a8452c", "#6b4226", "#c27f3c", "#8a5a2b", "#7c7a3c", "#4f6873"], // madeiras
-    ["#3f7a4a", "#5c8a3a", "#8aa04a", "#2f5d50", "#6b8f71", "#a3b86c"], // floresta
-    ["#2f6f9f", "#3f8fb0", "#5fb3c9", "#24577a", "#4a7fc0", "#7fc4d6"], // oceano
-    ["#d0603a", "#e08a3c", "#c94a5a", "#f0b04a", "#b0503a", "#e07060"], // pôr do sol
-    ["#6a4aa0", "#8a5ac0", "#4a3a8a", "#a070c0", "#5a5ab0", "#c080b0"], // realeza
-    ["#e0608a", "#f08ab0", "#60b0e0", "#f0c060", "#90d080", "#c090e0"], // doce
-    ["#c09030", "#d0a840", "#a07020", "#e0c060", "#b08840", "#8a6a28"], // ouro
-    ["#707a88", "#8a94a0", "#5a6470", "#a0a8b4", "#606a78", "#9098a4"], // aço
+    ["#b4532f", "#5e3b28", "#d8ae74", "#8e6645", "#7c7a3c", "#4f6873"], // madeiras (cerejeira, nogueira, pinho, teca)
+    ["#d8403a", "#f08a2c", "#f2c84a", "#4caf50", "#2f7fd0", "#8a4fc0"], // arco-íris
+    ["#2f6b3a", "#5c9a3a", "#a3c45a", "#2f5d50", "#8a6a3a", "#d0c060"], // floresta
+    ["#1f5f8f", "#2f9fbf", "#5fd0d0", "#2a4f9f", "#3fb59a", "#a0e0e8"], // oceano
+    ["#8e2c10", "#c34b0d", "#f27c07", "#fba90c", "#c2140b", "#fdd24a"], // fogo e lava
+    ["#e2503a", "#f08a3c", "#f6c050", "#c94a6a", "#8a3a7a", "#f0a090"], // pôr do sol
+    ["#c0183a", "#10916a", "#1a4fb0", "#8a3ab8", "#f0a020", "#1ab0c0"], // joias
+    ["#0a5188", "#298ebf", "#76a8d1", "#d2e8f4", "#5a6fc0", "#3fb5b0"], // gelo glacial
+    ["#00a88f", "#ffb000", "#ff5a5f", "#2fb4f0", "#8fd14f", "#ff8a3d"], // tropical
+    ["#5a2a9a", "#8a4fc0", "#c070d0", "#2f3f9f", "#d4a03a", "#a03a6a"], // realeza
+    ["#b5401f", "#d97b2b", "#e8b44a", "#7a5a20", "#8a2f3a", "#5f6f2f"], // outono
+    ["#f0508a", "#ffa0c8", "#50c0f0", "#f6d050", "#80e080", "#b080f0"], // doce
+    ["#3a2a8a", "#6a3ab0", "#2a8ad0", "#d050a0", "#30c0d0", "#f0e080"], // cosmos
+    ["#c49b6c", "#9c6b4a", "#533b30", "#cda578", "#6b7f4a", "#4a6a7a"], // terra
+    ["#363c3e", "#62615e", "#7f8b95", "#9b7e70", "#474f59", "#c7d0d9"], // pedra e aço
   ];
   const EXTRA = { 8: "#7a4a6e", 9: "#3f6b4f" }; // Tetris T and S pieces
   // Block materials. "stars" = story-mode stars needed to unlock (0 = always available).
@@ -1127,6 +1136,207 @@ window.Skins = (() => {
     return c;
   }
 
+  // v13: the Realismo wood, cement, brick, ice and water painters are the v10 ones (the player found
+  // them the most natural), run at 2x resolution. Kept in their own scope with the v10 helpers.
+  const V10 = (() => {
+
+  const rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+  const col = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a == null ? 1 : a})`;
+  const clamp = (v) => (v < 0 ? 0 : v > 255 ? 255 : v);
+  let seed = 7;
+  const reseed = (s) => { seed = s; };
+  const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const R = (a, b) => a + rand() * (b - a);
+
+  function canvas() { const c = document.createElement("canvas"); c.width = c.height = SIZE * K; const g = c.getContext("2d"); g.setTransform(K, 0, 0, K, 0, 0); return [c, g]; }
+  // Cloudy value noise: random low-resolution layers stretched with smoothing and blended in.
+  function fbm(g, strength, from, octaves, mode) {
+    for (let o = 0; o < octaves; o++) {
+      const n = from << o, c = document.createElement("canvas"); c.width = c.height = n;
+      const x = c.getContext("2d"), id = x.createImageData(n, n);
+      for (let i = 0; i < n * n; i++) { const v = rand() * 255; id.data[i * 4] = id.data[i * 4 + 1] = id.data[i * 4 + 2] = v; id.data[i * 4 + 3] = 255; }
+      x.putImageData(id, 0, 0);
+      g.save(); g.globalAlpha = strength / (o * .6 + 1); g.globalCompositeOperation = mode || "overlay";
+      g.imageSmoothingEnabled = true; g.imageSmoothingQuality = "high"; g.drawImage(c, 0, 0, SIZE, SIZE); g.restore();
+    }
+  }
+  function speckle(g, n, color, r0, r1, a0, a1) {
+    for (let i = 0; i < n; i++) { g.fillStyle = col(color, R(a0, a1)); g.beginPath(); g.arc(R(0, SIZE), R(0, SIZE), R(r0, r1), 0, Math.PI * 2); g.fill(); }
+  }
+  function light(g, top, bottom) {
+    const lg = g.createLinearGradient(0, 0, SIZE, SIZE);
+    lg.addColorStop(0, `rgba(255,255,255,${top})`); lg.addColorStop(.5, "rgba(255,255,255,0)"); lg.addColorStop(1, `rgba(0,0,0,${bottom})`);
+    g.fillStyle = lg; g.fillRect(0, 0, SIZE, SIZE);
+  }
+
+  // Smooth value noise for grain and frost.
+  const HASH = new Uint8Array(512);
+  { const p = [...Array(256).keys()]; let sd = 99; for (let i = 255; i > 0; i--) { sd = (sd * 16807) % 2147483647; const j = sd % (i + 1); [p[i], p[j]] = [p[j], p[i]]; } for (let i = 0; i < 512; i++) HASH[i] = p[i & 255]; }
+  function vnoise(x, y) {
+    const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+    const h = (i, j) => HASH[(HASH[(xi + i) & 255] + yi + j) & 511] / 255;
+    const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+    const a = h(0, 0) + (h(1, 0) - h(0, 0)) * u, b2 = h(0, 1) + (h(1, 1) - h(0, 1)) * u;
+    return a + (b2 - a) * v;
+  }
+  function fbm2(x, y, oct) { let s2 = 0, a = .5, f = 1, n = 0; for (let o = 0; o < oct; o++) { s2 += a * vnoise(x * f, y * f); n += a; a *= .5; f *= 2; } return s2 / n; }
+  const fract = (v) => v - Math.floor(v);
+
+  const PAINT = {
+    // Planks with growth rings bent around a knot, long fibres, pores, cracks and dark seams.
+    wood(b) {
+      const [c, g] = canvas(), id = g.createImageData(SIZE * K, SIZE * K), d = id.data;
+      const ox = R(0, 200), oy = R(0, 200), planks = 2, ph = SIZE / planks;
+      const tints = [R(.86, 1.1), R(.86, 1.1)], rate = [R(.07, .11), R(.07, .11)];
+      const hasKnot = rand() < .65, kr = R(4.5, 8);
+      const kp = Math.floor(R(0, planks)), kx = R(24, SIZE - 24), ky = kp * ph + ph * R(.38, .62);
+      const lightC = mix(b, [255, 228, 186], .32), darkC = b.map((v) => v * .42);
+      for (let py = 0; py < SIZE * K; py++) for (let px = 0; px < SIZE * K; px++) { const x = px / K, y = py / K;
+        const p = Math.min(planks - 1, Math.floor(y / ph)), ly = y - p * ph;
+        let bend = 0, kd = 1e9;
+        if (hasKnot && p === kp) {
+          const dx = (x - kx) / 2.4, dy = y - ky; kd = Math.sqrt(dx * dx + dy * dy);
+          bend = 16 * Math.exp(-(kd * kd) / (kr * kr * 7)) * (dy < 0 ? -1 : 1);
+        }
+        const warp = fbm2(x * .011 + ox, y * .045 + oy + p * 17, 3) * 26;
+        const yy = y + warp + bend;
+        const band = fract(yy * rate[p] * .8 + p * .37);
+        const ring = Math.pow(Math.sin(band * Math.PI), .55);
+        const late = band > .86 ? (band - .86) * 1.6 : 0; // soft latewood line
+        const fibre = fbm2(x * .03 + ox * 2, yy * .8 + oy, 3);
+        const streak = vnoise(x * .018 + ox, yy * 2.6 + oy * 2);
+        const pore = vnoise(x * .55 + ox, y * 1.8 + oy);
+        let t = .34 + .26 * ring - late * .35 + (fibre - .5) * .55 + (streak - .5) * .28 - (pore > .86 ? .12 : 0);
+        if (kd < kr) t = .12 + .32 * Math.abs(Math.sin(kd * 1.7)) * (kd / kr);
+        else if (kd < kr * 1.7) t -= .18 * (1 - (kd - kr) / (kr * .7));
+        const cr = Math.abs(fbm2(x * .007 + ox * 3, y * .12 + oy * 3 + p * 5, 2) - .5);
+        if (cr < .011) t -= .5 * (1 - cr / .011);
+        const edge = Math.min(ly, ph - 1 - ly);
+        if (edge < 1.2) t = -.25; else if (edge < 7) t -= (7 - edge) * .045;
+        t = Math.max(0, Math.min(1, t));
+        const i = (py * SIZE * K + px) * 4, k = tints[p];
+        d[i] = clamp((darkC[0] + (lightC[0] - darkC[0]) * t) * k);
+        d[i + 1] = clamp((darkC[1] + (lightC[1] - darkC[1]) * t) * k);
+        d[i + 2] = clamp((darkC[2] + (lightC[2] - darkC[2]) * t) * k);
+        d[i + 3] = 255;
+      }
+      g.putImageData(id, 0, 0);
+      light(g, .12, .28);
+      return c;
+    },
+    cement(b) {
+      const [c, g] = canvas();
+      const lum = b[0] * .3 + b[1] * .59 + b[2] * .11;
+      const base = mix(mix(b, [lum, lum, lum], .55), [196, 194, 188], .22);
+      g.fillStyle = col(base); g.fillRect(0, 0, SIZE, SIZE);
+      fbm(g, .6, 4, 5);
+      speckle(g, 320, [40, 38, 36], .3, 1.1, .15, .45);
+      speckle(g, 160, [255, 255, 250], .3, 1, .12, .35);
+      speckle(g, 14, [30, 28, 26], 1.2, 2.6, .25, .5);
+      light(g, .12, .22);
+      return c;
+    },
+    brick(b) {
+      const [c, g] = canvas();
+      g.fillStyle = "#cbc3b5"; g.fillRect(0, 0, SIZE, SIZE);
+      fbm(g, .35, 8, 3);
+      const rows = 3, h = SIZE / rows, m = 6, bw = SIZE / 2, tone = mix(b, [158, 62, 42], .4);
+      for (let r = 0; r < rows; r++) {
+        for (let x0 = r % 2 ? -bw / 2 : 0; x0 < SIZE; x0 += bw) {
+          const x = x0 + m / 2, y = r * h + m / 2, w = bw - m, hh = h - m, v = R(.86, 1.12);
+          g.fillStyle = col(tone.map((q) => clamp(q * v))); g.fillRect(x, y, w, hh);
+          g.fillStyle = "rgba(255,255,255,.22)"; g.fillRect(x, y, w, 2);
+          g.fillStyle = "rgba(0,0,0,.28)"; g.fillRect(x, y + hh - 2, w, 2);
+        }
+      }
+      fbm(g, .5, 8, 4);
+      speckle(g, 220, [35, 20, 15], .3, 1.1, .2, .45);
+      speckle(g, 70, [255, 235, 210], .3, .9, .15, .3);
+      light(g, .1, .22);
+      return c;
+    },
+    // Deep blue ice with frost ferns growing from the edges, scratches, facets and a frosted rim.
+    ice(b) {
+      const [c, g] = canvas(), deep = mix(b, [18, 88, 178], .78), mid = mix(b, [96, 172, 236], .78);
+      const rg = g.createRadialGradient(SIZE * .5, SIZE * .5, SIZE * .08, SIZE * .5, SIZE * .5, SIZE * .78);
+      rg.addColorStop(0, col(deep)); rg.addColorStop(.55, col(mid)); rg.addColorStop(1, "rgb(226,243,255)");
+      g.fillStyle = rg; g.fillRect(0, 0, SIZE, SIZE);
+      // cloudy depth
+      const id = g.getImageData(0, 0, SIZE * K, SIZE * K), d = id.data, ox = R(0, 100), oy = R(0, 100);
+      for (let py = 0; py < SIZE * K; py++) for (let px = 0; px < SIZE * K; px++) { const x = px / K, y = py / K;
+        const n = fbm2(x * .03 + ox, y * .03 + oy, 4) - .5, i = (py * SIZE * K + px) * 4, f = 1 + n * .35;
+        d[i] = clamp(d[i] * f); d[i + 1] = clamp(d[i + 1] * f); d[i + 2] = clamp(d[i + 2] * (1 + n * .2));
+      }
+      g.putImageData(id, 0, 0);
+      // angular fracture lines inside the ice
+      for (let k = 0; k < 5; k++) {
+        let x = R(0, SIZE), y = R(0, SIZE), a = R(0, 6.28);
+        g.strokeStyle = `rgba(235,248,255,${R(.25, .45)})`; g.lineWidth = R(.5, 1); g.beginPath(); g.moveTo(x, y);
+        for (let s2 = 0; s2 < 4; s2++) { a += R(-.9, .9); x += Math.cos(a) * R(8, 22); y += Math.sin(a) * R(8, 22); g.lineTo(x, y); }
+        g.stroke();
+      }
+      // frost ferns from the edges
+      const fern = (x, y, a, len, depth) => {
+        if (depth === 0 || len < 2) return;
+        const x2 = x + Math.cos(a) * len, y2 = y + Math.sin(a) * len;
+        g.strokeStyle = `rgba(240,250,255,${.12 + depth * .13})`; g.lineWidth = Math.max(.35, depth * .32);
+        g.beginPath(); g.moveTo(x, y); g.lineTo(x2, y2); g.stroke();
+        const n = Math.floor(len / 3.5);
+        for (let i = 1; i <= n; i++) {
+          const t = i / (n + 1), px = x + Math.cos(a) * len * t, py = y + Math.sin(a) * len * t, l = len * .36 * (1 - t * .6);
+          fern(px, py, a + R(.85, 1.15), l, depth - 1); fern(px, py, a - R(.85, 1.15), l, depth - 1);
+        }
+      };
+      g.lineCap = "round";
+      for (let k = 0; k < 10; k++) {
+        const side = Math.floor(R(0, 4)), s = R(0, SIZE);
+        const [x, y, a] = [[s, 0, Math.PI / 2], [SIZE, s, Math.PI], [s, SIZE, -Math.PI / 2], [0, s, 0]][side];
+        fern(x, y, a + R(-.6, .6), R(26, 52), 3);
+      }
+      // scratches in small clusters
+      for (let k = 0; k < 4; k++) {
+        const cx = R(0, SIZE), cy = R(0, SIZE), a = R(0, 6.28);
+        for (let j = 0; j < 7; j++) {
+          const l = R(8, 34), aa = a + R(-.25, .25), x = cx + R(-10, 10), y = cy + R(-10, 10);
+          g.strokeStyle = `rgba(255,255,255,${R(.15, .5)})`; g.lineWidth = R(.4, .9);
+          g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(aa) * l, y + Math.sin(aa) * l); g.stroke();
+        }
+      }
+      // frosted rim and snow specks
+      for (let k = 0; k < 520; k++) {
+        const e = Math.pow(rand(), 2.2) * 16, side = Math.floor(R(0, 4)), s = R(0, SIZE);
+        const [x, y] = [[s, e], [SIZE - e, s], [s, SIZE - e], [e, s]][side];
+        g.fillStyle = `rgba(255,255,255,${R(.35, .95) * (1 - e / 18)})`; g.beginPath(); g.arc(x, y, R(.4, 1.5), 0, Math.PI * 2); g.fill();
+      }
+      speckle(g, 90, [255, 255, 255], .3, 1, .3, .8);
+      g.fillStyle = "rgba(255,255,255,.18)"; g.beginPath(); g.moveTo(0, 0); g.lineTo(SIZE * .5, 0); g.lineTo(0, SIZE * .5); g.closePath(); g.fill();
+      return c;
+    },
+    water(b) {
+      const [c, g] = canvas(), w = mix(b, [40, 140, 220], .45);
+      const lg = g.createLinearGradient(0, 0, 0, SIZE);
+      lg.addColorStop(0, col(mix(w, [255, 255, 255], .35))); lg.addColorStop(.5, col(w)); lg.addColorStop(1, col(mix(w, [0, 10, 30], .3)));
+      g.fillStyle = lg; g.fillRect(0, 0, SIZE, SIZE);
+      fbm(g, .25, 4, 3, "soft-light");
+      const ph = R(0, 6);
+      g.strokeStyle = "rgba(255,255,255,.2)"; g.lineWidth = 1.6;
+      for (let k = 0; k < 9; k++) {
+        g.beginPath(); for (let x = 0; x <= SIZE; x += 4) { const y = k * 15 + Math.sin(x * .09 + ph + k) * 4 + Math.sin(x * .23 - k) * 1.5; x ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke();
+        g.beginPath(); for (let y = 0; y <= SIZE; y += 4) { const x = k * 15 + Math.sin(y * .08 + ph * 2 + k) * 5; y ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke();
+      }
+      for (let i = 0; i < 6; i++) {
+        const x = R(12, SIZE - 12), y = R(30, SIZE - 10), r = R(2, 6);
+        g.strokeStyle = "rgba(255,255,255,.6)"; g.lineWidth = 1.2; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.stroke();
+        g.fillStyle = "rgba(255,255,255,.8)"; g.beginPath(); g.arc(x - r * .35, y - r * .35, r * .25, 0, Math.PI * 2); g.fill();
+      }
+      g.fillStyle = "rgba(255,255,255,.28)"; g.beginPath(); g.ellipse(SIZE * .45, SIZE * .12, SIZE * .42, SIZE * .1, -.15, 0, Math.PI * 2); g.fill();
+      return c;
+    },
+  };
+    return { PAINT, reseed };
+  })();
+
   const cache = new Map();
   function tex(kind, hex, style) {
     style = style || vstyle;
@@ -1136,6 +1346,7 @@ window.Skins = (() => {
       let cv;
       if (style === "pixel") cv = paintPixel(kind, rgb(hex));
       else if (style === "anim") cv = paintToon(kind, rgb(hex));
+      else if (V10.PAINT[kind]) { V10.reseed(seed); cv = V10.PAINT[kind](rgb(hex)); }
       else { cv = PAINT[kind](rgb(hex)); finishReal(cv.getContext("2d")); }
       cache.set(key, style === "pixel" ? cv.toDataURL("image/png") : cv.toDataURL("image/jpeg", .9));
     }
@@ -1230,23 +1441,33 @@ window.Scene = (() => {
     return im;
   }
   // Break one block into textured shards: a fan of triangles around an off-centre point.
+  // Realismo clear (v13): the block breaks into a few thick, jagged chunks. Each chunk is a solid
+  // slab (textured face + side walls toward the bottom-right, away from the top-left light), so it
+  // tumbles like stone or wood instead of flipping like paper.
   function fracture(pt, power, many) {
-    const s2 = pt.size || 40, im = texImg(pt.tex), x0 = pt.x - s2 / 2, y0 = pt.y - s2 / 2;
-    const m = () => R(.25, .75);
-    // Few, large chunks (4–5 per block) read better than many slivers.
-    const ring = [[0, 0], [1, 0], [1, 1], [0, 1]];
-    if (!many) { const e = Math.floor(R(0, 4)), at = [[m(), 0], [1, m()], [m(), 1], [0, m()]][e]; ring.splice(e + 1, 0, at); }
-    const P = [R(.35, .65), R(.35, .65)];
-    for (let i = 0; i < ring.length; i++) {
-      const tri = [P, ring[i], ring[(i + 1) % ring.length]].map(([u, v]) => [u * s2, v * s2]);
-      const cx = (tri[0][0] + tri[1][0] + tri[2][0]) / 3, cy = (tri[0][1] + tri[1][1] + tri[2][1]) / 3;
-      const dir = Math.atan2(cy - s2 / 2, cx - s2 / 2), sp = R(60, 200) * (1 + power * .12);
+    const s2 = pt.size || 40, im = texImg(pt.tex), x0 = pt.x - s2 / 2, y0 = pt.y - s2 / 2, col = pt.color || "#c27f3c";
+    // Four chunky pieces, one per corner: a jittered cut point on every side plus a jittered point on
+    // every inner cut, shared by neighbours so the pieces fit together like a real break.
+    const C = [[0, 0], [1, 0], [1, 1], [0, 1]], P = [R(.4, .6), R(.4, .6)];
+    const E = C.map(([u, v], k) => { const [u2, v2] = C[(k + 1) % 4], t = R(.3, .7); return [u + (u2 - u) * t, v + (v2 - v) * t]; });
+    const J = E.map(([u, v]) => [(u + P[0]) / 2 + R(-.08, .08), (v + P[1]) / 2 + R(-.08, .08)]);
+    for (let i = 0; i < 4; i++) {
+      const b2 = (i + 3) % 4, poly = [C[i], E[i], J[i], P, J[b2], E[b2]].map(([u, v]) => [u * s2, v * s2]);
+      let cx = 0, cy = 0; for (const [x, y] of poly) { cx += x; cy += y; } cx /= poly.length; cy /= poly.length;
+      const dir = Math.atan2(cy - s2 / 2, cx - s2 / 2), sp = R(50, 150) * (1 + power * .1);
       spawn({
-        kind: "frag", x: x0 + cx, y: y0 + cy, vx: Math.cos(dir) * sp + R(-40, 40), vy: Math.sin(dir) * sp - R(120, 300) * (1 + power * .08),
-        g: R(520, 760), drag: .986, life: 0, max: R(2.2, 3.2), size: s2 * .3, color: pt.color || "#c27f3c", img: im,
-        poly: tri.map(([x, y]) => [x - cx, y - cy]), ox: cx, oy: cy, s: s2,
-        rot: 0, vr: R(-5, 5), flip: R(-.6, .6), vf: R(-6, 6), wob: 0, bounces: 0, ice: pt.ice,
+        kind: "slab", x: x0 + cx, y: y0 + cy, vx: Math.cos(dir) * sp + R(-25, 25), vy: Math.sin(dir) * sp - R(140, 280) * (1 + power * .06),
+        g: R(1300, 1600), drag: .992, life: 0, max: R(1.5, 2.1), color: col, img: im, ph: R(0, TAU),
+        poly: poly.map(([x, y]) => [x - cx, y - cy]), ox: cx, oy: cy, s: s2, depth: s2 * (pt.ice ? .1 : .15),
+        side: pt.ice ? "rgba(150,205,240,.75)" : shade(col, .5), sideDark: pt.ice ? "rgba(90,150,200,.8)" : shade(col, .32),
+        rot: 0, vr: R(-3.2, 3.2), wob: 0, bounces: 0, ice: pt.ice,
       });
+    }
+    // Grit: small faceted pebbles of the same material.
+    for (let i = 0; i < (many ? 2 : 4); i++) {
+      const a = R(0, TAU), sp = R(120, 320) * (1 + power * .1), n = 5 + Math.floor(R(0, 3));
+      spawn({ kind: "rock", x: pt.x + R(-s2 / 3, s2 / 3), y: pt.y + R(-s2 / 3, s2 / 3), vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - R(100, 260), g: 1250, drag: .985, life: 0, max: R(.9, 1.4),
+        size: R(s2 * .1, s2 * .2), color: pt.ice ? "rgba(200,235,255,.9)" : shade(col, R(.7, 1.1)), shape: Array.from({ length: n }, (_, k) => { const t = k / n * TAU; return [Math.cos(t) * R(.6, 1), Math.sin(t) * R(.6, 1)]; }), rot: R(0, TAU), vr: R(-9, 9), wob: 0 });
     }
   }
   // Animação clear: blocks pop into outlined chunks of their own colour, stars fly out and a
@@ -1317,7 +1538,7 @@ window.Scene = (() => {
       });
     }
   }
-  const ADD = { spark: 1, star: 1, ember: 1, fire: 1, glowdot: 1, line: 1, glint: 1, bokeh: 1 };
+  const ADD = { spark: 1, star: 1, ember: 1, fire: 1, glowdot: 1, line: 1, glint: 1, bokeh: 1, streak: 1, flare: 1 };
 
   // How each block material breaks apart. "own" uses shades of the block's own colour.
   const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
@@ -1372,11 +1593,56 @@ window.Scene = (() => {
       }
       case "sawdust": { f.globalAlpha = a * .9; circle(f, p.x, p.y, p.size * .18 + .6, p.color); break; }
       case "rock": case "shard": {
-        f.save(); f.translate(p.x, p.y); f.rotate(p.rot); f.globalAlpha = p.kind === "shard" ? a * .85 : a;
-        f.beginPath(); p.shape.forEach(([sx, sy], i) => (i ? f.lineTo(sx * p.size * .6, sy * p.size * .6) : f.moveTo(sx * p.size * .6, sy * p.size * .6))); f.closePath();
+        // Faceted: base colour, one lit facet toward the light, dark rim; shards get a bright glassy edge.
+        const sc = p.size * .6, fade = k > .7 ? (1 - k) / .3 : 1;
+        f.save(); f.translate(p.x, p.y); f.rotate(p.rot); f.globalAlpha = p.kind === "shard" ? fade * .85 : fade;
+        f.beginPath(); p.shape.forEach(([sx, sy], i) => (i ? f.lineTo(sx * sc, sy * sc) : f.moveTo(sx * sc, sy * sc))); f.closePath();
         f.fillStyle = p.color; f.fill();
-        f.strokeStyle = p.kind === "shard" ? "rgba(255,255,255,.9)" : "rgba(0,0,0,.35)"; f.lineWidth = p.kind === "shard" ? 1.2 : 1; f.stroke();
+        f.save(); f.clip(); f.rotate(-p.rot);
+        f.fillStyle = p.kind === "shard" ? "rgba(255,255,255,.45)" : "rgba(255,240,220,.3)"; f.beginPath(); f.moveTo(-sc * 1.2, -sc * 1.2); f.lineTo(sc * .5, -sc * 1.2); f.lineTo(-sc * 1.2, sc * .4); f.fill();
+        f.fillStyle = "rgba(0,0,0,.28)"; f.beginPath(); f.moveTo(sc * 1.2, sc * 1.2); f.lineTo(-sc * .2, sc * 1.2); f.lineTo(sc * 1.2, -sc * .2); f.fill();
+        f.restore();
+        f.strokeStyle = p.kind === "shard" ? "rgba(255,255,255,.9)" : "rgba(0,0,0,.4)"; f.lineWidth = p.kind === "shard" ? 1.2 : 1; f.stroke();
         f.restore(); break;
+      }
+      case "slab": {
+        const fade = k > .82 ? (1 - k) / .18 : 1, c = Math.cos(p.rot), sn = Math.sin(p.rot), D = p.depth;
+        // Thickness always points down-right on screen; convert that vector into the chunk's frame.
+        const lx = D * (.55 * c + .85 * sn), ly = D * (-.55 * sn + .85 * c);
+        f.save(); f.translate(p.x, p.y); f.rotate(p.rot); f.globalAlpha = fade * (p.ice ? .92 : 1);
+        const path = (ox, oy) => { f.beginPath(); p.poly.forEach(([x, y], i) => (i ? f.lineTo(x + ox, y + oy) : f.moveTo(x + ox, y + oy))); f.closePath(); };
+        const steps = Math.max(2, Math.min(5, Math.ceil(D / 2)));
+        for (let j = steps; j >= 1; j--) { path(lx * j / steps, ly * j / steps); f.fillStyle = j > steps / 2 ? p.sideDark : p.side; f.fill(); }
+        path(0, 0); f.save(); f.clip();
+        if (p.img && p.img.complete && p.img.naturalWidth) f.drawImage(p.img, -p.ox, -p.oy, p.s, p.s); else { f.fillStyle = p.color; f.fillRect(-p.s, -p.s, p.s * 2, p.s * 2); }
+        // The face catches the light for an instant as it turns (a glint), and is darker when turned away.
+        const turn = Math.sin(p.rot * 1.7 + p.ph), glint = Math.pow(Math.max(0, turn), 8);
+        f.fillStyle = turn >= 0 ? `rgba(255,246,228,${glint * (p.ice ? .6 : .32)})` : `rgba(0,0,0,${-turn * .16})`; f.fillRect(-p.s, -p.s, p.s * 2, p.s * 2);
+        f.restore();
+        // Rim light: edges facing the top-left light are bright, the others dark.
+        const lit = [], dark = [], n = p.poly.length;
+        for (let i = 0; i < n; i++) {
+          const [ax, ay] = p.poly[i], [bx, by] = p.poly[(i + 1) % n], ex = bx - ax, ey = by - ay, len = Math.hypot(ex, ey) || 1;
+          const nx = ey / len, ny = -ex / len, sx = nx * c - ny * sn, sy = nx * sn + ny * c, dot = -(sx * .6 + sy * .8);
+          (dot > 0 ? lit : dark).push([ax, ay, bx, by]);
+        }
+        f.lineWidth = 1.4;
+        f.strokeStyle = p.ice ? "rgba(240,252,255,.95)" : "rgba(255,238,210,.6)"; f.beginPath(); for (const [ax, ay, bx, by] of lit) { f.moveTo(ax, ay); f.lineTo(bx, by); } f.stroke();
+        f.strokeStyle = "rgba(20,10,4,.45)"; f.beginPath(); for (const [ax, ay, bx, by] of dark) { f.moveTo(ax, ay); f.lineTo(bx, by); } f.stroke();
+        f.restore(); break;
+      }
+      case "streak": {
+        // Hot spark with a motion trail and a bright head.
+        const tl = .045, x2 = p.x - p.vx * tl, y2 = p.y - p.vy * tl, g2 = f.createLinearGradient(p.x, p.y, x2, y2);
+        g2.addColorStop(0, p.color); g2.addColorStop(1, "rgba(0,0,0,0)");
+        f.globalAlpha = a; f.strokeStyle = g2; f.lineWidth = p.size; f.lineCap = "round";
+        f.beginPath(); f.moveTo(p.x, p.y); f.lineTo(x2, y2); f.stroke(); f.lineCap = "butt";
+        circle(f, p.x, p.y, p.size * .9, "#ffffff"); break;
+      }
+      case "flare": {
+        const r = p.size * (.6 + k * 1.2), g2 = f.createRadialGradient(p.x, p.y, 0, p.x, p.y, r);
+        g2.addColorStop(0, `rgba(255,255,255,${a})`); g2.addColorStop(.25, p.color); g2.addColorStop(1, "rgba(0,0,0,0)");
+        f.globalAlpha = a; f.fillStyle = g2; f.fillRect(p.x - r, p.y - r, r * 2, r * 2); break;
       }
       case "brickbit": {
         f.save(); f.translate(p.x, p.y); f.rotate(p.rot); f.globalAlpha = a; f.fillStyle = p.color;
@@ -1417,20 +1683,6 @@ window.Scene = (() => {
         const r2 = p.size * (1 + k * 1.6), fade = 1 - k;
         f.globalAlpha = fade; f.fillStyle = "#fff8ec"; f.strokeStyle = "rgba(58,36,20,.7)"; f.lineWidth = 2;
         f.beginPath(); f.arc(p.x, p.y, r2, 0, TAU); f.fill(); f.stroke(); break;
-      }
-      case "frag": {
-        // A textured shard tumbling in 3D: squashing one axis fakes the flip, the edge glints as it turns to the light.
-        const fade = k > .75 ? (1 - k) / .25 : 1, fl = Math.cos(p.flip);
-        f.save(); f.translate(p.x, p.y); f.rotate(p.rot); f.scale(Math.max(.06, Math.abs(fl)), 1);
-        f.globalAlpha = fade * (p.ice ? .88 : 1);
-        f.beginPath(); p.poly.forEach(([x, y], i) => (i ? f.lineTo(x, y) : f.moveTo(x, y))); f.closePath();
-        f.save(); f.clip();
-        if (p.img && p.img.complete && p.img.naturalWidth) f.drawImage(p.img, -p.ox, -p.oy, p.s, p.s); else { f.fillStyle = p.color; f.fillRect(-p.s, -p.s, p.s * 2, p.s * 2); }
-        f.fillStyle = fl < 0 ? "rgba(0,0,0,.22)" : `rgba(255,255,255,${Math.pow(fl, 10) * .35})`; f.fillRect(-p.s, -p.s, p.s * 2, p.s * 2);
-        f.restore();
-        const glintA = .2 + .75 * Math.pow(Math.abs(Math.sin(p.flip)), 8);
-        f.strokeStyle = p.ice ? `rgba(235,250,255,${glintA})` : `rgba(255,236,200,${glintA * .8})`; f.lineWidth = 1.2 / Math.max(.3, Math.abs(fl)); f.stroke();
-        f.restore(); break;
       }
       case "bokeh": {
         const r2 = p.size * (1.6 + .4 * Math.sin(p.wob * 2)), tw = .5 + .5 * Math.sin(p.wob * 3);
@@ -1781,10 +2033,9 @@ window.Scene = (() => {
       if (k >= 1) { parts.splice(i, 1); continue; }
       if (frozen) { p.life -= dt; drawPart(p, k); continue; }
       p.vx *= p.drag; p.vy = p.vy * p.drag + p.g * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.rot += p.vr * dt; p.wob += dt * 6;
-      if (p.kind === "frag") {
-        p.flip += p.vf * dt;
+      if (p.kind === "slab") {
         const floor = H - 6;
-        if (p.y > floor && p.vy > 0) { p.y = floor; p.vy *= -.33; p.vx *= .55; p.vr *= .5; p.vf *= .45; p.bounces++; }
+        if (p.y > floor && p.vy > 0) { p.y = floor; p.vy *= -.3; p.vx *= .55; p.vr *= .45; p.bounces++; }
       }
       drawPart(p, k);
     }
@@ -1868,6 +2119,10 @@ window.Scene = (() => {
         const m = mat(pt.color || "#c27f3c");
         // Solid materials shatter into falling textured shards; water bursts into droplets instead.
         if (material !== "water") fracture({ ...pt, ice: material === "ice" }, power, many);
+        // Impact light and hot sparks (cold white for ice/water, orange for lava).
+        const hot = material === "lava", sparkC = cold ? ["#e8f8ff", "#bfe8ff"] : hot ? ["#ffb347", "#ff7a1a"] : ["#ffe6b0", "#ffd36b"];
+        if (!many || Math.random() < .35) spawn({ kind: "flare", x: pt.x, y: pt.y, vx: 0, vy: 0, g: 0, drag: 1, life: 0, max: .28, size: (pt.size || 40) * 1.3, color: cold ? "rgba(190,230,255,.6)" : "rgba(255,200,120,.6)", rot: 0, vr: 0, wob: 0 });
+        for (let i = 0; i < Math.max(1, Math.round(3 * per / 5)); i++) { const a = R(0, TAU), sp = R(300, 700) * (1 + power * .1); spawn({ kind: "streak", x: pt.x, y: pt.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 120, g: 600, drag: .955, life: 0, max: R(.35, .7), size: R(1.4, 2.4), color: pick(sparkC), rot: 0, vr: 0, wob: 0 }); }
         burst(pt.x, pt.y, { ...m, n: Math.max(1, Math.round(m.n * per / 5 * (material === "water" ? 1 : .45))) }, power);
         burst(pt.x, pt.y, { ...cfg, n: Math.max(1, Math.round(cfg.n * per / 5 * .2)) }, power);
       }
@@ -3453,8 +3708,8 @@ window.Scene = (() => {
   const chosenSkin = () => { const k = store.get("skin", "wood"), m = Skins.KINDS.find(([x]) => x === k); return m && totalStars() >= m[2] ? k : "wood"; };
   // Story: each world has its own material and two palettes that alternate per phase; the colour
   // order also rotates every phase, so no two phases of a world look the same.
-  const WORLD_SKIN = [["wood", 0, 1], ["marble", 2, 5], ["cement", 7, 4], ["metal", 4, 7], ["ice", 2, 5],
-    ["lava", 3, 6], ["water", 2, 1], ["water", 4, 2], ["cement", 4, 3], ["brick", 3, 0]];
+  const WORLD_SKIN = [["wood", 0, 13], ["marble", 3, 11], ["cement", 14, 9], ["metal", 12, 6], ["ice", 7, 8],
+    ["lava", 4, 5], ["water", 3, 8], ["water", 7, 12], ["cement", 9, 10], ["brick", 10, 1]];
   const applySkin = () => {
     if (S && S.mode === "story") { const [k, a, b] = WORLD_SKIN[worldOf(S.level)], i = (S.level - 1) % LEVELS_PER_WORLD; return Skins.apply(k, i % 2 ? b : a, Math.floor(i / 2)); }
     Skins.apply(S && (S.mode === "classic" || S.mode === "sudoku") ? chosenSkin() : "wood", S ? paletteFor() : 0);

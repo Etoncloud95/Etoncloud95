@@ -66,7 +66,13 @@ Uma única configuração (`Ajustes → Estilo visual`, salva como `visualStyle`
 
 Os três estilos usam o mesmo código de jogo, as mesmas partículas e o mesmo agendamento. Só mudam os parâmetros e os pintores de textura (`Skins`), a explosão (`Scene.explode`) e as animações CSS (`body.vs-real` / `body.vs-anim` / `body.vs-pixel`).
 
-Realismo (v12): texturas geradas em 256 px (2× a v11) para telas Full HD; água com cáusticas, lava com crosta e fissuras incandescentes, gelo com rachaduras.
+Realismo (v13): madeira, cimento, tijolo, gelo e água voltaram às texturas da v10 (as mais naturais), agora geradas em 256 px para telas Full HD. Lava, mármore e metal seguem os pintores da v11/v12.
+
+Fragmentos do Realismo (v13): cada bloco quebra em 4 pedaços sólidos e serrilhados (um por canto), com face texturizada e paredes laterais para baixo/direita (longe da luz). Eles giram só no plano, sem "virar" como papel; a face brilha por um instante ao girar e as bordas voltadas para a luz ficam claras. Junto: pedrinhas facetadas, faíscas com rastro, clarão no ponto do impacto, raios de luz e poeira. As animações de encaixe não mudaram.
+
+## Paleta dos blocos (v13)
+
+15 conjuntos de 6 cores que cobrem o círculo cromático inteiro: madeiras, arco-íris, floresta, oceano, fogo e lava, pôr do sol, joias, gelo glacial, tropical, realeza, outono, doce, cosmos, terra, pedra e aço. Os tons de madeira, gelo, fogo e pedra foram tirados das fotos de referência. Dentro de cada conjunto as cores variam em matiz e em claridade, para os blocos não se confundirem. O Clássico troca de conjunto a cada nível; cada mundo da História alterna dois conjuntos.
 
 ## Cor de cada modo
 
