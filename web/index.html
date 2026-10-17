@@ -1,7 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="16">
+<meta name="bau-version" content="17">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -416,24 +416,13 @@ body.themed[data-mode] .bar { box-shadow: inset 0 -3px 0 var(--mode-accent); }
 
 /* Tetris: coloured ghost, bumping counters, level & speed box, held buttons. */
 .vs-real .tboard .cell.ghost { background: color-mix(in srgb, var(--gh, #fff) 22%, #c2955f); box-shadow: none; outline: 2px dashed var(--gh, #fff); outline-offset: -3px; }
-/* v16: living electricity on Raio / Eletricidade blocks (board, tray, dragged piece, logo). */
-.mat-bolt .cell.b, .mat-bolt .blk, .mat-electric .cell.b, .mat-electric .blk { position: relative; }
-.mat-bolt .cell.b::after, .mat-bolt .blk::after, .mat-electric .cell.b::after, .mat-electric .blk::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
-  background: var(--arc-sheet) 0 0 / 100% 800% no-repeat; animation: arcs .64s steps(8) infinite; }
-.mat-bolt .cell.b::after, .mat-bolt .blk::after { animation-duration: 1.7s; }
-.mat-electric .cell.b::before, .mat-electric .blk::before, .mat-bolt .cell.b::before, .mat-bolt .blk::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; animation: elglow .23s steps(2) infinite alternate; }
-.mat-bolt .cell.b::before, .mat-bolt .blk::before { animation: boltglow 1.7s steps(8) infinite; }
-.cell.b:nth-child(2n)::after, .blk:nth-child(2n)::after { animation-delay: -.31s; }
-.cell.b:nth-child(3n)::after, .blk:nth-child(3n)::after { animation-direction: reverse; }
-.cell.b:nth-child(5n+1)::after, .blk:nth-child(5n+1)::after { animation-delay: -.83s; }
-.cell.b:nth-child(7n+2)::after { animation-delay: -1.2s; }
-.cell.b:nth-child(4n+3)::before, .blk:nth-child(4n+3)::before { animation-delay: -.11s; }
-.vs-pixel .cell.b::after, .vs-pixel .blk::after { image-rendering: pixelated; }
-@keyframes arcs { to { background-position: 0 114.2857%; } }
-@keyframes elglow { from { box-shadow: inset 0 0 6px rgba(120,240,255,.35), 0 0 4px rgba(120,240,255,.25); } to { box-shadow: inset 0 0 12px rgba(190,150,255,.6), 0 0 10px rgba(120,240,255,.55); } }
-@keyframes boltglow { 0%, 60% { box-shadow: inset 0 0 5px rgba(255,236,140,.25); } 62.5% { box-shadow: inset 0 0 22px rgba(255,255,240,.95), 0 0 16px rgba(255,236,140,.9); } 75% { box-shadow: inset 0 0 10px rgba(255,236,140,.5); } }
+/* v17: Raio / Eletricidade. The board's blocks are animated on ONE canvas over the board (class
+   .live, ~15 fps, see Live in the game script); pieces in the tray, the dragged piece and the logo
+   carry a still frame. No per-block CSS animation (that made phones lag in v16). */
+.mat-bolt .blk, .mat-electric .blk { position: relative; }
+.mat-bolt .blk::after, .mat-electric .blk::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; background: var(--arc-still) 0 0 / 100% 100% no-repeat; }
+.vs-pixel .blk::after { image-rendering: pixelated; }
+.live { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
 
 /* v16: the board is made of the game's material, in the game's style, tinted and patterned by the
    mode: --tray-img is painted per (mode, material, style); --tray-over is the mode's pattern. */
@@ -1669,7 +1658,10 @@ window.Skins = (() => {
         g.imageSmoothingEnabled = false; g.drawImage(sm, 0, oy, F, F);
       }
     }
-    const url = c.toDataURL("image/png"); arcCache.set(key, url); return url;
+    // v17: the board animates these frames on one canvas (see Live); tray, dragged piece and logo
+    // get a single still frame.
+    const still = document.createElement("canvas"); still.width = still.height = F; still.getContext("2d").drawImage(c, 0, 2 * F, F, F, 0, 0, F, F);
+    const res = { canvas: c, F, still: still.toDataURL("image/png") }; arcCache.set(key, res); return res;
   }
   const pick2 = (a) => a[Math.floor(rand() * a.length)];
   function apply(kind, pal, rot) {
@@ -1685,7 +1677,7 @@ window.Skins = (() => {
     style.textContent = rules;
     const live = kind === "bolt" || kind === "electric";
     document.body.classList.toggle("mat-bolt", kind === "bolt"); document.body.classList.toggle("mat-electric", kind === "electric");
-    if (live) document.body.style.setProperty("--arc-sheet", `url(${arcSheet(kind, vstyle)})`);
+    if (live) document.body.style.setProperty("--arc-still", `url(${arcSheet(kind, vstyle).still})`);
   }
   return {
     KINDS, PALETTES, apply,
@@ -1694,6 +1686,7 @@ window.Skins = (() => {
     preview: (kind, i, st) => tex(kind, PALETTES[0][i == null ? 2 : i], st),
     texture: (kind, hex, st) => tex(kind, hex, st),
     material: () => now.kind,
+    arcFrames: () => (now.kind === "bolt" || now.kind === "electric" ? arcSheet(now.kind, vstyle) : null),
     colorOf: (i) => (i === 7 ? "#2e2219" : now.colors[i] || "#c27f3c"),
     texOf: (i) => tex(now.kind, i === 7 ? "#2e2219" : now.colors[i] || "#c27f3c"),
   };
@@ -1718,7 +1711,7 @@ window.Scene = (() => {
   function resize() {
     dpr = Math.min(theme && theme.hd ? 3 : 2, window.devicePixelRatio || 1);
     W = window.innerWidth; H = window.innerHeight;
-    const bd = vstyle === "pixel" ? .25 : dpr;
+    const bd = vstyle === "pixel" ? .25 : Math.min(dpr, theme && theme.hd ? 1.5 : 1.25);
     bg.width = Math.round(W * bd); bg.height = Math.round(H * bd); fx.width = Math.round(W * dpr); fx.height = Math.round(H * dpr);
     b.setTransform(bd, 0, 0, bd, 0, 0); f.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (theme) amb = theme.amb ? Array.from({ length: theme.amb.n }, () => theme.amb.make(true)) : [];
@@ -2659,16 +2652,23 @@ window.Scene = (() => {
     bg.style.filter = parts.join(" ");
   }
 
+  let bgT = 1, fxClean = false;
   function frame(now) {
     raf = requestAnimationFrame(frame);
     let dt = Math.min(.05, (now - last) / 1000 || 0); last = now; clock += dt;
     if (!theme) return;
     const frozen = now < freezeUntil; // hitstop: effects hold still for a beat on big impacts
-    // background
-    theme.sky(clock);
-    if (theme.extra) theme.extra(clock, dt);
-    if (theme.ambDraw) for (const p of amb) { if (!reduce) theme.ambStep(p, dt); theme.ambDraw(p); }
-    // effects layer
+    // background: repainted at ~30 fps (it moves slowly; halves the cost of the biggest layer)
+    bgT += dt;
+    if (bgT >= 1 / 31) {
+      const bdt = bgT; bgT = 0;
+      theme.sky(clock);
+      if (theme.extra) theme.extra(clock, bdt);
+      if (theme.ambDraw) for (const p of amb) { if (!reduce) theme.ambStep(p, bdt); theme.ambDraw(p); }
+    }
+    // effects layer: nothing to draw → clear once and skip
+    if (!flash && !rings.length && !parts.length && !bursts.length && !sweeps.length) { if (!fxClean) { f.clearRect(0, 0, W, H); fxClean = true; } return; }
+    fxClean = false;
     f.clearRect(0, 0, W, H);
     if (flash) {
       flash.t -= dt; f.fillStyle = flash.c; f.globalAlpha = Math.max(0, flash.t / .35); f.fillRect(0, 0, W, H); f.globalAlpha = 1;
@@ -4314,6 +4314,7 @@ window.Scene = (() => {
   let menuScene = null; // the start screen shows the chosen material's scene once one is picked
   function show(id) {
     if (id !== "tetris") tStop();
+    setTimeout(() => Live.update(), 0);
     if (id !== "game" && id !== "tetris") setModeAccent(null);
     for (const s of ["menu", "records", "levels", "game", "tetris"]) $(s).hidden = s !== id;
     const sc = $(id); sc.classList.remove("enter"); void sc.offsetWidth; sc.classList.add("enter");
@@ -4428,6 +4429,50 @@ window.Scene = (() => {
     electric: ["electric", 6, 1], lava: ["lava", 4, 5], smoke: ["smoke", 14, 7], water: ["water", 3, 8], ocean: ["ice", 7, 12],
     horror: ["cement", 9, 10], war: ["brick", 10, 1],
   };
+  // ---------- v17: living electricity ----------
+  // Raio / Eletricidade blocks on the board are drawn by ONE canvas laid over the board, refreshed
+  // ~15 times a second (electric flicker reads naturally at that rate) from pre-rendered frames:
+  // a few dozen drawImage calls per update instead of animating every block in CSS.
+  const Live = (() => {
+    const cvs = new Map(), reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let raf = 0, last = 0, tick = 0;
+    const canvasFor = (wrap) => { let c = cvs.get(wrap); if (!c) { c = document.createElement("canvas"); c.className = "live"; c.setAttribute("aria-hidden", "true"); wrap.appendChild(c); cvs.set(wrap, c); } return c; };
+    const clearAll = () => { for (const c of cvs.values()) c.getContext("2d").clearRect(0, 0, c.width, c.height); };
+    function target() {
+      if (!S || S.over) return null;
+      const sheet = Skins.arcFrames(); if (!sheet) return null;
+      if (S.mode === "tetris") return $("tetris").hidden || !T ? null : { wrap: $("t-wrap"), cells: T.cells, cols: TW, sheet };
+      return $("game").hidden ? null : { wrap: $("board-wrap"), cells: cellEls, cols: S.n, sheet };
+    }
+    function draw() {
+      const tg = target();
+      if (!tg) { clearAll(); return false; }
+      const { wrap, cells, cols, sheet } = tg, c = canvasFor(wrap), W = wrap.clientWidth, H = wrap.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+      if (c.width !== Math.round(W * dpr) || c.height !== Math.round(H * dpr)) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
+      const g = c.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+      if (cells.length <= cols) return true;
+      const c0 = cells[0], x0 = c0.offsetLeft, y0 = c0.offsetTop, px = cells[1].offsetLeft - x0, py = cells[cols].offsetTop - y0, cs = c0.offsetWidth;
+      const bolt = Skins.material() === "bolt", F = sheet.F;
+      g.imageSmoothingEnabled = visualStyle() !== "pixel";
+      for (let i = 0; i < cells.length; i++) {
+        if (!cells[i].classList.contains("b")) continue;
+        // every block has its own phase; Raio only strikes (frames 5–6) once per 1.6 s cycle
+        const off = (i * 7 + (i >> 3) * 3) % 24, st = (tick + off) % 24, f = bolt ? (st === 10 ? 5 : st === 11 ? 6 : st % 5) : (tick + off) % 8;
+        g.globalAlpha = .78 + Math.random() * .22;
+        g.drawImage(sheet.canvas, 0, f * F, F, F, x0 + (i % cols) * px, y0 + Math.floor(i / cols) * py, cs, cs);
+      }
+      g.globalAlpha = 1;
+      return true;
+    }
+    function loop(t) {
+      raf = requestAnimationFrame(loop);
+      if (t - last < 66) return;
+      last = t; tick++;
+      if (!draw() || reduce) { cancelAnimationFrame(raf); raf = 0; }
+    }
+    return { update() { if (!raf) { last = 0; raf = requestAnimationFrame(loop); } } };
+  })();
+
   // v16: the board itself is painted with the game's material, in the current style, tinted by the
   // mode's colour; the empty cells are see-through holes in it, so every mode × material ×
   // style combination has its own board.
@@ -4441,7 +4486,7 @@ window.Scene = (() => {
     bs.setProperty("--tray-img", `url(${Skins.texture(k, mixHex(base, acc, .3, .7), st)})`);
     document.body.classList.add("boarded");
   }
-  const applySkin = () => { applySkinOnly(); applyBoard(); };
+  const applySkin = () => { applySkinOnly(); applyBoard(); Live.update(); };
   const applySkinOnly = () => {
     if (S && S.mode === "story") {
       const wo = Scene.worlds[worldOf(S.level)], [k, a, b] = WORLD_SKIN[wo.id], i = (S.level - 1) % LEVELS_PER_WORLD, sh = wo.v * 5;

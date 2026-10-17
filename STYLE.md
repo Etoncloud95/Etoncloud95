@@ -165,23 +165,23 @@ O tabuleiro (bandeja onde os blocos são colocados) é feito do material do jogo
 
 Assim nenhuma combinação modo × material × estilo tem o mesmo tabuleiro.
 
-## Raio e Eletricidade vivos (v16)
+## Raio e Eletricidade vivos (v16, otimizado na v17)
 
-Os blocos de Raio e de Eletricidade ficam em movimento o tempo todo: no tabuleiro, na bandeja de peças, na peça arrastada e no logotipo.
-- **Como funciona:** uma sobreposição de 8 quadros é desenhada por código para cada estilo e trocada em degraus.
-- **Eletricidade (0,64 s por ciclo):**
-  - faíscas de atrito correm pelas bordas;
-  - dois arcos pulam de borda a borda;
-  - pontos de eletricidade estática piscam;
-  - um brilho interno/externo pulsa em ciano e violeta.
-- **Raio (1,7 s por ciclo):**
-  - eletricidade estática fraca nas bordas;
-  - num quadro, um raio ramificado corta o bloco com clarão branco, e no seguinte fica o rastro.
-- **Variação:** cada bloco tem fase, sentido ou atraso diferentes, para não piscarem todos juntos.
-- **Por estilo:**
-  - Realismo: arcos com brilho;
-  - Animação: arcos com contorno marrom e estrelinhas;
-  - Pixel: arcos em grade 16×16 sem suavização.
+Os blocos de Raio e de Eletricidade no tabuleiro ficam em movimento o tempo todo.
+- **Quadros:** 8 por estilo, desenhados por código.
+- **Eletricidade:** faíscas de atrito nas bordas, arcos de eletricidade estática e pontos piscando.
+- **Raio:** eletricidade fraca nas bordas e, uma vez a cada 1,6 s, um raio ramificado com clarão.
+- **Variação:** cada bloco tem a sua fase e um leve tremor de brilho.
+
+**Como é desenhado (v17):**
+- Uma única tela (`canvas.live`) fica sobre o tabuleiro e é atualizada cerca de 15 vezes por segundo, copiando quadros prontos (`drawImage`).
+- Peças da bandeja, peça arrastada e logotipo usam um quadro parado.
+- Não há animação CSS por bloco: na v16, as cerca de 130 camadas animadas com brilho em movimento travavam o celular.
+
+## Desempenho (v17)
+
+- **Fundo:** o cenário é redesenhado a cerca de 30 quadros por segundo, com resolução máxima de 1,25× (1,5× na Nebulosa); o Pixel continua em ¼. Os efeitos de explosão continuam a 60 quadros por segundo e em resolução cheia.
+- **Camada de efeitos:** quando não há nada a desenhar, ela é limpa uma vez e fica parada.
 
 ## Explosões únicas por material (v15)
 
