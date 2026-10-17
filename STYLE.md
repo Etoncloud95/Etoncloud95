@@ -181,6 +181,25 @@ Assim nenhuma combinação modo × material × estilo tem o mesmo tabuleiro.
 - **Texturas:** a escolha dos blocos fica só em Ajustes → Textura dos blocos (15 materiais, rolagem lateral). O menu inicial mostra só os modos.
 - **História:** é o modo principal e tem borda neon acobreada pulsando devagar (só opacidade).
 
+## Materiais novos (v19)
+
+Mais 10 materiais (25 no total), todos nos três estilos, cada um com cenário, tabuleiro, explosão e fragmentos próprios:
+
+| Material | Realismo | Explosão (Realismo / Animação / Pixel) | Cenário |
+|---|---|---|---|
+| Cristal | Malha de facetas lapidadas, brilhos | Cacos de vidro roxos + cintilação / gemas / cacos brilhantes | Caverna de Cristal |
+| Ouro | Metal polido com reflexos e riscos finos | Lascas com borda dourada + moedas girando / moedas / quadradinhos que giram + faíscas em cruz | Templo Dourado |
+| Neve | Montes macios com sombra azul, cristais | Pó de neve + flocos brilhando / flocos / grãos flutuando | Montanha Nevada |
+| Nuvem | Cúmulo fofo sobre o céu | Sem pedaços: nuvens que se desfazem / nuvenzinhas subindo / blocos que sobem | Reino das Nuvens |
+| Doce | Bala de vidro com listras de hortelã | Lascas + confeitos coloridos / balas embrulhadas / confeitos | Terra dos Doces |
+| Galáxia | Espiral de nebulosa com núcleo brilhante | Sem pedaços: espiral de estrelas / brilhos em redemoinho / pixels piscando em espiral | Galáxia Espiral |
+| Musgo | Pedra antiga com rachaduras e musgo | Torrões de pedra + folhas / tufos / torrões de terra | Ruínas Antigas |
+| Vitral | Vidros coloridos com chumbo | Placas de vidro + faíscas coloridas / painéis / vidros coloridos | Catedral de Vitrais |
+| Couro | Granulado, costura na borda | Rasga em tiras lentas / alças costuradas / tiras | Velho Oeste |
+| Coral | Pólipos porosos | Torrões + bolhas subindo / galhos de coral / bolhas | Recife de Coral |
+
+Os 10 cenários novos entraram nos mundos 18 a 27 da História. Depois vêm as versões Crepúsculo e Eclipse.
+
 ## Música (v18)
 
 10 peças de domínio público, todas sintetizadas no jogo:
