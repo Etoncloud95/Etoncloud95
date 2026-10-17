@@ -31,11 +31,26 @@ jobs:
           "$AAPT" dump permissions android/app/build/outputs/apk/release/app-release.apk | tee perms.txt
           ! grep -q "android.permission.INTERNET" perms.txt
       - name: Rename
-        run: cp android/app/build/outputs/apk/release/app-release.apk BLOCK-ALT-UNO.apk
+        run: |
+          V=$(grep -o 'bau-version" content="[0-9]*' web/index.html | grep -o '[0-9]*$')
+          echo "GAME_VERSION=$V" >> "$GITHUB_ENV"
+          cp android/app/build/outputs/apk/release/app-release.apk BLOCK-ALT-UNO.apk
+          cp android/app/build/outputs/apk/release/app-release.apk "BLOCK-ALT-UNO-v$V.apk"
       - uses: actions/upload-artifact@v4
         with:
           name: BLOCK-ALT-UNO-apk
           path: BLOCK-ALT-UNO.apk
+      # Every version keeps its own permanent release (apk-v10, apk-v11, ...).
+      - name: Publish this version's APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-v${{ env.GAME_VERSION }}
+          target_commitish: ${{ github.sha }}
+          name: BLOCK ALT UNO v${{ env.GAME_VERSION }}
+          body: "APK da versão ${{ env.GAME_VERSION }}. Baixe BLOCK-ALT-UNO-v${{ env.GAME_VERSION }}.apk abaixo."
+          files: BLOCK-ALT-UNO-v${{ env.GAME_VERSION }}.apk
+          make_latest: false
+      # The fixed link always points to the newest build.
       - name: Publish APK as a release download
         uses: softprops/action-gh-release@v2
         with:
