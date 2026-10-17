@@ -1,7 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="11">
+<meta name="bau-version" content="12">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -335,8 +335,8 @@ body.themed[data-mode] .bar { box-shadow: inset 0 -3px 0 var(--mode-accent); }
 /* Placement preview: valid = the piece in its colour with a dashed edge; invalid = red; lines about to clear glow gold. */
 .cell.preview { opacity: .62; outline: 2px dashed rgba(255,255,255,.95); outline-offset: -4px; }
 .cell.bad { background: rgba(224,103,75,.5) !important; background-image: none !important; outline: 2px solid var(--danger); outline-offset: -3px; }
-.cell.conflict, .vs-anim .cell.conflict.b, .vs-real .cell.conflict.b { outline: 3px solid var(--danger); outline-offset: -3px; box-shadow: inset 0 0 0 40px rgba(224,103,75,.45) !important; }
-.cell.will, .vs-anim .cell.will.b, .vs-real .cell.will.b { position: relative; z-index: 1; box-shadow: inset 0 0 0 3px var(--gold), 0 0 14px rgba(255,211,107,.9) !important; animation: willpulse .5s ease-in-out infinite alternate; }
+.cell.conflict, .vs-anim .cell.conflict.b, .vs-real .cell.conflict.b, .vs-pixel .cell.conflict.b { outline: 3px solid var(--danger); outline-offset: -3px; box-shadow: inset 0 0 0 40px rgba(224,103,75,.45) !important; }
+.cell.will, .vs-anim .cell.will.b, .vs-real .cell.will.b, .vs-pixel .cell.will.b { position: relative; z-index: 1; box-shadow: inset 0 0 0 3px var(--gold), 0 0 14px rgba(255,211,107,.9) !important; animation: willpulse .5s ease-in-out infinite alternate; }
 @keyframes willpulse { to { filter: brightness(1.28); } }
 .drag.invalid i.blk { filter: saturate(.35) brightness(.75); }
 .drag.invalid { opacity: .85; }
@@ -415,6 +415,21 @@ body.themed[data-mode] .bar { box-shadow: inset 0 -3px 0 var(--mode-accent); }
 
 /* Tetris: coloured ghost, bumping counters, level & speed box, held buttons. */
 .vs-real .tboard .cell.ghost { background: color-mix(in srgb, var(--gh, #fff) 22%, #c2955f); box-shadow: none; outline: 2px dashed var(--gh, #fff); outline-offset: -3px; }
+/* Pixel (v12): square cells, hard 1-step shadows, animations in discrete steps like a 16-bit console. */
+.vs-pixel #board, .vs-pixel .tboard { background: #8a5a34; border-radius: 0; box-shadow: inset 0 0 0 4px #2a1a10, 6px 6px 0 #1a0f08, 0 0 36px var(--scene-glow, transparent); }
+.vs-pixel .cell { background: #b88454; border-radius: 0; box-shadow: inset 3px 3px 0 #9a6a40, inset -3px -3px 0 #d2a070; }
+.vs-pixel .cell.alt { background: #a8784a; }
+.vs-pixel .cell.b, .vs-pixel .blk { box-shadow: 3px 3px 0 rgba(20,10,4,.55) !important; border-radius: 0; }
+.vs-pixel .drag { filter: drop-shadow(8px 8px 0 rgba(20,10,4,.45)); }
+.vs-pixel .drag i, .vs-pixel .piece i, .vs-pixel .skin i, .vs-pixel .vs-opt .tiles i { border-radius: 0 !important; }
+.vs-pixel .cell.land { animation: land-px .2s steps(3) ; transform-origin: 50% 100%; }
+@keyframes land-px { 0% { transform: scale(.84, 1.16); filter: brightness(1.4); } 100% { transform: none; filter: none; } }
+.vs-pixel .cell.clearing { animation: crumble-px .3s steps(4) forwards; animation-delay: var(--d, 0ms); }
+@keyframes crumble-px { 25% { filter: brightness(2); } 100% { transform: scale(.25); opacity: 0; filter: brightness(2); } }
+.vs-pixel .slot.grab .piece { transform: scale(1.12) translateY(-4px); }
+.vs-pixel .fx { font-family: ui-monospace, "Courier New", monospace; letter-spacing: .02em; text-shadow: 3px 3px 0 #2a1a10, -1px -1px 0 #2a1a10, 1px -1px 0 #2a1a10, -1px 1px 0 #2a1a10; }
+.vs-pixel .stars { filter: drop-shadow(3px 3px 0 #2a1a10); }
+.vs-pixel .tboard .cell.ghost { background: color-mix(in srgb, var(--gh, #fff) 26%, #b88454); box-shadow: inset 0 0 0 3px var(--gh, #fff); }
 .vs-anim .tboard .cell.ghost { background: color-mix(in srgb, var(--gh, #fff) 28%, #ecd3a3); box-shadow: inset 0 0 0 3px var(--gh, #fff); }
 .bump { animation: bump .26s var(--ease-pop); }
 @keyframes bump { 40% { transform: scale(1.3); } }
@@ -424,10 +439,10 @@ body.themed[data-mode] .bar { box-shadow: inset 0 -3px 0 var(--mode-accent); }
 .t-ctrl button.held { transform: translateY(3px); box-shadow: 0 2px 0 var(--shadow), inset 0 0 0 3px var(--mode-accent); }
 
 /* Settings: visual style picker; block materials scroll sideways (7 materials, some unlocked by story stars). */
-.vs-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
-.vs-opt { display: grid; gap: 4px; justify-items: center; padding: 10px 8px; border-radius: 12px; background: rgba(255,255,255,.05); text-align: center; }
+.vs-pick { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 8px; }
+.vs-opt { display: grid; gap: 4px; justify-items: center; padding: 10px 4px; border-radius: 12px; background: rgba(255,255,255,.05); text-align: center; }
 .vs-opt .tiles { display: flex; gap: 4px; }
-.vs-opt .tiles i { width: 28px; height: 28px; border-radius: 6px; background-size: 100% 100%; }
+.vs-opt .tiles i { width: 24px; height: 24px; border-radius: 6px; background-size: 100% 100%; }
 .vs-opt b { font-size: 14px; }
 .vs-opt small { font-size: 11px; color: var(--muted); line-height: 1.25; }
 .vs-opt[aria-checked="true"] { background: rgba(234,165,60,.2); box-shadow: inset 0 0 0 2px var(--amber); }
@@ -632,6 +647,7 @@ body.themed[data-mode] .bar { box-shadow: inset 0 -3px 0 var(--mode-accent); }
         <div class="vs-pick" id="vs-pick" role="radiogroup" aria-label="Estilo visual">
           <button class="vs-opt" data-vs="anim" role="radio"><span class="tiles"></span><b>Animação</b><small>Cores vivas, contornos e efeitos expressivos</small></button>
           <button class="vs-opt" data-vs="real" role="radio"><span class="tiles"></span><b>Realismo</b><small>Materiais naturais, luz e sombras</small></button>
+          <button class="vs-opt" data-vs="pixel" role="radio"><span class="tiles"></span><b>Pixel</b><small>Pixel art 16-bit, blocos e efeitos quadradinhos</small></button>
         </div>
       </div>
       <div>
@@ -689,7 +705,8 @@ body.themed[data-mode] .bar { box-shadow: inset 0 -3px 0 var(--mode-accent); }
 // ======================================================================
 window.Skins = (() => {
   "use strict";
-  const SIZE = 128;
+  const SIZE = 128; // logical units used by every painter
+  let K = 2;        // real pixels per logical unit (2 → 256 px textures, sharp on full-HD screens)
   // Colour sets for blocks 1–6. Classic shifts through them every level; story changes them every phase.
   const PALETTES = [
     ["#a8452c", "#6b4226", "#c27f3c", "#8a5a2b", "#7c7a3c", "#4f6873"], // madeiras
@@ -704,7 +721,7 @@ window.Skins = (() => {
   const EXTRA = { 8: "#7a4a6e", 9: "#3f6b4f" }; // Tetris T and S pieces
   // Block materials. "stars" = story-mode stars needed to unlock (0 = always available).
   const KINDS = [["wood", "Madeira", 0], ["cement", "Cimento", 0], ["brick", "Tijolo", 0], ["ice", "Gelo", 0], ["water", "Água", 0],
-    ["marble", "Mármore", 15], ["metal", "Metal", 40]];
+    ["lava", "Lava", 0], ["marble", "Mármore", 15], ["metal", "Metal", 40]];
   // Visual style: "real" (Realismo, natural materials) or "anim" (Animação, stylised cartoon materials).
   let vstyle = "real";
 
@@ -716,7 +733,7 @@ window.Skins = (() => {
   const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   const R = (a, b) => a + rand() * (b - a);
 
-  function canvas() { const c = document.createElement("canvas"); c.width = c.height = SIZE; return [c, c.getContext("2d")]; }
+  function canvas() { const c = document.createElement("canvas"); c.width = c.height = SIZE * K; const g = c.getContext("2d"); g.setTransform(K, 0, 0, K, 0, 0); return [c, g]; }
   // Cloudy value noise: random low-resolution layers stretched with smoothing and blended in.
   function fbm(g, strength, from, octaves, mode) {
     for (let o = 0; o < octaves; o++) {
@@ -762,17 +779,27 @@ window.Skins = (() => {
   }
   function fbm2(x, y, oct) { let s2 = 0, a = .5, f = 1, n = 0; for (let o = 0; o < oct; o++) { s2 += a * vnoise(x * f, y * f); n += a; a *= .5; f *= 2; } return s2 / n; }
   const fract = (v) => v - Math.floor(v);
+  // Cellular noise: distance to the nearest and second-nearest jittered point (cell size = 1 unit).
+  function voronoi(x, y, sd) {
+    const xi = Math.floor(x), yi = Math.floor(y); let f1 = 9, f2 = 9;
+    for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
+      const cx = xi + i, cy = yi + j, h = HASH[(HASH[(cx + sd) & 255] + cy) & 511], h2 = HASH[(h + 37) & 511];
+      const dx = cx + h / 255 - x, dy = cy + h2 / 255 - y, d = Math.sqrt(dx * dx + dy * dy);
+      if (d < f1) { f2 = f1; f1 = d; } else if (d < f2) f2 = d;
+    }
+    return [f1, f2];
+  }
 
   const PAINT = {
     // Planks with growth rings bent around a knot, long fibres, pores, cracks and dark seams.
     wood(b) {
-      const [c, g] = canvas(), id = g.createImageData(SIZE, SIZE), d = id.data;
+      const [c, g] = canvas(), id = g.createImageData(SIZE * K, SIZE * K), d = id.data;
       const ox = R(0, 200), oy = R(0, 200), planks = 2, ph = SIZE / planks;
       const tints = [R(.86, 1.1), R(.86, 1.1)], rate = [R(.07, .11), R(.07, .11)];
       const hasKnot = rand() < .65, kr = R(4.5, 8);
       const kp = Math.floor(R(0, planks)), kx = R(24, SIZE - 24), ky = kp * ph + ph * R(.38, .62);
       const lightC = mix(b, [255, 228, 186], .32), darkC = b.map((v) => v * .42);
-      for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
+      for (let py = 0; py < SIZE * K; py++) for (let px = 0; px < SIZE * K; px++) { const x = px / K, y = py / K;
         const p = Math.min(planks - 1, Math.floor(y / ph)), ly = y - p * ph;
         let bend = 0, kd = 1e9;
         if (hasKnot && p === kp) {
@@ -795,7 +822,7 @@ window.Skins = (() => {
         const edge = Math.min(ly, ph - 1 - ly);
         if (edge < 1.2) t = -.25; else if (edge < 7) t -= (7 - edge) * .045;
         t = Math.max(0, Math.min(1, t));
-        const i = (y * SIZE + x) * 4, k = tints[p];
+        const i = (py * SIZE * K + px) * 4, k = tints[p];
         d[i] = clamp((darkC[0] + (lightC[0] - darkC[0]) * t) * k);
         d[i + 1] = clamp((darkC[1] + (lightC[1] - darkC[1]) * t) * k);
         d[i + 2] = clamp((darkC[2] + (lightC[2] - darkC[2]) * t) * k);
@@ -808,12 +835,14 @@ window.Skins = (() => {
     cement(b) {
       const [c, g] = canvas();
       const lum = b[0] * .3 + b[1] * .59 + b[2] * .11;
-      const base = mix(mix(b, [lum, lum, lum], .55), [196, 194, 188], .22);
+      const base = mix(mix(b, [lum, lum, lum], .6), [206, 204, 198], .45);
       g.fillStyle = col(base); g.fillRect(0, 0, SIZE, SIZE);
-      fbm(g, .6, 4, 5);
-      speckle(g, 320, [40, 38, 36], .3, 1.1, .15, .45);
-      speckle(g, 160, [255, 255, 250], .3, 1, .12, .35);
-      speckle(g, 14, [30, 28, 26], 1.2, 2.6, .25, .5);
+      fbm(g, .32, 4, 5);
+      const st = g.createLinearGradient(R(30, 90), 0, R(30, 90) + 8, 0); st.addColorStop(0, "rgba(120,96,60,0)"); st.addColorStop(.5, "rgba(120,96,60,.12)"); st.addColorStop(1, "rgba(120,96,60,0)");
+      g.fillStyle = st; g.fillRect(0, 0, SIZE, SIZE);
+      speckle(g, 140, [30, 28, 26], .25, .8, .35, .75);
+      speckle(g, 16, [24, 22, 20], .9, 1.8, .45, .8);
+      speckle(g, 90, [255, 255, 250], .3, .8, .12, .3);
       light(g, .12, .22);
       return c;
     },
@@ -838,17 +867,25 @@ window.Skins = (() => {
     },
     // Deep blue ice with frost ferns growing from the edges, scratches, facets and a frosted rim.
     ice(b) {
-      const [c, g] = canvas(), deep = mix(b, [18, 88, 178], .78), mid = mix(b, [96, 172, 236], .78);
+      const [c, g] = canvas(), deep = mix(b, [96, 160, 210], .7), mid = mix(b, [176, 214, 240], .74);
       const rg = g.createRadialGradient(SIZE * .5, SIZE * .5, SIZE * .08, SIZE * .5, SIZE * .5, SIZE * .78);
       rg.addColorStop(0, col(deep)); rg.addColorStop(.55, col(mid)); rg.addColorStop(1, "rgb(226,243,255)");
       g.fillStyle = rg; g.fillRect(0, 0, SIZE, SIZE);
       // cloudy depth
-      const id = g.getImageData(0, 0, SIZE, SIZE), d = id.data, ox = R(0, 100), oy = R(0, 100);
-      for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
-        const n = fbm2(x * .03 + ox, y * .03 + oy, 4) - .5, i = (y * SIZE + x) * 4, f = 1 + n * .35;
+      const id = g.getImageData(0, 0, SIZE * K, SIZE * K), d = id.data, ox = R(0, 100), oy = R(0, 100);
+      for (let py = 0; py < SIZE * K; py++) for (let px = 0; px < SIZE * K; px++) { const x = px / K, y = py / K;
+        const n = fbm2(x * .03 + ox, y * .03 + oy, 4) - .5, i = (py * SIZE * K + px) * 4, f = 1 + n * .35;
         d[i] = clamp(d[i] * f); d[i + 1] = clamp(d[i + 1] * f); d[i + 2] = clamp(d[i + 2] * (1 + n * .2));
       }
       g.putImageData(id, 0, 0);
+      // sharp crack network (bright edge with a darker shadow line)
+      for (let k = 0; k < 4; k++) {
+        let x = R(10, SIZE - 10), y = R(10, SIZE - 10), a = R(0, 6.28);
+        const pts = [[x, y]];
+        for (let s2 = 0; s2 < 5; s2++) { a += R(-.7, .7); x += Math.cos(a) * R(10, 26); y += Math.sin(a) * R(10, 26); pts.push([x, y]); }
+        g.strokeStyle = "rgba(40,80,110,.28)"; g.lineWidth = 1.4; g.beginPath(); pts.forEach(([px2, py2], i) => (i ? g.lineTo(px2 + .8, py2 + .8) : g.moveTo(px2 + .8, py2 + .8))); g.stroke();
+        g.strokeStyle = "rgba(255,255,255,.9)"; g.lineWidth = .8; g.beginPath(); pts.forEach(([px2, py2], i) => (i ? g.lineTo(px2, py2) : g.moveTo(px2, py2))); g.stroke();
+      }
       // angular fracture lines inside the ice
       for (let k = 0; k < 5; k++) {
         let x = R(0, SIZE), y = R(0, SIZE), a = R(0, 6.28);
@@ -869,7 +906,7 @@ window.Skins = (() => {
         }
       };
       g.lineCap = "round";
-      for (let k = 0; k < 10; k++) {
+      for (let k = 0; k < 6; k++) {
         const side = Math.floor(R(0, 4)), s = R(0, SIZE);
         const [x, y, a] = [[s, 0, Math.PI / 2], [SIZE, s, Math.PI], [s, SIZE, -Math.PI / 2], [0, s, 0]][side];
         fern(x, y, a + R(-.6, .6), R(26, 52), 3);
@@ -895,12 +932,12 @@ window.Skins = (() => {
     },
     // Polished marble: pale stone tinted by the block colour with dark turbulent veins.
     marble(b) {
-      const [c, g] = canvas(), id = g.createImageData(SIZE, SIZE), d = id.data, ox = R(0, 100), oy = R(0, 100);
+      const [c, g] = canvas(), id = g.createImageData(SIZE * K, SIZE * K), d = id.data, ox = R(0, 100), oy = R(0, 100);
       const base = mix(b, [238, 234, 226], .58), vein = b.map((v) => v * .45);
-      for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
+      for (let py = 0; py < SIZE * K; py++) for (let px = 0; px < SIZE * K; px++) { const x = px / K, y = py / K;
         const t = fbm2(x * .018 + ox, y * .018 + oy, 5), v = Math.abs(Math.sin((x * .035 + y * .022) + t * 9));
         const dark = Math.pow(1 - v, 14) * .85 + Math.pow(1 - v, 40) * .15, cloud = (fbm2(x * .04 + oy, y * .04 + ox, 3) - .5) * .12;
-        const i = (y * SIZE + x) * 4;
+        const i = (py * SIZE * K + px) * 4;
         for (let k = 0; k < 3; k++) d[i + k] = clamp((base[k] + (vein[k] - base[k]) * dark) * (1 + cloud));
         d[i + 3] = 255;
       }
@@ -911,12 +948,12 @@ window.Skins = (() => {
     },
     // Brushed metal plate with a specular band and four rivets.
     metal(b) {
-      const [c, g] = canvas(), id = g.createImageData(SIZE, SIZE), d = id.data, ox = R(0, 100);
+      const [c, g] = canvas(), id = g.createImageData(SIZE * K, SIZE * K), d = id.data, ox = R(0, 100);
       const base = mix(b, [150, 156, 166], .55);
-      for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
+      for (let py = 0; py < SIZE * K; py++) for (let px = 0; px < SIZE * K; px++) { const x = px / K, y = py / K;
         const n = vnoise(x * .02 + ox, y * 1.6) * .55 + vnoise(x * .06, y * 3.1 + ox) * .3;
         const spec = Math.exp(-Math.pow((x + y * .6 - 70) / 26, 2)) * .35;
-        const f = .74 + n * .34 + spec, i = (y * SIZE + x) * 4;
+        const f = .74 + n * .34 + spec, i = (py * SIZE * K + px) * 4;
         for (let k = 0; k < 3; k++) d[i + k] = clamp(base[k] * f + spec * 60);
         d[i + 3] = 255;
       }
@@ -927,24 +964,44 @@ window.Skins = (() => {
       }
       return c;
     },
+    // Clear water seen from above: blue depth, a caustic light web, a surface band and bubbles.
     water(b) {
-      const [c, g] = canvas(), w = mix(b, [40, 140, 220], .45);
-      const lg = g.createLinearGradient(0, 0, 0, SIZE);
-      lg.addColorStop(0, col(mix(w, [255, 255, 255], .35))); lg.addColorStop(.5, col(w)); lg.addColorStop(1, col(mix(w, [0, 10, 30], .3)));
-      g.fillStyle = lg; g.fillRect(0, 0, SIZE, SIZE);
-      fbm(g, .25, 4, 3, "soft-light");
-      const ph = R(0, 6);
-      g.strokeStyle = "rgba(255,255,255,.2)"; g.lineWidth = 1.6;
-      for (let k = 0; k < 9; k++) {
-        g.beginPath(); for (let x = 0; x <= SIZE; x += 4) { const y = k * 15 + Math.sin(x * .09 + ph + k) * 4 + Math.sin(x * .23 - k) * 1.5; x ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke();
-        g.beginPath(); for (let y = 0; y <= SIZE; y += 4) { const x = k * 15 + Math.sin(y * .08 + ph * 2 + k) * 5; y ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke();
+      const [c, g] = canvas(), P = SIZE * K, id = g.createImageData(P, P), d = id.data, sd = Math.floor(R(0, 200));
+      const deep = mix(b, [18, 92, 170], .74), shallow = mix(b, [92, 196, 236], .74);
+      for (let py = 0; py < P; py++) for (let px = 0; px < P; px++) {
+        const x = px / K, y = py / K, wx = x + (fbm2(x * .03, y * .03 + 9, 2) - .5) * 14, wy = y + (fbm2(x * .03 + 4, y * .03, 2) - .5) * 14;
+        const [f1, f2] = voronoi(wx / 22, wy / 22, sd), edge = Math.exp(-(f2 - f1) * 9), t = y / SIZE;
+        const i = (py * P + px) * 4, depth = .25 + t * .55;
+        for (let k2 = 0; k2 < 3; k2++) d[i + k2] = clamp(shallow[k2] + (deep[k2] - shallow[k2]) * depth + edge * (150 - t * 70));
+        d[i + 3] = 255;
       }
-      for (let i = 0; i < 6; i++) {
-        const x = R(12, SIZE - 12), y = R(30, SIZE - 10), r = R(2, 6);
-        g.strokeStyle = "rgba(255,255,255,.6)"; g.lineWidth = 1.2; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.stroke();
-        g.fillStyle = "rgba(255,255,255,.8)"; g.beginPath(); g.arc(x - r * .35, y - r * .35, r * .25, 0, Math.PI * 2); g.fill();
+      g.putImageData(id, 0, 0);
+      // surface band with a soft wave
+      const sg = g.createLinearGradient(0, 0, 0, 16); sg.addColorStop(0, "rgba(255,255,255,.55)"); sg.addColorStop(1, "rgba(255,255,255,0)");
+      g.fillStyle = sg; g.beginPath(); g.moveTo(0, 0); for (let x = 0; x <= SIZE; x += 4) g.lineTo(x, 9 + Math.sin(x * .12 + sd) * 2.5); g.lineTo(SIZE, 0); g.closePath(); g.fill();
+      for (let i = 0; i < 7; i++) {
+        const x = R(14, SIZE - 14), y = R(34, SIZE - 12), r = R(1.6, 4.6);
+        g.strokeStyle = "rgba(235,250,255,.75)"; g.lineWidth = .9; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.stroke();
+        g.fillStyle = "rgba(255,255,255,.9)"; g.beginPath(); g.arc(x - r * .35, y - r * .35, r * .28, 0, Math.PI * 2); g.fill();
       }
-      g.fillStyle = "rgba(255,255,255,.28)"; g.beginPath(); g.ellipse(SIZE * .45, SIZE * .12, SIZE * .42, SIZE * .1, -.15, 0, Math.PI * 2); g.fill();
+      return c;
+    },
+    // Cooled crust plates split by glowing molten cracks (yellow core, orange, deep red edge).
+    lava(b) {
+      const [c, g] = canvas(), P = SIZE * K, id = g.createImageData(P, P), d = id.data, sd = Math.floor(R(0, 200));
+      const crust = mix(b, [44, 26, 20], .82), hot = mix(b, [255, 120, 20], .35);
+      for (let py = 0; py < P; py++) for (let px = 0; px < P; px++) {
+        const x = px / K, y = py / K, wx = x + (fbm2(x * .04, y * .04, 2) - .5) * 12, wy = y + (fbm2(x * .04 + 7, y * .04, 2) - .5) * 12;
+        const [f1, f2] = voronoi(wx / 26, wy / 26, sd), gap = f2 - f1, i = (py * P + px) * 4;
+        const glow = Math.exp(-gap * 7), core = Math.exp(-gap * 22), rough = (fbm2(x * .09, y * .09, 3) - .5) * .5;
+        const plate = 1 + rough - f1 * .35;
+        const r0 = crust[0] * plate, g0 = crust[1] * plate, b0 = crust[2] * plate;
+        d[i] = clamp(r0 + glow * (hot[0] - r0 + 20) + core * 80);
+        d[i + 1] = clamp(g0 + glow * (hot[1] - g0) * .9 + core * 150);
+        d[i + 2] = clamp(b0 + glow * 10 + core * 60);
+        d[i + 3] = 255;
+      }
+      g.putImageData(id, 0, 0);
       return c;
     },
   };
@@ -954,10 +1011,16 @@ window.Skins = (() => {
   const shade = (c, f) => (f >= 0 ? mix(c, [255, 250, 236], f) : mix(c, [40, 20, 8], -f));
   const TOON_BASE = {
     wood: (b) => mix(b, [214, 150, 80], .12), cement: (b) => mix(b, [190, 190, 186], .5), brick: (b) => mix(b, [196, 84, 54], .4),
-    ice: (b) => mix(b, [150, 215, 250], .8), water: (b) => mix(b, [50, 140, 225], .72), marble: (b) => mix(b, [240, 236, 228], .6),
+    ice: (b) => mix(b, [150, 215, 250], .8), water: (b) => mix(b, [50, 140, 225], .72), lava: (b) => mix(b, [240, 104, 30], .72), marble: (b) => mix(b, [240, 236, 228], .6),
     metal: (b) => mix(b, [160, 168, 180], .55),
   };
   const MOTIF = {
+    lava(g, c) {
+      for (const [x, y, r] of [[44, 46, 13], [84, 76, 16], [42, 92, 9], [92, 36, 7]]) {
+        g.fillStyle = col(shade(c, -.35)); g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+        g.fillStyle = "#ffd36b"; g.beginPath(); g.arc(x - r * .3, y - r * .3, r * .35, 0, Math.PI * 2); g.fill();
+      }
+    },
     wood(g, c) {
       g.strokeStyle = col(shade(c, -.35)); g.lineWidth = 5; g.lineCap = "round";
       for (const y of [40, 66, 92]) { g.beginPath(); g.moveTo(24, y); g.bezierCurveTo(50, y - 10, 76, y + 10, 104, y - 2); g.stroke(); }
@@ -1000,6 +1063,55 @@ window.Skins = (() => {
     for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, rr = i % 2 ? r * .35 : r; g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); }
     g.closePath(); g.fill();
   }
+  // ---- Pixel (16-bit): drawn on a 16×16 grid with a 5-tone ramp, ordered dithering and a
+  // 1-pixel bevel lit from the top left, then scaled up with hard edges.
+  const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+  const PIX_BASE = {
+    wood: (b) => mix(b, [176, 118, 64], .35), cement: (b) => mix(b, [168, 168, 166], .62), brick: (b) => mix(b, [186, 74, 46], .45),
+    ice: (b) => mix(b, [176, 226, 250], .8), water: (b) => mix(b, [40, 120, 220], .7), lava: (b) => mix(b, [220, 70, 20], .6),
+    marble: (b) => mix(b, [236, 232, 224], .62), metal: (b) => mix(b, [150, 158, 170], .55),
+  };
+  function paintPixel(kind, b) {
+    const N = 16, base = (PIX_BASE[kind] || PIX_BASE.wood)(b), ramp = kind === "lava"
+      ? [[34, 16, 10], [78, 30, 18], mix(b, [190, 46, 24], .7), [244, 124, 30], [255, 214, 80]]
+      : [shade(base, -.62), shade(base, -.3), base, shade(base, .3), shade(base, .66)];
+    const grid = Array.from({ length: N * N }, () => 2), set = (x, y, v) => { if (x >= 0 && y >= 0 && x < N && y < N) grid[y * N + x] = v; };
+    const dith = (x, y, t) => (BAYER[(y % 4) * 4 + (x % 4)] / 16 < t);
+    // vertical light-to-shadow gradient via dithering (realism touch)
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const t = y / (N - 1); if (t < .22 && dith(x, y, .6 - t * 2.5)) set(x, y, 3); if (t > .72 && dith(x, y, (t - .72) * 2.6)) set(x, y, 1); }
+    const P = {
+      wood() { for (const y0 of [0, 5, 10]) { for (let x = 0; x < N; x++) { set(x, y0, 1); if ((x + y0) % 5 === 2) set(x, y0 + 2, 1); } const j = y0 === 5 ? 9 : 5; for (let y = y0; y < y0 + 5; y++) set(j, y, 0); } for (let x = 0; x < N; x++) set(x, 15, 0); },
+      brick() { for (const y0 of [0, 4, 8, 12]) { for (let x = 0; x < N; x++) set(x, y0, 4); const off = (y0 / 4) % 2 ? 4 : 0; for (let x = off; x < N; x += 8) for (let y = y0; y < y0 + 4; y++) set(x, y, 4); for (let x = 0; x < N; x++) if (x % 8 !== off % 8) set(x, y0 + 3, 1); } },
+      cement() { for (let k = 0; k < 14; k++) set(Math.floor(R(1, 15)), Math.floor(R(1, 15)), rand() < .7 ? 1 : 0); },
+      ice() { for (let k = -N; k < N; k += 7) for (let i = 0; i < N; i++) { set(k + i, N - 1 - i, 4); set(k + i + 1, N - 1 - i, 3); } set(3, 3, 4); set(4, 3, 4); set(3, 4, 4); },
+      water() { for (const y0 of [3, 7, 11]) for (let x = 0; x < N; x++) { const up = Math.floor(x / 2) % 2 ? 0 : -1; set(x, y0 + up, 4); set(x, y0 + up + 1, 3); } for (let x = 0; x < N; x++) { set(x, 14, 1); set(x, 15, 0); } },
+      lava() {
+        for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) set(x, y, 1);
+        // molten pools: red rim, orange body, yellow core; dark crust between
+        for (let k = 0; k < 5; k++) {
+          const cx = Math.floor(R(2, 14)), cy = Math.floor(R(2, 14));
+          for (let j = -2; j <= 2; j++) for (let i = -2; i <= 2; i++) { const d2 = i * i + j * j; if (d2 <= 5) set(cx + i, cy + j, d2 <= 1 ? 4 : d2 <= 2 ? 3 : 2); }
+        }
+        for (let k = 0; k < 10; k++) set(Math.floor(R(0, 16)), Math.floor(R(0, 16)), 0);
+      },
+      marble() { let x = 0, y = 4; for (let i = 0; i < 20; i++) { set(x, y, 1); x++; if (rand() < .5) y += rand() < .5 ? 1 : -1; } x = 4; y = 15; for (let i = 0; i < 14; i++) { set(x, y, 1); y--; if (rand() < .4) x++; } },
+      metal() { for (const [x, y] of [[2, 2], [13, 2], [2, 13], [13, 13]]) { set(x, y, 0); set(x - 1, y - 1, 4); } for (let x = 3; x < 13; x++) { set(x, 6, 3); set(x, 9, 1); } },
+    };
+    (P[kind] || P.wood)();
+    // 1-pixel bevel: light top/left, dark bottom/right, black outline corners
+    for (let i = 0; i < N; i++) { set(i, 0, Math.max(grid[i], 3)); set(0, i, Math.max(grid[i * N], 3)); set(i, N - 1, 0); set(N - 1, i, 0); }
+    set(0, 0, 4);
+    const sm = document.createElement("canvas"); sm.width = sm.height = N;
+    const sg = sm.getContext("2d"), im = sg.createImageData(N, N);
+    grid.forEach((v, i) => {
+      const cc = ramp[v], n = 1 + (rand() - .5) * .08; // tiny per-pixel variation
+      im.data[i * 4] = clamp(cc[0] * n); im.data[i * 4 + 1] = clamp(cc[1] * n); im.data[i * 4 + 2] = clamp(cc[2] * n); im.data[i * 4 + 3] = 255;
+    });
+    sg.putImageData(im, 0, 0);
+    const c = document.createElement("canvas"); c.width = c.height = SIZE;
+    const g = c.getContext("2d"); g.imageSmoothingEnabled = false; g.drawImage(sm, 0, 0, SIZE, SIZE);
+    return c;
+  }
   function paintToon(kind, b) {
     const [c, g] = canvas(), e = SIZE, base = (TOON_BASE[kind] || TOON_BASE.wood)(b), w = 14;
     g.fillStyle = col(base); g.fillRect(0, 0, e, e);
@@ -1022,21 +1134,26 @@ window.Skins = (() => {
     if (!cache.has(key)) {
       seed = 1 + [...(kind + hex)].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) % 2147483646, 7);
       let cv;
-      if (style === "anim") cv = paintToon(kind, rgb(hex));
+      if (style === "pixel") cv = paintPixel(kind, rgb(hex));
+      else if (style === "anim") cv = paintToon(kind, rgb(hex));
       else { cv = PAINT[kind](rgb(hex)); finishReal(cv.getContext("2d")); }
-      cache.set(key, cv.toDataURL("image/jpeg", .88));
+      cache.set(key, style === "pixel" ? cv.toDataURL("image/png") : cv.toDataURL("image/jpeg", .9));
     }
     return cache.get(key);
   }
   const style = document.createElement("style");
   document.head.appendChild(style);
-  let current = "", now = { kind: "wood", colors: {} };
-  function apply(kind, pal) {
-    kind = PAINT[kind] ? kind : "wood"; pal = ((pal % PALETTES.length) + PALETTES.length) % PALETTES.length;
-    const key = vstyle + kind + pal;
+  // Pixel textures must stay crisp when scaled.
+  const pixCss = document.createElement("style");
+  pixCss.textContent = ".vs-pixel .cell.b, .vs-pixel .blk, .vs-pixel .skin i, .vs-pixel .drag i, .vs-pixel .piece i, .vs-opt .tiles i.px { image-rendering: pixelated; }";
+  document.head.appendChild(pixCss);
+  let current = "", now = { kind: "wood", colors: {} }, lastArgs = null;
+  function apply(kind, pal, rot) {
+    kind = PAINT[kind] ? kind : "wood"; pal = ((pal % PALETTES.length) + PALETTES.length) % PALETTES.length; rot = rot || 0;
+    const key = vstyle + kind + pal + "r" + rot;
     if (key === current) return;
-    current = key;
-    const colors = { ...EXTRA }; PALETTES[pal].forEach((h, i) => { colors[i + 1] = h; });
+    current = key; lastArgs = [kind, pal, rot];
+    const colors = { ...EXTRA }; PALETTES[pal].forEach((h, i) => { colors[((i + rot) % 6) + 1] = h; });
     now = { kind, colors };
     let rules = "";
     for (const i in colors) rules += `.skinned .c${i}{background-color:${colors[i]}!important;background-image:url(${tex(kind, colors[i])})!important;background-size:100% 100%!important}`;
@@ -1045,7 +1162,7 @@ window.Skins = (() => {
   }
   return {
     KINDS, PALETTES, apply,
-    setStyle(st) { vstyle = st === "anim" ? "anim" : "real"; const k = now.kind, pal = current.match(/(\d+)$/); current = ""; if (pal) apply(k, +pal[1]); },
+    setStyle(st) { vstyle = st === "anim" || st === "pixel" ? st : "real"; current = ""; if (lastArgs) apply(...lastArgs); },
     style: () => vstyle,
     preview: (kind, i, st) => tex(kind, PALETTES[0][i == null ? 2 : i], st),
     texture: (kind, hex, st) => tex(kind, hex, st),
@@ -1150,6 +1267,36 @@ window.Scene = (() => {
     if (power >= 2) rings.push({ x: cx, y: cy, r: 160 + power * 40, w: 6, c: cfg.ring, t: -.08, max: .45, outline: true });
     if (power >= 3) flash = { c: "rgba(255,255,255,.3)", t: .25 };
   }
+  // Pixel clear: each block crumbles into hard squares that fall (16-bit reference). Colours and
+  // behaviour follow the material: lava glows and smokes, ice glints, water falls as drops, etc.
+  const PIX_DEBRIS = {
+    wood: (c) => [[c, shadeHex(c, .7), shadeHex(c, 1.25), "#d6a868"], 0],
+    brick: (c) => [[c, shadeHex(c, .7), "#d9c8b0", "#8a3a22"], 0],
+    cement: (c) => [["#a9a7a2", "#8a8884", "#cfcdc8", c], 1],
+    ice: (c) => [["#e8f8ff", "#b8e6fb", "#7cc8f0", "#ffffff"], 2],
+    water: (c) => [["#5fb3f0", "#2a7fd4", "#bfe8ff", "#ffffff"], 3],
+    lava: (c) => [["#ffd04a", "#f07a1e", "#c8301a", "#ff9a30"], 4],
+    marble: (c) => [["#f0ece4", "#d6d0c6", c, "#ffffff"], 1],
+    metal: (c) => [["#c8ccd4", "#8f96a0", "#ffd36b", "#ffffff"], 5],
+  };
+  function shadeHex(h, f2) { const c = hexRgb(h); return `rgb(${c.map((v) => Math.round(f2 >= 1 ? v + (255 - v) * (f2 - 1) : v * f2)).join(",")})`; }
+  function pixelExplode(points, power, material, cfg, per) {
+    const [cols, mode] = (PIX_DEBRIS[material] || PIX_DEBRIS.wood)(points[0].color || "#c27f3c");
+    const n = Math.max(4, Math.round(9 * per / 5));
+    for (const pt of points) {
+      const s2 = pt.size || 40, own = pt.color ? [pt.color, shadeHex(pt.color, .7), shadeHex(pt.color, 1.3)] : cols, pal = mode === 0 ? own.concat(cols) : cols;
+      for (let i = 0; i < n; i++) {
+        const a = R(0, TAU), sp = R(60, 220) * (1 + power * .1), big = i < 2;
+        spawn({ kind: "pix", x: pt.x + R(-s2 / 3, s2 / 3), y: pt.y + R(-s2 / 3, s2 / 3), vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - R(60, 200) - (mode === 3 ? 80 : 0),
+          g: mode === 4 ? 520 : 1000, drag: .985, life: 0, max: R(.9, 1.5), size: big ? s2 * .32 : R(s2 * .1, s2 * .2), color: pick(pal), glow: mode === 4 && Math.random() < .6, rot: 0, vr: 0, wob: 0 });
+      }
+      if (mode === 1 || mode === 4) for (let i = 0; i < 2; i++) spawn({ kind: "pix", x: pt.x + R(-s2 / 3, s2 / 3), y: pt.y, vx: R(-30, 30), vy: R(-90, -40), g: -40, drag: .97, life: 0, max: R(.8, 1.2), size: s2 * .22, color: mode === 4 ? "rgba(70,60,56,.75)" : "rgba(200,198,192,.7)", rot: 0, vr: 0, wob: 0 });
+      if (mode === 2 || mode === 5) spawn({ kind: "pix", x: pt.x, y: pt.y, vx: R(-120, 120), vy: R(-200, -60), g: 300, drag: .97, life: 0, max: .6, size: 3, color: "#ffffff", glow: true, rot: 0, vr: 0, wob: 0 });
+    }
+    let cx = 0, cy = 0; for (const pt of points) { cx += pt.x; cy += pt.y; } cx /= points.length; cy /= points.length;
+    rings.push({ x: cx, y: cy, r: 110 + power * 40, w: 6, c: mode === 4 ? "#ffb347" : "#ffffff", t: 0, max: .4, square: true });
+    if (power >= 3) flash = { c: "rgba(255,255,255,.28)", t: .2 };
+  }
   // Glowing bokeh specks that drift slowly, like dust caught in the light.
   function bokeh(x, y, n, warm) {
     for (let i = 0; i < n; i++) {
@@ -1181,6 +1328,7 @@ window.Scene = (() => {
     brick: (c) => ({ kinds: ["brickbit", "brickbit", "rock", "dust"], colors: [shade(c, .8), shade(c, 1), "rgb(176,84,56)", "rgb(206,150,110)"], n: 9, speed: 330, grav: 1000, drag: .972, life: 1.15, size: 9 }),
     ice: (c) => ({ kinds: ["shard", "shard", "shard", "glint", "mist"], colors: ["rgba(190,230,255,.85)", "rgba(230,248,255,.9)", "rgba(140,200,245,.8)", "rgba(255,255,255,.95)"], n: 10, speed: 400, grav: 750, drag: .975, life: 1.2, size: 10 }),
     water: (c) => ({ kinds: ["drop", "drop", "drop", "mist"], colors: ["#ffffff", "#c9f1ff", "#6fd0ff", shade(c, 1.2)], n: 11, speed: 430, grav: 980, drag: .975, life: 1, size: 5, lift: 160 }),
+    lava: (c) => ({ kinds: ["fire", "ember", "ember", "smoke", "rock"], colors: ["rgba(255,150,30,.95)", "rgba(255,90,20,.9)", "rgba(255,210,80,.95)", "#3a2a24"], n: 10, speed: 330, grav: 260, drag: .955, life: 1.2, size: 10, lift: 120 }),
     marble: (c) => ({ kinds: ["rock", "rock", "dust", "glint"], colors: ["rgb(236,232,224)", "rgb(214,208,200)", shade(c, 1.15), "rgb(250,248,244)"], n: 9, speed: 320, grav: 1000, drag: .972, life: 1.15, size: 9 }),
     metal: (c) => ({ kinds: ["spark", "spark", "spark", "rock"], colors: ["#fff3c4", "#ffd36b", "#ffffff", shade(c, .9)], n: 10, speed: 520, grav: 700, drag: .97, life: .8, size: 6 }),
   };
@@ -1255,6 +1403,16 @@ window.Scene = (() => {
         f.beginPath(); for (let i = 0; i < 10; i++) { const aa = i * Math.PI / 5 - Math.PI / 2, rr = i % 2 ? r2 * .45 : r2; f.lineTo(Math.cos(aa) * rr, Math.sin(aa) * rr); } f.closePath();
         f.fillStyle = p.color; f.fill(); f.strokeStyle = "#3a2414"; f.lineWidth = 2; f.stroke(); f.restore(); break;
       }
+      // ---- Pixel particles: hard squares snapped to a 3-px grid; hot ones glow ----
+      case "pix": {
+        const q = 3, sz = Math.max(q, Math.round(p.size / q) * q), fade = k > .7 ? Math.ceil((1 - k) / .3 * 3) / 3 : 1;
+        const x = Math.round(p.x / q) * q, y = Math.round(p.y / q) * q;
+        f.globalAlpha = fade;
+        if (p.glow) { f.globalCompositeOperation = "lighter"; f.fillStyle = p.color; f.globalAlpha = fade * .35; f.fillRect(x - sz, y - sz, sz * 3, sz * 3); f.globalAlpha = fade; }
+        f.fillStyle = p.color; f.fillRect(x, y, sz, sz);
+        if (sz >= 6 && !p.glow) { f.fillStyle = "rgba(255,255,255,.35)"; f.fillRect(x, y, sz, q); f.fillStyle = "rgba(0,0,0,.3)"; f.fillRect(x, y + sz - q, sz, q); }
+        break;
+      }
       case "tpuff": {
         const r2 = p.size * (1 + k * 1.6), fade = 1 - k;
         f.globalAlpha = fade; f.fillStyle = "#fff8ec"; f.strokeStyle = "rgba(58,36,20,.7)"; f.lineWidth = 2;
@@ -1302,7 +1460,7 @@ window.Scene = (() => {
   // ======================================================================
   const THEMES = {
     ground: {
-      name: "Chão", glow: "rgba(231,192,138,.55)",
+      name: "Superfície", glow: "rgba(231,192,138,.55)",
       sky(t) {
         vgrad("#f2b56f", "#d98a4e", "#a35a2c");
         glow(W * .78, H * .2, Math.min(W, H) * .35, "rgba(255,230,160,.9)", .8);
@@ -1348,7 +1506,7 @@ window.Scene = (() => {
       boom: { kinds: ["dust", "dust", "chunk", "spark"], colors: ["#e3e3e8", "#b4b4bc", "#ffffff", "#8f8f97"], n: 9, speed: 200, grav: 110, drag: .97, life: 1.8, size: 8, ring: "#e9e7dc" },
     },
     space: {
-      name: "Espaço", glow: "rgba(155,231,255,.55)",
+      name: "Espaço Profundo", glow: "rgba(155,231,255,.55)",
       sky(t) {
         vgrad("#04020c", "#0d0724", "#1a0b38");
         glow(W * (.3 + Math.sin(t * .05) * .05), H * .3, Math.max(W, H) * .5, "rgba(140,60,220,.35)");
@@ -1370,7 +1528,7 @@ window.Scene = (() => {
       boom: { kinds: ["star", "star", "spark", "glowdot"], colors: ["#ffffff", "#9be7ff", "#c58bff", "#ff8bd3", "#ffe28a"], n: 12, speed: 520, grav: 0, drag: .955, life: 1.1, size: 6, ring: "#9be7ff", flash: "rgba(155,231,255,.18)" },
     },
     future: {
-      name: "Futuro", glow: "rgba(0,240,255,.6)",
+      name: "Cidade do Futuro", glow: "rgba(0,240,255,.6)",
       sky(t) {
         vgrad("#0c0020", "#2a0748", "#12002b");
         const hy = H * .56, sr = Math.min(W, H) * .22, sx = W / 2;
@@ -1390,7 +1548,7 @@ window.Scene = (() => {
       boom: { kinds: ["pixel", "pixel", "line", "spark"], colors: ["#00f0ff", "#ff2bd6", "#fff200", "#7cff4f"], n: 11, speed: 460, grav: 320, life: .95, size: 8, ring: "#00f0ff", flash: "rgba(255,43,214,.16)" },
     },
     lava: {
-      name: "Lava", glow: "rgba(255,120,0,.6)",
+      name: "Vulcão", glow: "rgba(255,120,0,.6)",
       sky(t) {
         vgrad("#160300", "#3d0b02", "#5a1200");
         ridge(H * .62, 30, .015, 2, "#220602"); ridge(H * .7, 22, .025, 5, "#170401");
@@ -1407,7 +1565,7 @@ window.Scene = (() => {
       boom: { kinds: ["fire", "fire", "ember", "ember", "smoke"], colors: ["rgba(255,140,0,.9)", "rgba(255,70,0,.9)", "rgba(255,200,40,.9)", "#3a1a12"], n: 10, speed: 330, grav: -220, drag: .95, life: 1, size: 12, ring: "#ff9a00", flash: "rgba(255,120,0,.2)" },
     },
     water: {
-      name: "Água", glow: "rgba(190,240,255,.6)",
+      name: "Mar Aberto", glow: "rgba(190,240,255,.6)",
       sky(t) {
         vgrad("#7fd6f2", "#2f9fd6", "#0b5f9c");
         b.strokeStyle = "rgba(255,255,255,.16)"; b.lineWidth = 2;
@@ -1423,7 +1581,7 @@ window.Scene = (() => {
       boom: { kinds: ["drop", "drop", "drop", "puff"], colors: ["#ffffff", "#c9f3ff", "#6fd6ff", "#2a9fd6"], n: 11, speed: 420, grav: 950, life: 1, size: 5, lift: 160, ring: "#e6fbff", rings: 3 },
     },
     ocean: {
-      name: "Fundo do oceano", glow: "rgba(56,214,255,.55)",
+      name: "Abismo Oceânico", glow: "rgba(56,214,255,.55)",
       sky(t) {
         vgrad("#06315a", "#03182f", "#010812");
         b.globalCompositeOperation = "lighter";
@@ -1451,7 +1609,7 @@ window.Scene = (() => {
       boom: { kinds: ["bubble", "bubble", "glowdot"], colors: ["#bfefff", "#7ff9ff", "#38d6ff", "#a0ffda"], n: 10, speed: 200, grav: -280, drag: .96, life: 1.5, size: 6, ring: "#38d6ff" },
     },
     horror: {
-      name: "Terror", glow: "rgba(122,43,255,.55)",
+      name: "Vale Assombrado", glow: "rgba(122,43,255,.55)",
       sky(t) {
         vgrad("#060608", "#120d16", "#1c1420");
         const r = Math.min(W, H) * .13;
@@ -1477,7 +1635,7 @@ window.Scene = (() => {
       boom: { kinds: ["wisp", "wisp", "drop", "spark"], colors: ["#7a2bff", "#3cff9a", "#b3002d", "#d8d8e8"], n: 10, speed: 260, grav: 160, drag: .96, life: 1.3, size: 7, ring: "#7a2bff", flash: "rgba(179,0,45,.2)" },
     },
     war: {
-      name: "Guerra", glow: "rgba(255,200,120,.55)",
+      name: "Campo de Batalha", glow: "rgba(255,200,120,.55)",
       sky(t) {
         vgrad("#4a3b30", "#2c231d", "#140f0c");
         glow(W * .5, H * .78, Math.max(W, H) * .6, "rgba(255,120,40,.3)");
@@ -1579,6 +1737,10 @@ window.Scene = (() => {
       if (k >= 1) { rings.splice(i, 1); continue; }
       if (r.t < 0) continue;
       f.globalAlpha = (1 - k) * .9;
+      if (r.square) {
+        const half = Math.round(r.r * (.15 + Math.floor(k * 5) / 5) / 3) * 3;
+        f.strokeStyle = r.c; f.lineWidth = 6; f.strokeRect(r.x - half, r.y - half, half * 2, half * 2); f.globalAlpha = 1; continue;
+      }
       if (r.outline) { f.strokeStyle = "#3a2414"; f.lineWidth = r.w * (1 - k) + 6; f.beginPath(); f.arc(r.x, r.y, r.r * (.15 + k), 0, TAU); f.stroke(); }
       f.strokeStyle = r.c; f.lineWidth = r.w * (1 - k) + 1;
       f.beginPath(); f.arc(r.x, r.y, r.r * (.15 + k), 0, TAU); f.stroke(); f.globalAlpha = 1;
@@ -1631,16 +1793,19 @@ window.Scene = (() => {
   return {
     names: ORDER.map((id) => THEMES[id].name),
     hitstop(ms) { freezeUntil = performance.now() + ms; },
-    setStyle(st) { vstyle = st === "anim" ? "anim" : "real"; },
+    setStyle(st) { vstyle = st === "anim" || st === "pixel" ? st : "real"; },
     // rect: {x, y, w, h} of one cleared row/column in screen space.
     sweep(rect, delay) {
       if (!theme) return;
-      sweeps.push({ ...rect, t: -(delay || 0), max: vstyle === "anim" ? .32 : .42, c: vstyle === "anim" ? "255,255,255" : "255,226,170" });
+      sweeps.push({ ...rect, t: -(delay || 0), max: vstyle === "real" ? .42 : .32, c: vstyle === "real" ? "255,226,170" : "255,255,255" });
     },
     // Combo hierarchy: tier 1 = text only (handled by the page); tier 2 adds a ring; tier 3 adds a celebration.
     combo(x, y, tier) {
       if (!theme || tier < 2) return;
-      if (vstyle === "anim") {
+      if (vstyle === "pixel") {
+        rings.push({ x, y, r: 150 + tier * 40, w: 6, c: "#ffd36b", t: 0, max: .5, square: true });
+        for (let i = 0; i < 10 + tier * 6; i++) { const a = R(0, TAU), sp = R(160, 420); spawn({ kind: "pix", x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 400, drag: .96, life: 0, max: R(.6, 1), size: 6, color: pick(["#ffd36b", "#fff3a0", "#ffffff"]), rot: 0, vr: 0, wob: 0 }); }
+      } else if (vstyle === "anim") {
         rings.push({ x, y, r: 140 + tier * 40, w: 9, c: "#ffd36b", t: 0, max: .45, outline: true });
         for (let i = 0; i < 6 + tier * 4; i++) { const a = R(0, TAU), sp = R(160, 420); spawn({ kind: "tstar", x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 300, drag: .96, life: 0, max: R(.7, 1.1), size: R(7, 12), color: pick(["#ffd36b", "#fff3a0", "#ffffff"]), rot: R(0, TAU), vr: R(-6, 6), wob: 0 }); }
       } else {
@@ -1661,6 +1826,7 @@ window.Scene = (() => {
       if (!theme) return;
       for (const pt of points) for (let i = 0; i < 3; i++) {
         const a = -Math.PI / 2 + R(-1.1, 1.1), sp = R(30, 90);
+        if (vstyle === "pixel") { spawn({ kind: "pix", x: pt.x + R(-pt.size / 2, pt.size / 2), y: pt.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 60, drag: .9, life: 0, max: R(.3, .45), size: 3, color: "rgba(240,220,180,.9)", rot: 0, vr: 0, wob: 0 }); continue; }
         if (vstyle === "anim") { spawn({ kind: "tpuff", x: pt.x + R(-pt.size / 2, pt.size / 2), y: pt.y + 1, vx: Math.cos(a) * sp * 1.4, vy: Math.sin(a) * sp, g: 0, drag: .9, life: 0, max: R(.3, .45), size: R(2.5, 4.5), rot: 0, vr: 0, wob: 0 }); continue; }
         spawn({ kind: "dust", x: pt.x + R(-pt.size / 2, pt.size / 2), y: pt.y + 2, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 40, drag: .93, life: 0, max: R(.35, .6), size: R(3, 6), color: "rgba(235,210,170,.8)", rot: 0, vr: 0, wob: 0 });
       }
@@ -1670,7 +1836,7 @@ window.Scene = (() => {
       if (vstyle === "real") { bokeh(x, y, Math.round(n * .6), true); n = Math.round(n * .5); }
       for (let i = 0; i < n; i++) {
         const a = R(-Math.PI * .9, -Math.PI * .1), sp = R(250, 520);
-        spawn({ kind: vstyle === "anim" ? "tchunk" : "chunk", x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 520, drag: .985, life: 0, max: R(1.4, 2.2), size: R(5, 8),
+        spawn({ kind: vstyle === "anim" ? "tchunk" : vstyle === "pixel" ? "pix" : "chunk", x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 520, drag: .985, life: 0, max: R(1.4, 2.2), size: R(5, 8),
           color: pick(["#ffd36b", "#eaa53c", "#6cc070", "#5fb3c9", "#e0608a", "#f4e7d4"]), rot: R(0, TAU), vr: R(-12, 12), wob: 0 });
       }
     },
@@ -1696,6 +1862,7 @@ window.Scene = (() => {
       if (!theme || !points.length) return;
       const cfg = theme.boom, per = Math.max(1, Math.round(5 / Math.sqrt(points.length / 8)));
       if (vstyle === "anim") return toonExplode(points, power, cfg, per);
+      if (vstyle === "pixel") return pixelExplode(points, power, material, cfg, per);
       const mat = MATERIAL[material] || MATERIAL.wood, cold = material === "ice" || material === "water", many = points.length > 14;
       for (const pt of points) {
         const m = mat(pt.color || "#c27f3c");
@@ -3280,11 +3447,18 @@ window.Scene = (() => {
     }
     enterGame("Fase " + L);
   }
-  // Classic and Sudoku use the chosen texture; story and Tetris keep wood.
+  // Classic and Sudoku use the chosen texture; story uses its world's material; Tetris keeps wood.
   // Block colours: Classic shifts palette every level, story every phase.
   const paletteFor = () => (S.mode === "classic" ? levelOf(S.score) - 1 : S.mode === "story" ? S.level - 1 : 0);
   const chosenSkin = () => { const k = store.get("skin", "wood"), m = Skins.KINDS.find(([x]) => x === k); return m && totalStars() >= m[2] ? k : "wood"; };
-  const applySkin = () => Skins.apply(S && (S.mode === "classic" || S.mode === "sudoku") ? chosenSkin() : "wood", S ? paletteFor() : 0);
+  // Story: each world has its own material and two palettes that alternate per phase; the colour
+  // order also rotates every phase, so no two phases of a world look the same.
+  const WORLD_SKIN = [["wood", 0, 1], ["marble", 2, 5], ["cement", 7, 4], ["metal", 4, 7], ["ice", 2, 5],
+    ["lava", 3, 6], ["water", 2, 1], ["water", 4, 2], ["cement", 4, 3], ["brick", 3, 0]];
+  const applySkin = () => {
+    if (S && S.mode === "story") { const [k, a, b] = WORLD_SKIN[worldOf(S.level)], i = (S.level - 1) % LEVELS_PER_WORLD; return Skins.apply(k, i % 2 ? b : a, Math.floor(i / 2)); }
+    Skins.apply(S && (S.mode === "classic" || S.mode === "sudoku") ? chosenSkin() : "wood", S ? paletteFor() : 0);
+  };
   function enterGame(label) {
     selected = -1;
     show("game");
@@ -3390,11 +3564,12 @@ window.Scene = (() => {
 
   // ---------- visual style: Animação / Realismo ----------
   // One setting drives the block painter (Skins), the effects (Scene) and the CSS animations (body class).
-  const visualStyle = () => (store.get("visualStyle", "real") === "anim" ? "anim" : "real");
+  const visualStyle = () => { const v = store.get("visualStyle", "real"); return v === "anim" || v === "pixel" ? v : "real"; };
   function applyVisualStyle() {
     const st = visualStyle();
     document.body.classList.toggle("vs-anim", st === "anim");
-    document.body.classList.toggle("vs-real", st !== "anim");
+    document.body.classList.toggle("vs-real", st === "real");
+    document.body.classList.toggle("vs-pixel", st === "pixel");
     Skins.setStyle(st); Scene.setStyle(st);
     // The wordmark is filled with the game's own wood: pale maple for BLOCK/UNO, amber for ALT.
     for (const [id, hex] of [["wm-a", "#ead1a2"], ["wm-b", "#f0a63a"], ["wm-c", "#ead1a2"]]) $(id).style.backgroundImage = `url(${Skins.texture("wood", hex)})`;
@@ -3405,7 +3580,7 @@ window.Scene = (() => {
     const cur = visualStyle();
     for (const b2 of $("vs-pick").children) {
       const st = b2.dataset.vs, tiles = b2.querySelector(".tiles");
-      if (!tiles.children.length) tiles.innerHTML = ["wood", "brick", "ice"].map((k, i) => `<i style="background-image:url(${Skins.preview(k, [0, 2, 5][i], st)})"></i>`).join("");
+      if (!tiles.children.length) tiles.innerHTML = ["wood", "brick", "ice"].map((k, i) => `<i${st === "pixel" ? ' class="px"' : ""} style="background-image:url(${Skins.preview(k, [0, 2, 5][i], st)})"></i>`).join("");
       b2.setAttribute("aria-checked", String(st === cur));
     }
   }

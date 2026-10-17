@@ -52,19 +52,21 @@ Tudo no jogo é desenhado por código (texturas, cenários, ícones, explosões 
 - Toda ação tem som: tocar botão, pegar peça, encaixar, errar o encaixe, limpar linha, combo, subir de nível, recorde, derrota.
 - Músicas: clássicas de domínio público. No menu, calmas; nos modos, com percussão leve que acelera com o nível.
 
-## Estilos visuais (v11)
+## Estilos visuais (v11, Pixel na v12)
 
 Uma única configuração (`Ajustes → Estilo visual`, salva como `visualStyle`) escolhe como tudo é desenhado. As regras do jogo não mudam.
 
-| | Realismo (padrão) | Animação |
-|---|---|---|
-| Blocos | Texturas naturais + chanfro iluminado (alto/esquerda), borda escura fina, brilho no canto | Cores chapadas com sombreamento em camadas, contorno marrom grosso, brilho estilizado e um motivo por material |
-| Casas vazias | Furos rebaixados (sombra interna) | Casas creme arredondadas com borda suave |
-| Encaixe | Squash sutil (0,93 × 1,06) | Squash elástico (0,7 × 1,3 → 1,14 × 0,86) |
-| Eliminação | Bloco "racha" (clarão → encolhe); estilhaços com textura, raios de luz, brilho | Bloco "estoura" (cresce, gira, some); pedaços com contorno, estrelas, anel de impacto |
-| Textos | Folha de ouro com contorno escuro | Contorno cartoon com sombra dura |
+| | Realismo (padrão) | Animação | Pixel (v12) |
+|---|---|---|---|
+| Blocos | Texturas naturais + chanfro iluminado (alto/esquerda), borda escura fina, brilho no canto | Cores chapadas com sombreamento em camadas, contorno marrom grosso, brilho estilizado e um motivo por material | Grade 16×16 em 5 tons por material, chanfro de 1 px, pontilhado só nas bordas de luz e sombra, escala sem suavização |
+| Casas vazias | Furos rebaixados (sombra interna) | Casas creme arredondadas com borda suave | Casas quadradas com chanfro duro de 3 px |
+| Encaixe | Squash sutil (0,93 × 1,06) | Squash elástico (0,7 × 1,3 → 1,14 × 0,86) | Squash em 3 passos (`steps`) |
+| Eliminação | Bloco "racha" (clarão → encolhe); estilhaços com textura, raios de luz, brilho | Bloco "estoura" (cresce, gira, some); pedaços com contorno, estrelas, anel de impacto | Bloco "esfarela" em 4 passos; quadradinhos caem com gravidade (lava brilha e solta fumaça, gelo/metal faíscam, água espirra), anel quadrado |
+| Textos | Folha de ouro com contorno escuro | Contorno cartoon com sombra dura | Fonte monoespaçada com sombra dura de pixel |
 
-Os dois estilos usam o mesmo código de jogo, as mesmas partículas e o mesmo agendamento. Só mudam os parâmetros e os pintores de textura (`Skins`), a explosão (`Scene.explode`) e as animações CSS (`body.vs-real` / `body.vs-anim`).
+Os três estilos usam o mesmo código de jogo, as mesmas partículas e o mesmo agendamento. Só mudam os parâmetros e os pintores de textura (`Skins`), a explosão (`Scene.explode`) e as animações CSS (`body.vs-real` / `body.vs-anim` / `body.vs-pixel`).
+
+Realismo (v12): texturas geradas em 256 px (2× a v11) para telas Full HD; água com cáusticas, lava com crosta e fissuras incandescentes, gelo com rachaduras.
 
 ## Cor de cada modo
 
@@ -92,3 +94,20 @@ A cor do modo aparece no nome do modo, na barra de progresso, no filete da barra
 - 3 estrelas por fase: concluir · desafio especial da fase · não usar o poder. Estrelas só somam (repetir nunca duplica nem remove).
 - Medalha por mundo (bronze/prata/ouro) ao concluir as 10 fases, conforme as estrelas.
 - Texturas desbloqueadas por estrelas: Mármore (15) e Metal (40).
+
+## História: mundos e materiais (v12)
+
+| Mundo | Nome | Material dos blocos |
+|---|---|---|
+| 1 | Superfície | Madeira |
+| 2 | Céu | Mármore |
+| 3 | Lua | Cimento |
+| 4 | Espaço Profundo | Metal |
+| 5 | Cidade do Futuro | Gelo |
+| 6 | Vulcão | Lava |
+| 7 | Mar Aberto | Água |
+| 8 | Abismo Oceânico | Água |
+| 9 | Vale Assombrado | Cimento |
+| 10 | Campo de Batalha | Tijolo |
+
+Cada mundo alterna duas paletas entre as fases e gira a ordem das cores, então nenhuma fase repete as cores da anterior. O material da História é do mundo e não depende da textura escolhida no menu (que vale para Clássico e Sudoku).
