@@ -123,6 +123,53 @@ Madeira, Cimento, Tijolo, Gelo, Água, Lava, **Raio**, **Eletricidade**, **Chuva
 | Grama | Centenas de folhas, raiz escura e ponta iluminada | Torrões de grama, folhas rodopiando |
 | Fumaça | Volutas de fumaça (ruído distorcido) | Sem pedaços sólidos: nuvens que sobem |
 
+## Cenário e blocos andam juntos (v15)
+
+Cada material tem o seu cenário e cada cenário tem o seu material:
+
+| Material | Cenário |
+|---|---|
+| Madeira | Superfície |
+| Grama | Campos Verdes |
+| Mármore | Céu |
+| Chuva | Floresta da Chuva |
+| Raio | Tempestade |
+| Areia | Deserto Dourado |
+| Cimento | Lua |
+| Metal | Espaço Profundo |
+| Eletricidade | Usina Elétrica |
+| Futuro | Cidade do Futuro |
+| Lava | Vulcão |
+| Fumaça | Vale da Fumaça |
+| Água | Mar Aberto |
+| Gelo | Abismo Oceânico |
+| Tijolo | Campo de Batalha |
+
+Nebulosa usa Eletricidade e Vale Assombrado usa Cimento.
+
+- **Escolher uma textura no menu:** o fundo do menu passa para o cenário dela, e as partidas salvas de Clássico, Sudoku e Tetris mudam para esse material e cenário.
+- **Cenário que muda com os pontos** (Clássico, Sudoku e Tetris): os blocos passam a ser do material do novo cenário. O sorteio só usa cenários cujo material já está desbloqueado.
+
+## Explosões únicas por material (v15)
+
+| Material | Realismo | Animação | Pixel |
+|---|---|---|---|
+| Madeira | Racha em 3 tábuas com pontas lascadas, giro rápido, lascas | Tábuas com veio | Ripas 4×1 que giram |
+| Tijolo | Quebra limpa na argamassa (meio tijolo + 2 pedaços), poeira de argamassa | Tijolinhos com faixa de argamassa | Peças 2×1, pó de argamassa |
+| Cimento | Esfarela em 9 torrões, nuvem de pó cinza | Pedrinhas + nuvens | Grão fino + pó subindo |
+| Gelo | Estilhaça em 8 cacos finos de vidro, brilhos e névoa | Triângulos de gelo + estrelas | Cacos rápidos + brilho em cruz |
+| Água | Sem pedaços: coroa de respingos para cima + ondas | Gotas lançadas para cima | Coroa de gotas |
+| Lava | Gotas derretidas incandescentes, fogo e fumaça | Bolhas de lava com núcleo | Quadrados brilhantes + fumaça |
+| Mármore | 4 lascas polidas grandes, brilho cintilante | Losangos + estrelas | Blocos grandes e lentos + brilho |
+| Metal | Chapa rasgada em 2, borda espelhada, chuva de faíscas, "clang" | Porcas sextavadas + faíscas | Peças + faíscas em cruz |
+| Raio | Raio cai do céu em cada linha, pedaços carbonizados com borda incandescente | Raiozinhos + descarga do céu | Raio de pixels do topo da tela |
+| Eletricidade | Arcos em cadeia entre os blocos, pedaços que se desintegram | Orbes + arcos | Arco de pixels entre blocos |
+| Chuva | Vira chuva: gotas e riscos caindo, névoa | Gotas caindo | Riscos de chuva caindo |
+| Futuro | Voxels 3×3 que flutuam e piscam, barras de interferência | Quadrados neon | Quadrados neon piscando |
+| Areia | Desmorona em torrões que encolhem, escorre como ampulheta | Grãos escorrendo | Grãos escorrendo |
+| Grama | Torrões com terra embaixo, folhas e pétalas | Folhas + pétalas | Folhas 2×1 + torrões de terra |
+| Fumaça | Sem pedaços: volutas que sobem e se dissolvem | Nuvenzinhas que sobem | Quadrados que sobem e crescem |
+
 ## História: 1000 fases (v14)
 
 - 50 mundos de 20 fases. A cada 20 fases o cenário muda.
