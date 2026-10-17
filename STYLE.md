@@ -51,3 +51,44 @@ Tudo no jogo é desenhado por código (texturas, cenários, ícones, explosões 
 - Cada efeito varia o tom em ±5% para não cansar.
 - Toda ação tem som: tocar botão, pegar peça, encaixar, errar o encaixe, limpar linha, combo, subir de nível, recorde, derrota.
 - Músicas: clássicas de domínio público. No menu, calmas; nos modos, com percussão leve que acelera com o nível.
+
+## Estilos visuais (v11)
+
+Uma única configuração (`Ajustes → Estilo visual`, salva como `visualStyle`) escolhe como tudo é desenhado. As regras do jogo não mudam.
+
+| | Realismo (padrão) | Animação |
+|---|---|---|
+| Blocos | Texturas naturais + chanfro iluminado (alto/esquerda), borda escura fina, brilho no canto | Cores chapadas com sombreamento em camadas, contorno marrom grosso, brilho estilizado e um motivo por material |
+| Casas vazias | Furos rebaixados (sombra interna) | Casas creme arredondadas com borda suave |
+| Encaixe | Squash sutil (0,93 × 1,06) | Squash elástico (0,7 × 1,3 → 1,14 × 0,86) |
+| Eliminação | Bloco "racha" (clarão → encolhe); estilhaços com textura, raios de luz, brilho | Bloco "estoura" (cresce, gira, some); pedaços com contorno, estrelas, anel de impacto |
+| Textos | Folha de ouro com contorno escuro | Contorno cartoon com sombra dura |
+
+Os dois estilos usam o mesmo código de jogo, as mesmas partículas e o mesmo agendamento. Só mudam os parâmetros e os pintores de textura (`Skins`), a explosão (`Scene.explode`) e as animações CSS (`body.vs-real` / `body.vs-anim`).
+
+## Cor de cada modo
+
+| Modo | Cor-assinatura |
+|---|---|
+| Clássico | Âmbar `#eaa53c` |
+| Sudoku | Verde-azulado `#3fb59a` (divisórias 3×3 desenhadas) |
+| Tetris | Roxo `#a66be0` |
+| História | Cobre `#d9824a` |
+
+A cor do modo aparece no nome do modo, na barra de progresso, no filete da barra superior e no contorno do tabuleiro.
+
+## Leitura do tabuleiro
+
+- Prévia válida: a peça na sua cor com borda tracejada; linhas que vão sumir pulsam em ouro.
+- Prévia inválida: casas livres em vermelho, blocos no caminho com contorno vermelho; a peça arrastada perde a cor.
+- Tetris: a peça fantasma é contornada na cor da peça.
+
+## Combos
+
+×2 texto · ×3–4 texto maior + anel · ×5+ "Combo épico" + anel + confete + clarão + hitstop.
+
+## História: recompensas
+
+- 3 estrelas por fase: concluir · desafio especial da fase · não usar o poder. Estrelas só somam (repetir nunca duplica nem remove).
+- Medalha por mundo (bronze/prata/ouro) ao concluir as 10 fases, conforme as estrelas.
+- Texturas desbloqueadas por estrelas: Mármore (15) e Metal (40).

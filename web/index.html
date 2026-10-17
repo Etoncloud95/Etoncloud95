@@ -1,7 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="10">
+<meta name="bau-version" content="11">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -310,6 +310,133 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
 .goal-card { display: grid; gap: 4px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,.05); }
 .goal-card b { color: var(--amber); font-size: 18px; }
 
+/* ======================================================================
+   v11 — visual styles (Animação / Realismo), readable board, mode identity
+   ====================================================================== */
+:root { --mode-accent: #eaa53c; --ease-pop: cubic-bezier(.2,.9,.3,1.25); --ease-out: cubic-bezier(.2,.8,.3,1); }
+body[data-mode="classic"] { --mode-accent: #eaa53c; }
+body[data-mode="sudoku"] { --mode-accent: #3fb59a; }
+body[data-mode="tetris"] { --mode-accent: #a66be0; }
+body[data-mode="story"] { --mode-accent: #d9824a; }
+body[data-mode] .mode-label { color: var(--mode-accent); }
+body[data-mode] .level-bar i { background: linear-gradient(90deg, rgba(255,255,255,.22), rgba(255,255,255,0)), var(--mode-accent); }
+body.themed[data-mode] .bar { box-shadow: inset 0 -3px 0 var(--mode-accent); }
+#board, .tboard { outline: 3px solid color-mix(in srgb, var(--mode-accent) 60%, transparent); outline-offset: 3px; }
+
+/* Empty cells read as recessed holes; filled blocks sit on top with a cast shadow. */
+.vs-real .cell { background: #c2955f; box-shadow: inset 0 3px 4px rgba(60,30,10,.5), inset 0 -1px 0 rgba(255,240,210,.35); }
+.vs-real .cell.alt { background: #b1844f; }
+.vs-real .cell.b, .vs-real .blk { box-shadow: 0 2px 3px rgba(20,10,4,.5) !important; border-radius: 4px; }
+.vs-anim #board, .vs-anim .tboard { background: #c98f52; border-radius: 20px; box-shadow: inset 0 0 0 3px #3a2414, 0 8px 0 #3a2414, 0 0 42px var(--scene-glow, transparent); }
+.vs-anim .cell { background: #ecd3a3; border-radius: 8px; box-shadow: inset 0 0 0 2px rgba(120,80,40,.28), inset 0 3px 0 rgba(120,80,40,.18); }
+.vs-anim .cell.alt { background: #dcbd88; }
+.vs-anim .cell.b, .vs-anim .blk { box-shadow: 0 3px 0 rgba(58,36,20,.6) !important; border-radius: 8px; }
+
+/* Placement preview: valid = the piece in its colour with a dashed edge; invalid = red; lines about to clear glow gold. */
+.cell.preview { opacity: .62; outline: 2px dashed rgba(255,255,255,.95); outline-offset: -4px; }
+.cell.bad { background: rgba(224,103,75,.5) !important; background-image: none !important; outline: 2px solid var(--danger); outline-offset: -3px; }
+.cell.conflict, .vs-anim .cell.conflict.b, .vs-real .cell.conflict.b { outline: 3px solid var(--danger); outline-offset: -3px; box-shadow: inset 0 0 0 40px rgba(224,103,75,.45) !important; }
+.cell.will, .vs-anim .cell.will.b, .vs-real .cell.will.b { position: relative; z-index: 1; box-shadow: inset 0 0 0 3px var(--gold), 0 0 14px rgba(255,211,107,.9) !important; animation: willpulse .5s ease-in-out infinite alternate; }
+@keyframes willpulse { to { filter: brightness(1.28); } }
+.drag.invalid i.blk { filter: saturate(.35) brightness(.75); }
+.drag.invalid { opacity: .85; }
+.vs-anim .drag { filter: drop-shadow(0 12px 0 rgba(40,20,10,.35)); }
+.vs-real .drag.valid { filter: drop-shadow(0 14px 12px rgba(0,0,0,.5)); }
+
+/* Landing and clearing, one set of keyframes per style. */
+.vs-real .cell.land { animation: land-real .15s ease-out; transform-origin: 50% 100%; }
+@keyframes land-real { 0% { transform: scale(.93, 1.06); filter: brightness(1.2); } 100% { transform: none; filter: none; } }
+.vs-anim .cell.land { animation: land-anim .26s var(--ease-pop); transform-origin: 50% 100%; }
+@keyframes land-anim { 0% { transform: scale(.7, 1.3); filter: brightness(1.45); } 45% { transform: scale(1.14, .86); } 75% { transform: scale(.96, 1.04); } 100% { transform: none; } }
+.vs-real .cell.clearing { animation: crack .3s ease-in forwards; animation-delay: var(--d, 0ms); }
+@keyframes crack { 30% { filter: brightness(1.9) contrast(1.2); } 100% { transform: scale(.86); opacity: 0; filter: brightness(2.2); } }
+.vs-anim .cell.clearing { animation: popanim .32s var(--ease-pop) forwards; animation-delay: var(--d, 0ms); }
+@keyframes popanim { 35% { transform: scale(1.28) rotate(-6deg); filter: brightness(1.7); } 100% { transform: scale(0) rotate(25deg); opacity: 0; } }
+
+/* Selecting and grabbing pieces. */
+.slot.sel { box-shadow: inset 0 0 0 2px var(--mode-accent); background: color-mix(in srgb, var(--mode-accent) 16%, transparent); }
+.slot.sel .piece { animation: selbob .55s ease-in-out infinite alternate; }
+@keyframes selbob { to { transform: translateY(-5px) scale(1.06); } }
+.vs-real .slot.grab .piece { transform: scale(1.08) translateY(-3px); }
+.vs-anim .slot.grab .piece { transform: scale(1.2) rotate(-4deg); }
+.vs-anim .slot .piece { animation-timing-function: var(--ease-pop); }
+
+/* Floating texts: comic outline (Animação) or gold leaf (Realismo); combos grow with their tier. */
+.vs-anim .fx { -webkit-text-stroke: 1.5px #3a2414; paint-order: stroke fill; text-shadow: 0 4px 0 #3a2414; }
+.vs-real .fx.praise, .vs-real .fx.combo, .vs-real .fx.newrec { background: linear-gradient(180deg, #fff6d8, #f0b648 55%, #a8641c); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; -webkit-text-stroke: 1px rgba(58,36,20,.85); filter: drop-shadow(0 0 1px #2a1a0c) drop-shadow(0 3px 2px rgba(0,0,0,.7)); }
+.combo.t1 { font-size: 24px; color: var(--mode-accent); }
+.combo.t2 { font-size: 34px; color: var(--gold); }
+.combo.t3 { font-size: clamp(26px, 8.5vw, 40px); color: var(--gold); animation: praise 1.3s cubic-bezier(.2,1.6,.4,1) forwards; }
+.vs-anim .combo.t2, .vs-anim .combo.t3 { animation-timing-function: var(--ease-pop); }
+
+/* Sudoku: the 3×3 boxes are separated by real dividers. */
+.sudoku-lines { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.sudoku-lines i { position: absolute; background: rgba(58,36,20,.8); border-radius: 2px; }
+.vs-anim .sudoku-lines i { background: #3a2414; }
+
+/* Story: challenge chip next to the power, stars on levels, richer victory card. */
+.power { display: flex; gap: 8px; }
+.power-btn { flex: 1.15; min-width: 0; padding: 8px 10px; gap: 8px; }
+.power-btn svg { width: 26px; height: 26px; }
+.power-btn b { font-size: 12px; }
+.power-btn small { font-size: 11px; }
+.chal { flex: 1; min-width: 0; display: grid; gap: 1px; align-content: center; padding: 6px 10px; border-radius: 14px; background: rgba(18,11,7,.62); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), 0 4px 0 var(--shadow); }
+.chal .chal-k { font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mode-accent); }
+.chal b { font-size: 12px; line-height: 1.2; }
+.chal .chal-p { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.chal.done { box-shadow: inset 0 0 0 2px var(--ok), 0 4px 0 var(--shadow); }
+.chal.done .chal-p { color: var(--ok); font-weight: 800; }
+.chal.failed .chal-p { color: var(--danger); }
+.win-story { display: grid; gap: 10px; }
+.stars { display: flex; justify-content: center; gap: 10px; }
+.stars i { width: 46px; height: 46px; background: #4a3a2a; clip-path: polygon(50% 2%, 63% 36%, 99% 37%, 70% 59%, 80% 96%, 50% 74%, 20% 96%, 30% 59%, 1% 37%, 37% 36%); }
+.stars i:nth-child(2) { width: 56px; height: 56px; margin-top: -8px; }
+.stars i.on { background: linear-gradient(160deg, #fff3c4, #ffd36b 40%, #d98f1e); animation: starpop .38s var(--ease-pop) both; animation-delay: var(--d, 0ms); }
+@keyframes starpop { 0% { transform: scale(0) rotate(-40deg); } 70% { transform: scale(1.25); } 100% { transform: none; } }
+.vs-real .stars { filter: drop-shadow(0 0 8px rgba(255,211,107,.45)) drop-shadow(0 3px 3px rgba(0,0,0,.5)); }
+.vs-anim .stars { filter: drop-shadow(0 3px 0 #3a2414); }
+.goals { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; text-align: left; }
+.goals li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; align-items: center; padding: 7px 10px; border-radius: 10px; background: rgba(255,255,255,.05); font-size: 13px; }
+.goals li::before { content: "✓"; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--ok); color: #10260f; font-weight: 900; font-size: 12px; }
+.goals li.no::before { content: "✗"; background: rgba(224,103,75,.85); color: #fff; }
+.goals li.no { color: var(--muted); }
+.goals li em { font-style: normal; color: var(--muted); font-size: 11px; display: block; }
+.rewards { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.rewards span { padding: 5px 10px; border-radius: 99px; background: rgba(255,211,107,.18); box-shadow: inset 0 0 0 1px rgba(255,211,107,.5); color: var(--gold); font-weight: 800; font-size: 12px; letter-spacing: .04em; }
+.rewards span.dim { background: rgba(255,255,255,.06); box-shadow: none; color: var(--muted); font-weight: 600; }
+.vs-anim .card { animation: drop .4s var(--ease-pop); }
+.card.story-win .line, .card.story-win #over-why { display: none; }
+.lv .lv-stars { position: absolute; top: 4px; left: 0; right: 0; text-align: center; font-size: 9px; letter-spacing: 1px; color: rgba(255,255,255,.25); }
+.lv .lv-stars b { color: var(--gold); font-weight: 400; }
+.lv.done::after { content: none; }
+.world .wstars { float: right; font-size: 13px; color: var(--gold); letter-spacing: .04em; }
+.medal { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-left: 6px; vertical-align: -1px; box-shadow: inset 0 -2px 0 rgba(0,0,0,.25); }
+.medal.bronze { background: #c47a3c; } .medal.silver { background: #c9d1d9; } .medal.gold { background: #ffd36b; }
+
+/* Tetris: coloured ghost, bumping counters, level & speed box, held buttons. */
+.vs-real .tboard .cell.ghost { background: color-mix(in srgb, var(--gh, #fff) 22%, #c2955f); box-shadow: none; outline: 2px dashed var(--gh, #fff); outline-offset: -3px; }
+.vs-anim .tboard .cell.ghost { background: color-mix(in srgb, var(--gh, #fff) 28%, #ecd3a3); box-shadow: inset 0 0 0 3px var(--gh, #fff); }
+.bump { animation: bump .26s var(--ease-pop); }
+@keyframes bump { 40% { transform: scale(1.3); } }
+.t-box small { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.t-box.hot { box-shadow: inset 0 0 0 2px var(--gold); }
+.t-box.hot b { color: var(--gold); }
+.t-ctrl button.held { transform: translateY(3px); box-shadow: 0 2px 0 var(--shadow), inset 0 0 0 3px var(--mode-accent); }
+
+/* Settings: visual style picker; block materials scroll sideways (7 materials, some unlocked by story stars). */
+.vs-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.vs-opt { display: grid; gap: 4px; justify-items: center; padding: 10px 8px; border-radius: 12px; background: rgba(255,255,255,.05); text-align: center; }
+.vs-opt .tiles { display: flex; gap: 4px; }
+.vs-opt .tiles i { width: 28px; height: 28px; border-radius: 6px; background-size: 100% 100%; }
+.vs-opt b { font-size: 14px; }
+.vs-opt small { font-size: 11px; color: var(--muted); line-height: 1.25; }
+.vs-opt[aria-checked="true"] { background: rgba(234,165,60,.2); box-shadow: inset 0 0 0 2px var(--amber); }
+.skins { display: flex !important; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; }
+.skins::-webkit-scrollbar { display: none; }
+.skin { flex: 0 0 calc((100% - 24px) / 5); scroll-snap-align: start; position: relative; }
+.skin.locked i { filter: grayscale(1) brightness(.45); }
+.skin.locked span { color: var(--gold); }
+
 /* ---------- Overlay ---------- */
 .overlay {
   position: fixed; inset: 0; z-index: 40; display: grid; place-items: center;
@@ -355,7 +482,7 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
     </div>
     <div class="skin-pick">
       <div class="skins" id="skins" role="radiogroup" aria-label="Textura dos blocos"></div>
-      <p class="skins-note">Textura dos blocos · vale para Clássico e Sudoku</p>
+      <p class="skins-note" id="skins-note">Textura dos blocos · vale para Clássico e Sudoku</p>
     </div>
     <div class="modes">
       <button class="mode" id="play-classic" data-mode="classic">
@@ -451,9 +578,10 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
       <div id="board" role="grid" aria-label="Tabuleiro"></div>
     </div>
     <div class="power" id="power" hidden>
+      <div class="chal" id="chal"><span class="chal-k">Desafio</span><b id="chal-text"></b><span class="chal-p" id="chal-p"></span></div>
       <button class="power-btn" id="btn-power">
         <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="14" cy="19" r="10" fill="#2a1d15"/><circle cx="11" cy="16" r="3" fill="#fff" opacity=".25"/><path d="M20 10l3-3" stroke="#bda78c" stroke-width="2.4" stroke-linecap="round"/><path d="M25 3l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1z" fill="#ffd36b"/></svg>
-        <span class="pw-text"><b id="pw-title">Destruir 4 blocos</b><small id="pw-sub">Faça 300 pontos para liberar</small></span>
+        <span class="pw-text"><b id="pw-title">Destruir 4 blocos</b><small id="pw-sub">Faltam 300 pts</small></span>
         <span class="pw-count" id="pw-count">0</span>
       </button>
     </div>
@@ -483,7 +611,8 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
       <div class="t-side">
         <div class="t-box"><span>Próxima</span><div class="piece" id="t-next" style="--m:12px"></div></div>
         <div class="t-box"><span>Linhas</span><b id="t-lines">0</b></div>
-        <div class="t-box"><span>Combo</span><b id="t-combo">—</b></div>
+        <div class="t-box" id="t-combo-box"><span>Combo</span><b id="t-combo">—</b></div>
+        <div class="t-box"><span>Nível</span><b id="t-lvl">1</b><small id="t-speed">×1,0</small></div>
       </div>
     </div>
     <div class="t-ctrl">
@@ -498,6 +627,13 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
   <div class="overlay" id="settings" hidden>
     <div class="card settings-card" role="dialog" aria-modal="true" aria-labelledby="set-title">
       <h2 id="set-title">Configurações</h2>
+      <div>
+        <span class="set-label">Estilo visual</span>
+        <div class="vs-pick" id="vs-pick" role="radiogroup" aria-label="Estilo visual">
+          <button class="vs-opt" data-vs="anim" role="radio"><span class="tiles"></span><b>Animação</b><small>Cores vivas, contornos e efeitos expressivos</small></button>
+          <button class="vs-opt" data-vs="real" role="radio"><span class="tiles"></span><b>Realismo</b><small>Materiais naturais, luz e sombras</small></button>
+        </div>
+      </div>
       <div>
         <span class="set-label">Música do menu</span>
         <div class="music-list" id="menu-music" role="radiogroup" aria-label="Música do menu"></div>
@@ -529,6 +665,11 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
     <div class="card" id="over-card" role="dialog" aria-modal="true" aria-labelledby="over-title">
       <h2 id="over-title">Fim de jogo</h2>
       <p id="over-why">Nenhuma peça cabe no tabuleiro.</p>
+      <div class="win-story" id="win-story" hidden>
+        <div class="stars" id="win-stars" aria-label="Estrelas"><i></i><i></i><i></i></div>
+        <ul class="goals" id="win-goals"></ul>
+        <div class="rewards" id="win-rewards"></div>
+      </div>
       <div class="big" id="over-score">0</div>
       <div class="badge" id="over-badge" hidden>Novo recorde!</div>
       <p id="over-rank"></p>
@@ -561,7 +702,11 @@ window.Skins = (() => {
     ["#707a88", "#8a94a0", "#5a6470", "#a0a8b4", "#606a78", "#9098a4"], // aço
   ];
   const EXTRA = { 8: "#7a4a6e", 9: "#3f6b4f" }; // Tetris T and S pieces
-  const KINDS = [["wood", "Madeira"], ["cement", "Cimento"], ["brick", "Tijolo"], ["ice", "Gelo"], ["water", "Água"]];
+  // Block materials. "stars" = story-mode stars needed to unlock (0 = always available).
+  const KINDS = [["wood", "Madeira", 0], ["cement", "Cimento", 0], ["brick", "Tijolo", 0], ["ice", "Gelo", 0], ["water", "Água", 0],
+    ["marble", "Mármore", 15], ["metal", "Metal", 40]];
+  // Visual style: "real" (Realismo, natural materials) or "anim" (Animação, stylised cartoon materials).
+  let vstyle = "real";
 
   const rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
   const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
@@ -590,6 +735,19 @@ window.Skins = (() => {
     const lg = g.createLinearGradient(0, 0, SIZE, SIZE);
     lg.addColorStop(0, `rgba(255,255,255,${top})`); lg.addColorStop(.5, "rgba(255,255,255,0)"); lg.addColorStop(1, `rgba(0,0,0,${bottom})`);
     g.fillStyle = lg; g.fillRect(0, 0, SIZE, SIZE);
+  }
+
+  // Realismo finish: one light from the top left — lit bevel top/left, shaded bevel bottom/right,
+  // a thin dark edge so neighbouring blocks never merge, and a soft glint in the lit corner.
+  function finishReal(g) {
+    const e = SIZE, band = (x0, y0, x1, y1, c0, c1) => { const gr = g.createLinearGradient(x0, y0, x1, y1); gr.addColorStop(0, c0); gr.addColorStop(1, c1); return gr; };
+    g.fillStyle = band(0, 0, 0, 11, "rgba(255,248,230,.42)", "rgba(255,248,230,0)"); g.fillRect(0, 0, e, 11);
+    g.fillStyle = band(0, 0, 9, 0, "rgba(255,248,230,.24)", "rgba(255,248,230,0)"); g.fillRect(0, 0, 9, e);
+    g.fillStyle = band(0, e - 13, 0, e, "rgba(20,10,4,0)", "rgba(20,10,4,.5)"); g.fillRect(0, e - 13, e, 13);
+    g.fillStyle = band(e - 11, 0, e, 0, "rgba(20,10,4,0)", "rgba(20,10,4,.38)"); g.fillRect(e - 11, 0, 11, e);
+    const gl = g.createRadialGradient(22, 16, 0, 22, 16, 30); gl.addColorStop(0, "rgba(255,255,255,.26)"); gl.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = gl; g.fillRect(0, 0, 60, 50);
+    g.strokeStyle = "rgba(15,8,3,.55)"; g.lineWidth = 2; g.strokeRect(1, 1, e - 2, e - 2);
   }
 
   // Smooth value noise for grain and frost.
@@ -735,6 +893,40 @@ window.Skins = (() => {
       g.fillStyle = "rgba(255,255,255,.18)"; g.beginPath(); g.moveTo(0, 0); g.lineTo(SIZE * .5, 0); g.lineTo(0, SIZE * .5); g.closePath(); g.fill();
       return c;
     },
+    // Polished marble: pale stone tinted by the block colour with dark turbulent veins.
+    marble(b) {
+      const [c, g] = canvas(), id = g.createImageData(SIZE, SIZE), d = id.data, ox = R(0, 100), oy = R(0, 100);
+      const base = mix(b, [238, 234, 226], .58), vein = b.map((v) => v * .45);
+      for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
+        const t = fbm2(x * .018 + ox, y * .018 + oy, 5), v = Math.abs(Math.sin((x * .035 + y * .022) + t * 9));
+        const dark = Math.pow(1 - v, 14) * .85 + Math.pow(1 - v, 40) * .15, cloud = (fbm2(x * .04 + oy, y * .04 + ox, 3) - .5) * .12;
+        const i = (y * SIZE + x) * 4;
+        for (let k = 0; k < 3; k++) d[i + k] = clamp((base[k] + (vein[k] - base[k]) * dark) * (1 + cloud));
+        d[i + 3] = 255;
+      }
+      g.putImageData(id, 0, 0);
+      const sh = g.createLinearGradient(0, 0, SIZE, SIZE); sh.addColorStop(0, "rgba(255,255,255,.22)"); sh.addColorStop(.45, "rgba(255,255,255,0)");
+      g.fillStyle = sh; g.fillRect(0, 0, SIZE, SIZE);
+      return c;
+    },
+    // Brushed metal plate with a specular band and four rivets.
+    metal(b) {
+      const [c, g] = canvas(), id = g.createImageData(SIZE, SIZE), d = id.data, ox = R(0, 100);
+      const base = mix(b, [150, 156, 166], .55);
+      for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
+        const n = vnoise(x * .02 + ox, y * 1.6) * .55 + vnoise(x * .06, y * 3.1 + ox) * .3;
+        const spec = Math.exp(-Math.pow((x + y * .6 - 70) / 26, 2)) * .35;
+        const f = .74 + n * .34 + spec, i = (y * SIZE + x) * 4;
+        for (let k = 0; k < 3; k++) d[i + k] = clamp(base[k] * f + spec * 60);
+        d[i + 3] = 255;
+      }
+      g.putImageData(id, 0, 0);
+      for (const [x, y] of [[14, 14], [SIZE - 14, 14], [14, SIZE - 14], [SIZE - 14, SIZE - 14]]) {
+        const rg = g.createRadialGradient(x - 2, y - 2, 0, x, y, 6); rg.addColorStop(0, "#f4f4f4"); rg.addColorStop(.6, col(base.map((v) => v * .8))); rg.addColorStop(1, "rgba(0,0,0,.6)");
+        g.fillStyle = rg; g.beginPath(); g.arc(x, y, 5.5, 0, Math.PI * 2); g.fill();
+      }
+      return c;
+    },
     water(b) {
       const [c, g] = canvas(), w = mix(b, [40, 140, 220], .45);
       const lg = g.createLinearGradient(0, 0, 0, SIZE);
@@ -757,10 +949,83 @@ window.Skins = (() => {
     },
   };
 
+  // ---- Animação: stylised cartoon materials. Same palette and light direction as Realismo, but
+  // flat cel shading, a thick warm-brown outline, a glossy highlight and one bold motif per material.
+  const shade = (c, f) => (f >= 0 ? mix(c, [255, 250, 236], f) : mix(c, [40, 20, 8], -f));
+  const TOON_BASE = {
+    wood: (b) => mix(b, [214, 150, 80], .12), cement: (b) => mix(b, [190, 190, 186], .5), brick: (b) => mix(b, [196, 84, 54], .4),
+    ice: (b) => mix(b, [150, 215, 250], .8), water: (b) => mix(b, [50, 140, 225], .72), marble: (b) => mix(b, [240, 236, 228], .6),
+    metal: (b) => mix(b, [160, 168, 180], .55),
+  };
+  const MOTIF = {
+    wood(g, c) {
+      g.strokeStyle = col(shade(c, -.35)); g.lineWidth = 5; g.lineCap = "round";
+      for (const y of [40, 66, 92]) { g.beginPath(); g.moveTo(24, y); g.bezierCurveTo(50, y - 10, 76, y + 10, 104, y - 2); g.stroke(); }
+      g.fillStyle = col(shade(c, -.4)); g.beginPath(); g.ellipse(80, 52, 9, 6, 0, 0, Math.PI * 2); g.fill();
+    },
+    cement(g, c) {
+      for (const [x, y, r, f] of [[38, 40, 5, -.3], [84, 34, 4, .3], [62, 70, 6, -.25], [92, 86, 4, -.3], [36, 88, 4, .25], [70, 100, 3, -.3]]) {
+        g.fillStyle = col(shade(c, f)); g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+      }
+    },
+    brick(g, c) {
+      g.fillStyle = col([246, 228, 200]);
+      g.fillRect(16, 60, 96, 7);
+      g.fillRect(62, 16, 7, 44); g.fillRect(38, 67, 7, 45); g.fillRect(86, 67, 7, 45);
+    },
+    ice(g, c) {
+      g.fillStyle = "rgba(255,255,255,.75)";
+      g.beginPath(); g.moveTo(30, 96); g.lineTo(52, 96); g.lineTo(96, 32); g.lineTo(74, 32); g.closePath(); g.fill();
+      g.beginPath(); g.moveTo(62, 100); g.lineTo(72, 100); g.lineTo(104, 54); g.lineTo(94, 54); g.closePath(); g.fill();
+      star(g, 40, 40, 9, "#ffffff");
+    },
+    water(g, c) {
+      g.strokeStyle = "rgba(255,255,255,.85)"; g.lineWidth = 6; g.lineCap = "round";
+      g.beginPath(); g.moveTo(24, 70); g.bezierCurveTo(40, 56, 56, 84, 72, 70); g.bezierCurveTo(86, 58, 96, 76, 104, 68); g.stroke();
+      g.lineWidth = 3;
+      for (const [x, y, r] of [[44, 40, 8], [80, 94, 6], [92, 44, 4]]) { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.stroke(); }
+    },
+    marble(g, c) {
+      g.strokeStyle = col(shade(c, -.45)); g.lineWidth = 4; g.lineCap = "round";
+      g.beginPath(); g.moveTo(22, 46); g.bezierCurveTo(48, 60, 60, 30, 104, 62); g.stroke();
+      g.lineWidth = 2.5; g.beginPath(); g.moveTo(40, 104); g.bezierCurveTo(56, 80, 80, 96, 96, 76); g.stroke();
+    },
+    metal(g, c) {
+      g.fillStyle = col(shade(c, .3)); for (const y of [44, 64, 84]) g.fillRect(24, y, 80, 5);
+      for (const [x, y] of [[26, 26], [102, 26], [26, 102], [102, 102]]) { g.fillStyle = col(shade(c, -.35)); g.beginPath(); g.arc(x, y, 6, 0, Math.PI * 2); g.fill(); g.fillStyle = col(shade(c, .5)); g.beginPath(); g.arc(x - 1.5, y - 1.5, 2.5, 0, Math.PI * 2); g.fill(); }
+    },
+  };
+  function star(g, x, y, r, fill) {
+    g.fillStyle = fill; g.beginPath();
+    for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, rr = i % 2 ? r * .35 : r; g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); }
+    g.closePath(); g.fill();
+  }
+  function paintToon(kind, b) {
+    const [c, g] = canvas(), e = SIZE, base = (TOON_BASE[kind] || TOON_BASE.wood)(b), w = 14;
+    g.fillStyle = col(base); g.fillRect(0, 0, e, e);
+    (MOTIF[kind] || MOTIF.wood)(g, base);
+    // cel-shaded bevel faces, light from the top left
+    g.fillStyle = col(shade(base, .42)); g.beginPath(); g.moveTo(0, 0); g.lineTo(e, 0); g.lineTo(e - w, w); g.lineTo(w, w); g.lineTo(w, e - w); g.lineTo(0, e); g.closePath(); g.fill();
+    g.fillStyle = col(shade(base, -.38)); g.beginPath(); g.moveTo(e, 0); g.lineTo(e, e); g.lineTo(0, e); g.lineTo(w, e - w); g.lineTo(e - w, e - w); g.lineTo(e - w, w); g.closePath(); g.fill();
+    // gloss
+    g.fillStyle = "rgba(255,255,255,.55)"; g.beginPath(); g.ellipse(36, 28, 16, 6, -.5, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgba(255,255,255,.75)"; g.beginPath(); g.arc(22, 40, 3.5, 0, Math.PI * 2); g.fill();
+    // thick warm outline
+    g.strokeStyle = "#3a2414"; g.lineWidth = 7; g.strokeRect(3.5, 3.5, e - 7, e - 7);
+    return c;
+  }
+
   const cache = new Map();
-  function tex(kind, hex) {
-    const key = kind + hex;
-    if (!cache.has(key)) { seed = 1 + [...key].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) % 2147483646, 7); cache.set(key, PAINT[kind](rgb(hex)).toDataURL("image/jpeg", .86)); }
+  function tex(kind, hex, style) {
+    style = style || vstyle;
+    const key = style + kind + hex;
+    if (!cache.has(key)) {
+      seed = 1 + [...(kind + hex)].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) % 2147483646, 7);
+      let cv;
+      if (style === "anim") cv = paintToon(kind, rgb(hex));
+      else { cv = PAINT[kind](rgb(hex)); finishReal(cv.getContext("2d")); }
+      cache.set(key, cv.toDataURL("image/jpeg", .88));
+    }
     return cache.get(key);
   }
   const style = document.createElement("style");
@@ -768,7 +1033,7 @@ window.Skins = (() => {
   let current = "", now = { kind: "wood", colors: {} };
   function apply(kind, pal) {
     kind = PAINT[kind] ? kind : "wood"; pal = ((pal % PALETTES.length) + PALETTES.length) % PALETTES.length;
-    const key = kind + pal;
+    const key = vstyle + kind + pal;
     if (key === current) return;
     current = key;
     const colors = { ...EXTRA }; PALETTES[pal].forEach((h, i) => { colors[i + 1] = h; });
@@ -780,8 +1045,10 @@ window.Skins = (() => {
   }
   return {
     KINDS, PALETTES, apply,
-    preview: (kind, i) => tex(kind, PALETTES[0][i == null ? 2 : i]),
-    texture: (kind, hex) => tex(kind, hex),
+    setStyle(st) { vstyle = st === "anim" ? "anim" : "real"; const k = now.kind, pal = current.match(/(\d+)$/); current = ""; if (pal) apply(k, +pal[1]); },
+    style: () => vstyle,
+    preview: (kind, i, st) => tex(kind, PALETTES[0][i == null ? 2 : i], st),
+    texture: (kind, hex, st) => tex(kind, hex, st),
     material: () => now.kind,
     colorOf: (i) => (i === 7 ? "#2e2219" : now.colors[i] || "#c27f3c"),
     texOf: (i) => tex(now.kind, i === 7 ? "#2e2219" : now.colors[i] || "#c27f3c"),
@@ -837,7 +1104,7 @@ window.Scene = (() => {
 
   // ---- particle kinds used by explosions ----
   function spawn(p) { if (parts.length < 1400) parts.push(p); }
-  let bursts = [], freezeUntil = 0;
+  let bursts = [], sweeps = [], freezeUntil = 0, vstyle = "real";
   const imgCache = new Map();
   function texImg(url) {
     if (!url) return null;
@@ -864,6 +1131,24 @@ window.Scene = (() => {
         rot: 0, vr: R(-5, 5), flip: R(-.6, .6), vf: R(-6, 6), wob: 0, bounces: 0, ice: pt.ice,
       });
     }
+  }
+  // Animação clear: blocks pop into outlined chunks of their own colour, stars fly out and a
+  // comic impact ring snaps outward. Same timing and power scaling as Realismo.
+  function toonExplode(points, power, cfg, per) {
+    const n = Math.max(2, Math.round(4 * per / 5));
+    for (const pt of points) {
+      const s2 = pt.size || 40;
+      for (let i = 0; i < n; i++) {
+        const a = R(0, TAU), sp = R(140, 340) * (1 + power * .1);
+        spawn({ kind: "tchunk", x: pt.x + R(-s2 / 4, s2 / 4), y: pt.y + R(-s2 / 4, s2 / 4), vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - R(120, 260), g: 900, drag: .985, life: 0, max: R(.8, 1.3), size: s2 * R(.22, .36), color: pt.color || "#c27f3c", rot: R(0, TAU), vr: R(-10, 10), wob: 0 });
+      }
+      if (Math.random() < .5) { const a = R(0, TAU), sp = R(120, 260); spawn({ kind: "tstar", x: pt.x, y: pt.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 80, g: 200, drag: .96, life: 0, max: R(.6, .9), size: R(6, 10), color: pick(["#fff3a0", "#ffffff", "#ffd36b"]), rot: R(0, TAU), vr: R(-6, 6), wob: 0 }); }
+      spawn({ kind: "tpuff", x: pt.x, y: pt.y, vx: 0, vy: 0, g: 0, drag: 1, life: 0, max: .35, size: s2 * .3, rot: 0, vr: 0, wob: 0 });
+    }
+    let cx = 0, cy = 0; for (const pt of points) { cx += pt.x; cy += pt.y; } cx /= points.length; cy /= points.length;
+    rings.push({ x: cx, y: cy, r: 110 + power * 40, w: 10 + power * 2, c: "#ffffff", t: 0, max: .38, outline: true });
+    if (power >= 2) rings.push({ x: cx, y: cy, r: 160 + power * 40, w: 6, c: cfg.ring, t: -.08, max: .45, outline: true });
+    if (power >= 3) flash = { c: "rgba(255,255,255,.3)", t: .25 };
   }
   // Glowing bokeh specks that drift slowly, like dust caught in the light.
   function bokeh(x, y, n, warm) {
@@ -896,6 +1181,8 @@ window.Scene = (() => {
     brick: (c) => ({ kinds: ["brickbit", "brickbit", "rock", "dust"], colors: [shade(c, .8), shade(c, 1), "rgb(176,84,56)", "rgb(206,150,110)"], n: 9, speed: 330, grav: 1000, drag: .972, life: 1.15, size: 9 }),
     ice: (c) => ({ kinds: ["shard", "shard", "shard", "glint", "mist"], colors: ["rgba(190,230,255,.85)", "rgba(230,248,255,.9)", "rgba(140,200,245,.8)", "rgba(255,255,255,.95)"], n: 10, speed: 400, grav: 750, drag: .975, life: 1.2, size: 10 }),
     water: (c) => ({ kinds: ["drop", "drop", "drop", "mist"], colors: ["#ffffff", "#c9f1ff", "#6fd0ff", shade(c, 1.2)], n: 11, speed: 430, grav: 980, drag: .975, life: 1, size: 5, lift: 160 }),
+    marble: (c) => ({ kinds: ["rock", "rock", "dust", "glint"], colors: ["rgb(236,232,224)", "rgb(214,208,200)", shade(c, 1.15), "rgb(250,248,244)"], n: 9, speed: 320, grav: 1000, drag: .972, life: 1.15, size: 9 }),
+    metal: (c) => ({ kinds: ["spark", "spark", "spark", "rock"], colors: ["#fff3c4", "#ffd36b", "#ffffff", shade(c, .9)], n: 10, speed: 520, grav: 700, drag: .97, life: .8, size: 6 }),
   };
   function drawPart(p, k) {
     const a = Math.max(0, 1 - k);
@@ -953,6 +1240,26 @@ window.Scene = (() => {
         const r2 = p.size * .8; f.beginPath(); f.moveTo(p.x - r2, p.y); f.lineTo(p.x + r2, p.y); f.moveTo(p.x, p.y - r2); f.lineTo(p.x, p.y + r2); f.stroke(); break;
       }
       case "mist": { f.globalAlpha = a * .4; circle(f, p.x, p.y, p.size * (1.5 + k * 3), p.color); break; }
+      // ---- Animação particles: flat colour, thick warm outline ----
+      case "tchunk": {
+        const fade = k > .7 ? (1 - k) / .3 : 1, sz = p.size;
+        f.save(); f.translate(p.x, p.y); f.rotate(p.rot); f.globalAlpha = fade;
+        f.fillStyle = p.color; f.strokeStyle = "#3a2414"; f.lineWidth = 2.5;
+        f.beginPath(); f.roundRect ? f.roundRect(-sz / 2, -sz / 2, sz, sz, sz * .25) : f.rect(-sz / 2, -sz / 2, sz, sz); f.fill(); f.stroke();
+        f.fillStyle = "rgba(255,255,255,.55)"; f.fillRect(-sz * .3, -sz * .32, sz * .35, sz * .14);
+        f.restore(); break;
+      }
+      case "tstar": {
+        const sc = k < .2 ? k / .2 : 1, r2 = p.size * sc, fade = k > .65 ? (1 - k) / .35 : 1;
+        f.save(); f.translate(p.x, p.y); f.rotate(p.rot); f.globalAlpha = fade;
+        f.beginPath(); for (let i = 0; i < 10; i++) { const aa = i * Math.PI / 5 - Math.PI / 2, rr = i % 2 ? r2 * .45 : r2; f.lineTo(Math.cos(aa) * rr, Math.sin(aa) * rr); } f.closePath();
+        f.fillStyle = p.color; f.fill(); f.strokeStyle = "#3a2414"; f.lineWidth = 2; f.stroke(); f.restore(); break;
+      }
+      case "tpuff": {
+        const r2 = p.size * (1 + k * 1.6), fade = 1 - k;
+        f.globalAlpha = fade; f.fillStyle = "#fff8ec"; f.strokeStyle = "rgba(58,36,20,.7)"; f.lineWidth = 2;
+        f.beginPath(); f.arc(p.x, p.y, r2, 0, TAU); f.fill(); f.stroke(); break;
+      }
       case "frag": {
         // A textured shard tumbling in 3D: squashing one axis fakes the flip, the edge glints as it turns to the light.
         const fade = k > .75 ? (1 - k) / .25 : 1, fl = Math.cos(p.flip);
@@ -1271,8 +1578,21 @@ window.Scene = (() => {
       const r = rings[i]; r.t += dt; const k = r.t / r.max;
       if (k >= 1) { rings.splice(i, 1); continue; }
       if (r.t < 0) continue;
-      f.globalAlpha = (1 - k) * .9; f.strokeStyle = r.c; f.lineWidth = r.w * (1 - k) + 1;
+      f.globalAlpha = (1 - k) * .9;
+      if (r.outline) { f.strokeStyle = "#3a2414"; f.lineWidth = r.w * (1 - k) + 6; f.beginPath(); f.arc(r.x, r.y, r.r * (.15 + k), 0, TAU); f.stroke(); }
+      f.strokeStyle = r.c; f.lineWidth = r.w * (1 - k) + 1;
       f.beginPath(); f.arc(r.x, r.y, r.r * (.15 + k), 0, TAU); f.stroke(); f.globalAlpha = 1;
+    }
+    // Line sweeps: a bright band racing along each cleared row or column.
+    for (let i = sweeps.length - 1; i >= 0; i--) {
+      const sw = sweeps[i]; sw.t += dt; const k = sw.t / sw.max;
+      if (k >= 1) { sweeps.splice(i, 1); continue; }
+      if (k < 0) continue;
+      const horiz = sw.w >= sw.h, len = horiz ? sw.w : sw.h, pos = -len * .3 + k * len * 1.6;
+      const gx0 = horiz ? sw.x + pos - len * .25 : sw.x, gy0 = horiz ? sw.y : sw.y + pos - len * .25;
+      const gr = horiz ? f.createLinearGradient(gx0, 0, gx0 + len * .5, 0) : f.createLinearGradient(0, gy0, 0, gy0 + len * .5);
+      gr.addColorStop(0, `rgba(${sw.c},0)`); gr.addColorStop(.5, `rgba(${sw.c},${.85 * (1 - k * .5)})`); gr.addColorStop(1, `rgba(${sw.c},0)`);
+      f.globalCompositeOperation = "lighter"; f.fillStyle = gr; f.fillRect(sw.x, sw.y, sw.w, sw.h); f.globalCompositeOperation = "source-over";
     }
     // Light bursts: a hot core and soft god-rays fanning out, fading fast.
     for (let i = bursts.length - 1; i >= 0; i--) {
@@ -1311,19 +1631,46 @@ window.Scene = (() => {
   return {
     names: ORDER.map((id) => THEMES[id].name),
     hitstop(ms) { freezeUntil = performance.now() + ms; },
+    setStyle(st) { vstyle = st === "anim" ? "anim" : "real"; },
+    // rect: {x, y, w, h} of one cleared row/column in screen space.
+    sweep(rect, delay) {
+      if (!theme) return;
+      sweeps.push({ ...rect, t: -(delay || 0), max: vstyle === "anim" ? .32 : .42, c: vstyle === "anim" ? "255,255,255" : "255,226,170" });
+    },
+    // Combo hierarchy: tier 1 = text only (handled by the page); tier 2 adds a ring; tier 3 adds a celebration.
+    combo(x, y, tier) {
+      if (!theme || tier < 2) return;
+      if (vstyle === "anim") {
+        rings.push({ x, y, r: 140 + tier * 40, w: 9, c: "#ffd36b", t: 0, max: .45, outline: true });
+        for (let i = 0; i < 6 + tier * 4; i++) { const a = R(0, TAU), sp = R(160, 420); spawn({ kind: "tstar", x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 300, drag: .96, life: 0, max: R(.7, 1.1), size: R(7, 12), color: pick(["#ffd36b", "#fff3a0", "#ffffff"]), rot: R(0, TAU), vr: R(-6, 6), wob: 0 }); }
+      } else {
+        rings.push({ x, y, r: 150 + tier * 40, w: 6, c: "#ffd36b", t: 0, max: .55 });
+        bokeh(x, y, 10 + tier * 8, true);
+      }
+      if (tier >= 3) { this.confetti(x, y, 40); flash = { c: vstyle === "anim" ? "rgba(255,255,255,.35)" : "rgba(255,214,140,.22)", t: .35 }; }
+    },
+    // Victory celebration (story win, new record).
+    celebrate(x, y) {
+      if (!theme) return;
+      this.confetti(x, y, 70);
+      const nr = 18;
+      bursts.push({ x, y, t: 0, max: .9, r: 260, spin: .5, c: "255,215,150", rays: Array.from({ length: nr }, (_, i) => ({ a: i / nr * TAU, w: .05, l: R(.8, 1.3) })) });
+    },
     // Dust kicked up where a piece lands (anchored just below the seam, fanning upward).
     dust(points) {
       if (!theme) return;
       for (const pt of points) for (let i = 0; i < 3; i++) {
         const a = -Math.PI / 2 + R(-1.1, 1.1), sp = R(30, 90);
+        if (vstyle === "anim") { spawn({ kind: "tpuff", x: pt.x + R(-pt.size / 2, pt.size / 2), y: pt.y + 1, vx: Math.cos(a) * sp * 1.4, vy: Math.sin(a) * sp, g: 0, drag: .9, life: 0, max: R(.3, .45), size: R(2.5, 4.5), rot: 0, vr: 0, wob: 0 }); continue; }
         spawn({ kind: "dust", x: pt.x + R(-pt.size / 2, pt.size / 2), y: pt.y + 2, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 40, drag: .93, life: 0, max: R(.35, .6), size: R(3, 6), color: "rgba(235,210,170,.8)", rot: 0, vr: 0, wob: 0 });
       }
     },
     confetti(x, y, n) {
       if (!theme) return;
+      if (vstyle === "real") { bokeh(x, y, Math.round(n * .6), true); n = Math.round(n * .5); }
       for (let i = 0; i < n; i++) {
         const a = R(-Math.PI * .9, -Math.PI * .1), sp = R(250, 520);
-        spawn({ kind: "chunk", x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 520, drag: .985, life: 0, max: R(1.4, 2.2), size: R(5, 8),
+        spawn({ kind: vstyle === "anim" ? "tchunk" : "chunk", x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 520, drag: .985, life: 0, max: R(1.4, 2.2), size: R(5, 8),
           color: pick(["#ffd36b", "#eaa53c", "#6cc070", "#5fb3c9", "#e0608a", "#f4e7d4"]), rot: R(0, TAU), vr: R(-12, 12), wob: 0 });
       }
     },
@@ -1334,7 +1681,7 @@ window.Scene = (() => {
       const t = THEMES[id] || null;
       if (t) t.id = id;
       if (t === theme) return;
-      theme = t; parts = []; rings = []; bursts = []; flash = null; bolt = 0;
+      theme = t; parts = []; rings = []; bursts = []; sweeps = []; flash = null; bolt = 0;
       document.body.classList.toggle("themed", !!t);
       document.documentElement.style.setProperty("--scene-glow", t ? t.glow : "transparent");
       if (!t) { b.clearRect(0, 0, W, H); f.clearRect(0, 0, W, H); cancelAnimationFrame(raf); raf = 0; return; }
@@ -1348,6 +1695,7 @@ window.Scene = (() => {
     explode(points, power, material) {
       if (!theme || !points.length) return;
       const cfg = theme.boom, per = Math.max(1, Math.round(5 / Math.sqrt(points.length / 8)));
+      if (vstyle === "anim") return toonExplode(points, power, cfg, per);
       const mat = MATERIAL[material] || MATERIAL.wood, cold = material === "ice" || material === "water", many = points.length > 14;
       for (const pt of points) {
         const m = mat(pt.color || "#c27f3c");
@@ -1838,24 +2186,25 @@ window.Scene = (() => {
     return false;
   }
   function findClears(board, n = S.n, boxes = S.rules === "sudoku") {
-    const idx = new Set();
+    const idx = new Set(), groups = [];
     let lines = 0;
     for (let r = 0; r < n; r++) {
       let full = true; for (let c = 0; c < n; c++) if (!board[r * n + c]) { full = false; break; }
-      if (full) { lines++; for (let c = 0; c < n; c++) idx.add(r * n + c); }
+      if (full) { lines++; groups.push([r * n, r * n + n - 1]); for (let c = 0; c < n; c++) idx.add(r * n + c); }
     }
     for (let c = 0; c < n; c++) {
       let full = true; for (let r = 0; r < n; r++) if (!board[r * n + c]) { full = false; break; }
-      if (full) { lines++; for (let r = 0; r < n; r++) idx.add(r * n + c); }
+      if (full) { lines++; groups.push([c, (n - 1) * n + c]); for (let r = 0; r < n; r++) idx.add(r * n + c); }
     }
     if (boxes) {
       for (let br = 0; br < 3; br++) for (let bc = 0; bc < 3; bc++) {
         let full = true;
         for (let r = 0; r < 3 && full; r++) for (let c = 0; c < 3; c++) if (!board[(br * 3 + r) * n + bc * 3 + c]) { full = false; break; }
-        if (full) { lines++; for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) idx.add((br * 3 + r) * n + bc * 3 + c); }
+        if (full) { lines++; groups.push([br * 3 * n + bc * 3, (br * 3 + 2) * n + bc * 3 + 2]); for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) idx.add((br * 3 + r) * n + bc * 3 + c); }
       }
     }
-    return { idx, lines };
+    // groups: [first cell, last cell] of every cleared row, column or box (used for the light sweep).
+    return { idx, lines, groups };
   }
   // Can this piece complete a line somewhere right now?
   function helps(piece) {
@@ -1946,6 +2295,40 @@ window.Scene = (() => {
   const LEVELS_PER_WORLD = 10;
   const worldOf = (L) => Math.min(Math.floor((L - 1) / LEVELS_PER_WORLD), 9);
   function randomTheme(not) { let t; do t = Scene.ids[rnd(Scene.ids.length)]; while (t === not); return t; }
+  // ---------- story rewards ----------
+  // Three stars per phase: ★ finish it, ★ beat its special challenge, ★ finish without using the power.
+  // Stars only ever add up (replaying never removes or duplicates them). Phases finished before v11
+  // count as one star. Every world grants a medal once all ten phases are done.
+  function storyStars() {
+    const st = store.get("story.stars", {}), best = storyBest();
+    for (const L in best) if (!st[L]) st[L] = [1, 0, 0];
+    return st;
+  }
+  const starCount = (arr) => (arr ? arr.reduce((a, v) => a + (v ? 1 : 0), 0) : 0);
+  function totalStars() { const st = storyStars(); let n = 0; for (const L in st) n += starCount(st[L]); return n; }
+  function worldMedal(w, st) {
+    const best = storyBest(); let stars = 0;
+    for (let L = w * 10 + 1; L <= w * 10 + 10; L++) { if (best[L] == null) return null; stars += starCount(st[L]); }
+    return stars >= 27 ? "gold" : stars >= 18 ? "silver" : "bronze";
+  }
+  const MEDAL_NAME = { bronze: "bronze", silver: "prata", gold: "ouro" }, MEDAL_RANK = { bronze: 1, silver: 2, gold: 3 };
+  // One special challenge per phase, built only from things the game already measures.
+  function challengeFor(st) {
+    const L = st.level, d = storyDiff(L), type = (L - 1) % 4;
+    if (type === 0) { const n = 2 + Math.floor(d * 3); return { text: `Faça um combo ×${n}`, need: n, val: st.maxCombo || 0, kind: "min" }; }
+    if (type === 1) { const n = d > .6 ? 3 : 2; return { text: `Limpe ${n} linhas de uma vez`, need: n, val: st.bestMulti || 0, kind: "min" }; }
+    if (type === 2) { const n = st.goal === "clear" ? (st.marksTotal || 0) * 3 + 8 : Math.ceil(st.target / 9) + 6; return { text: `Vença em até ${n} jogadas`, need: n, val: st.moves || 0, kind: "max" }; }
+    const n = 3 + Math.floor(d * 6); return { text: `Limpe ${n} linhas no total`, need: n, val: st.lines || 0, kind: "min" };
+  }
+  const challengeMet = (c) => (c.kind === "min" ? c.val >= c.need : c.val <= c.need);
+  function renderChallenge() {
+    if (!S || S.mode !== "story") return;
+    const c = challengeFor(S), el = $("chal");
+    $("chal-text").textContent = c.text;
+    const failed = c.kind === "max" && c.val > c.need, done = c.kind === "min" && c.val >= c.need;
+    $("chal-p").textContent = done ? "✓ Cumprido" : failed ? "✗ Passou do limite" : c.kind === "max" ? `${c.val} de ${c.need} jogadas` : `${Math.min(c.val, c.need)} / ${c.need}`;
+    el.classList.toggle("done", done); el.classList.toggle("failed", failed);
+  }
   const storyUnlocked = () => Math.min(store.get("story.unlocked", 1), STORY_LEVELS);
   const storyBest = () => store.get("story.best", {});
 
@@ -2018,9 +2401,25 @@ window.Scene = (() => {
     const cell = Math.floor((avail - pad - gap * (S.n - 1)) / S.n);
     document.documentElement.style.setProperty("--cell", Math.max(20, Math.min(cell, 54)) + "px");
     renderTray();
+    requestAnimationFrame(placeSudokuLines);
   }
 
   // ---------- rendering ----------
+  // Sudoku: draw the 3×3 dividers on top of the board, between the real cells.
+  function placeSudokuLines() {
+    const wrap = $("board-wrap"); let ov = wrap.querySelector(".sudoku-lines");
+    if (!S || S.rules !== "sudoku" || !cellEls.length) { if (ov) ov.remove(); return; }
+    if (!ov) { ov = document.createElement("div"); ov.className = "sudoku-lines"; wrap.appendChild(ov); }
+    const wr = wrap.getBoundingClientRect(), first = cellEls[0].getBoundingClientRect(), last = cellEls[cellEls.length - 1].getBoundingClientRect();
+    let html = "";
+    for (const k of [3, 6]) {
+      const x = (cellEls[k - 1].getBoundingClientRect().right + cellEls[k].getBoundingClientRect().left) / 2 - wr.left;
+      const y = (cellEls[(k - 1) * 9].getBoundingClientRect().bottom + cellEls[k * 9].getBoundingClientRect().top) / 2 - wr.top;
+      html += `<i style="left:${x - 1.5}px;top:${first.top - wr.top - 2}px;width:3px;height:${last.bottom - first.top + 4}px"></i>`;
+      html += `<i style="top:${y - 1.5}px;left:${first.left - wr.left - 2}px;height:3px;width:${last.right - first.left + 4}px"></i>`;
+    }
+    ov.innerHTML = html;
+  }
   function buildBoard() {
     const b = $("board");
     b.innerHTML = "";
@@ -2044,8 +2443,9 @@ window.Scene = (() => {
       const v = S.board[i];
       let cls = baseClass(i);
       if (v) cls += " b c" + v;
-      else if (preview && preview.cells.has(i)) cls += " preview c" + preview.color;
-      if (preview && preview.will.has(i)) cls += " will";
+      else if (preview && preview.ok && preview.cells.has(i)) cls += " preview c" + preview.color;
+      if (preview && preview.ok && preview.will.has(i)) cls += " will";
+      if (preview && !preview.ok) { if (preview.bad.has(i)) cls += " bad"; else if (preview.conflict.has(i)) cls += " conflict"; }
       cellEls[i].className = cls;
       cellEls[i].style.removeProperty("--d");
     }
@@ -2088,7 +2488,7 @@ window.Scene = (() => {
     });
   }
   function renderScore() {
-    renderPower();
+    renderPower(); renderChallenge();
     if (S.mode === "story") {
       const clear = S.goal === "clear";
       $("score").textContent = fmt(S.score);
@@ -2122,6 +2522,21 @@ window.Scene = (() => {
 
   // ---------- moves ----------
   const PRAISE = ["", "", "Ótimo!", "Incrível!", "Espetacular!", "Lendário!"];
+  // Combo hierarchy shared by every mode: ×2 text, ×3–4 text + ring, ×5+ text + ring + confetti + flash + hitstop.
+  function comboFx(combo, boardEl) {
+    if (combo < 2) return;
+    const tier = combo >= 5 ? 3 : combo >= 3 ? 2 : 1, br = boardEl.getBoundingClientRect();
+    fx("combo t" + tier, (tier === 3 ? "Combo épico ×" : "Combo ×") + combo, 30);
+    Scene.combo(br.left + br.width / 2, br.top + br.height * .42, tier);
+    if (tier === 3) Scene.hitstop(80);
+  }
+  // A light band runs along each cleared row/column/box, staggered slightly.
+  function sweepGroups(groups, cellOf) {
+    groups.forEach(([a, z], k) => {
+      const ra = cellOf(a).getBoundingClientRect(), rz = cellOf(z).getBoundingClientRect();
+      Scene.sweep({ x: Math.min(ra.left, rz.left), y: Math.min(ra.top, rz.top), w: Math.abs(rz.right - ra.left), h: Math.abs(rz.bottom - ra.top) }, k * .05);
+    });
+  }
   function place(ti, r0, c0) {
     const p = S.tray[ti];
     if (!p || !canPlace(S.board, S.n, p.cells, r0, c0)) return false;
@@ -2130,9 +2545,12 @@ window.Scene = (() => {
     selected = -1;
     const levelBefore = levelOf(S.score), bestBefore = bestOf(S.mode);
     let gained = p.cells.length;
-    const { idx, lines } = findClears(S.board);
+    const { idx, lines, groups } = findClears(S.board);
     const midTop = $("board").clientHeight / 2;
+    S.moves = (S.moves || 0) + 1;
     if (lines) {
+      S.bestMulti = Math.max(S.bestMulti || 0, lines);
+      sweepGroups(groups, (i) => cellEls[i]);
       S.combo += 1;
       S.lines = (S.lines || 0) + lines;
       S.maxCombo = Math.max(S.maxCombo || 0, S.combo);
@@ -2151,10 +2569,9 @@ window.Scene = (() => {
       buzz(power >= 4 ? 90 : power >= 2 ? 55 : 30);
       shake(power >= 3);
       if (power >= 3) Scene.hitstop(70);
-      if (S.combo >= 4) { const br = $("board").getBoundingClientRect(); Scene.confetti(br.left + br.width / 2, br.top + br.height * .4, 30 + S.combo * 6); }
       Scene.explode([...was].map(([i, v]) => { const r = cellEls[i].getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, size: r.width, color: Skins.colorOf(v), tex: Skins.texOf(v) }; }), power, Skins.material());
       if (lines >= 2) fx("praise", PRAISE[Math.min(lines, 5)], midTop - 70);
-      if (S.combo > 1) fx("combo", "Combo ×" + S.combo, 30);
+      comboFx(S.combo, $("board"));
     } else {
       S.combo = 0;
       renderBoard();
@@ -2220,11 +2637,11 @@ window.Scene = (() => {
     $("pw-count").textContent = aiming ? S.powerTaps : S.power;
     if (aiming) {
       $("pw-title").textContent = `Toque em ${S.powerTaps} ${S.powerTaps === 1 ? "bloco" : "blocos"}`;
-      $("pw-sub").textContent = S.powerTaps === POWER_TAPS ? "Toque aqui para cancelar" : "Toque aqui para terminar";
+      $("pw-sub").textContent = S.powerTaps === POWER_TAPS ? "Toque p/ cancelar" : "Toque p/ terminar";
     } else {
       $("pw-title").textContent = "Destruir 4 blocos";
       const next = POWER_POINTS - (S.score % POWER_POINTS);
-      $("pw-sub").textContent = S.power > 0 ? "Pronto! Toque para usar" : `Faltam ${fmt(next)} pontos para liberar`;
+      $("pw-sub").textContent = S.power > 0 ? "Pronto para usar" : `Faltam ${fmt(next)} pts`;
     }
   }
   function checkPowerEarned() {
@@ -2243,7 +2660,7 @@ window.Scene = (() => {
       S.powerTaps = 0;
       afterPower();
     } else if (S.power > 0) {
-      S.power--; S.powerTaps = POWER_TAPS; selected = -1;
+      S.power--; S.powerTaps = POWER_TAPS; selected = -1; S.powerUsed = true;
       renderTray(); renderPower(); save();
     }
   });
@@ -2284,7 +2701,8 @@ window.Scene = (() => {
     $("btn-next").hidden = !(story && kind === "win" && S.level < STORY_LEVELS);
     $("btn-levels").hidden = !story;
     $("btn-again").textContent = story && kind === "lose" ? "Tentar de novo" : "Jogar de novo";
-    $("btn-again").hidden = story && kind === "win" && S.level < STORY_LEVELS;
+    if (story && kind === "win") $("btn-again").textContent = "Repetir fase";
+    $("win-story").hidden = true;
     $("over").hidden = false;
     ($("btn-next").hidden ? $("btn-again") : $("btn-next")).focus();
   }
@@ -2297,10 +2715,39 @@ window.Scene = (() => {
     store.set("story.best", best);
     if (S.level + 1 > store.get("story.unlocked", 1)) store.set("story.unlocked", Math.min(S.level + 1, STORY_LEVELS));
     store.set("maxcombo.story", Math.max(store.get("maxcombo.story", 0), S.maxCombo || 0));
+    // ---- stars, challenge, rewards (merged with what was already earned; never duplicated) ----
+    const ch = challengeFor(S), got = [1, challengeMet(ch) ? 1 : 0, S.powerUsed ? 0 : 1];
+    const st = storyStars(), before = st[S.level] || [0, 0, 0], starsBefore = totalStars();
+    st[S.level] = before.map((v, i) => (v || got[i] ? 1 : 0));
+    store.set("story.stars", st);
+    const starsAfter = totalStars(), newStars = starsAfter - starsBefore;
+    const rewards = [];
+    if (newStars > 0) rewards.push(`+${newStars} ${newStars === 1 ? "estrela" : "estrelas"} · total ${starsAfter}`);
+    const w = worldOf(S.level), medals = store.get("story.medals", {}), medal = worldMedal(w, st);
+    if (medal && (MEDAL_RANK[medal] || 0) > (MEDAL_RANK[medals[w]] || 0)) { medals[w] = medal; store.set("story.medals", medals); rewards.push(`Medalha de ${MEDAL_NAME[medal]} · Mundo ${w + 1}`); }
+    for (const [, name, need] of Skins.KINDS) if (need && starsBefore < need && starsAfter >= need) rewards.push(`Nova textura: ${name}`);
+
     const why = S.goal === "clear" ? "Você destruiu todos os blocos marcados." : `Você bateu a meta de ${fmt(S.target)} pontos.`;
     overlay("win", `Fase ${S.level} concluída!`, why);
     $("over-badge").hidden = true;
     $("over-rank").textContent = S.level < STORY_LEVELS ? `Fase ${S.level + 1} desbloqueada` : "Você completou as 100 fases da História!";
+    const merged = st[S.level];
+    [...$("win-stars").children].forEach((el, i) => {
+      el.className = merged[i] ? "on" : ""; el.style.setProperty("--d", 250 + i * 260 + "ms");
+      if (merged[i]) setTimeout(() => sfx.ui(), 250 + i * 260);
+    });
+    $("win-stars").setAttribute("aria-label", `${starCount(merged)} de 3 estrelas`);
+    const goals = [
+      [true, S.goal === "clear" ? "Destruir os blocos marcados" : `Meta de ${fmt(S.target)} pontos`, `${fmt(S.score)} pontos`],
+      [got[1], `Desafio: ${ch.text}`, ch.kind === "max" ? `${ch.val} jogadas` : `${Math.min(ch.val, ch.need)} / ${ch.need}`],
+      [got[2], "Sem usar o poder", got[2] ? "" : "o poder foi usado"],
+    ];
+    $("win-goals").innerHTML = goals.map(([ok, t, d]) => `<li class="${ok ? "" : "no"}"><span>${t}${d ? `<em>${d}</em>` : ""}</span></li>`).join("");
+    $("win-rewards").innerHTML = rewards.length ? rewards.map((r) => `<span>${r}</span>`).join("") : `<span class="dim">Estrelas desta fase já conquistadas</span>`;
+    $("win-story").hidden = false;
+    $("over-card").classList.add("story-win");
+    const br = $("board").getBoundingClientRect();
+    Scene.celebrate(br.left + br.width / 2, br.top + br.height * .35);
   }
   function gameOver() {
     if (!S || S.over) return;
@@ -2339,13 +2786,23 @@ window.Scene = (() => {
     const a = cellEls[0].getBoundingClientRect(), b = cellEls[1].getBoundingClientRect();
     return { x0: a.left, y0: a.top, s: b.left - a.left };
   }
+  // Valid: the cells the piece will fill plus every cell that will clear. Invalid (while over the
+  // board): the free cells it would cover in red and the blocks in its way outlined in red.
   function previewFor(ti, r0, c0) {
     const p = S.tray[ti];
-    if (!canPlace(S.board, S.n, p.cells, r0, c0)) return null;
+    if (!canPlace(S.board, S.n, p.cells, r0, c0)) {
+      const bad = new Set(), conflict = new Set();
+      for (const [r, c] of p.cells) {
+        const rr = r0 + r, cc = c0 + c;
+        if (rr < 0 || cc < 0 || rr >= S.n || cc >= S.n) continue;
+        (S.board[rr * S.n + cc] ? conflict : bad).add(rr * S.n + cc);
+      }
+      return bad.size + conflict.size ? { ok: false, bad, conflict } : null;
+    }
     const b = S.board.slice();
     const cells = new Set();
     for (const [r, c] of p.cells) { const i = (r0 + r) * S.n + c0 + c; b[i] = p.color; cells.add(i); }
-    return { cells, color: p.color, will: findClears(b).idx };
+    return { ok: true, cells, color: p.color, will: findClears(b).idx };
   }
   function moveDrag(x, y) {
     const lift = drag.touch ? drag.h + drag.cell * 1.1 : drag.h / 2;
@@ -2354,7 +2811,9 @@ window.Scene = (() => {
     const g = step();
     const r0 = Math.round((top - g.y0) / g.s), c0 = Math.round((left - g.x0) / g.s);
     const pv = previewFor(drag.ti, r0, c0);
-    drag.at = pv ? [r0, c0] : null;
+    drag.at = pv && pv.ok ? [r0, c0] : null;
+    drag.el.classList.toggle("valid", !!(pv && pv.ok));
+    drag.el.classList.toggle("invalid", !!(pv && !pv.ok));
     renderBoard(pv);
   }
   $("tray").addEventListener("pointerdown", (e) => {
@@ -2515,16 +2974,16 @@ window.Scene = (() => {
       const power = n + Math.max(0, S.combo - 1);
       T.clearRows = full; T.clearUntil = performance.now() + 300;
       tRender();
+      sweepGroups(full.filter((y) => y >= HID).map((y) => [(y - HID) * TW, (y - HID) * TW + TW - 1]), (i) => T.cells[i]);
       const pts = [];
       for (const y of full) if (y >= HID) for (let x = 0; x < TW; x++) { const r = T.cells[(y - HID) * TW + x].getBoundingClientRect(); pts.push({ x: r.left + r.width / 2, y: r.top + r.height / 2, size: r.width, color: Skins.colorOf(S.board[y * TW + x]), tex: Skins.texOf(S.board[y * TW + x]) }); }
       if (power >= 3) Scene.hitstop(70);
-      if (S.combo >= 4) { const br = $("t-board").getBoundingClientRect(); Scene.confetti(br.left + br.width / 2, br.top + br.height * .4, 30 + S.combo * 6); }
       Scene.explode(pts, power, "wood");
       sfx.clear(n, S.combo);
       buzz(power >= 4 ? 90 : power >= 2 ? 55 : 30);
       shake(power >= 3);
       if (n >= 2) fx("praise", n >= 4 ? "TETRIS!" : PRAISE[n], midTop - 70);
-      if (S.combo > 1) fx("combo", "Combo ×" + S.combo, 30);
+      comboFx(S.combo, $("t-board"));
       fx("gain", "+" + fmt(gained), midTop - 10, 1000);
     } else {
       S.combo = 0;
@@ -2589,6 +3048,7 @@ window.Scene = (() => {
       else if (S.board[i]) cls += " b c" + S.board[i] + (clearing.has(y) ? " clearing" : "");
       else if (ghost.has(i)) cls += " ghost";
       if (el.className !== cls) el.className = cls;
+      if (cls === "cell ghost") el.style.setProperty("--gh", Skins.colorOf(TCOLOR[p.t])); else el.style.removeProperty("--gh");
       if (clearing.has(y)) el.style.setProperty("--d", Math.abs(x - 4.5) * 20 + "ms"); else el.style.removeProperty("--d");
     }
   }
@@ -2596,9 +3056,14 @@ window.Scene = (() => {
     const t = S.next[0], c = TROT[t][0], my = Math.min(...c.map((q) => q[0])), mx = Math.min(...c.map((q) => q[1]));
     pieceGrid({ cells: c.map(([y, x]) => [y - my, x - mx]), color: TCOLOR[t] }, $("t-next"), true);
   }
+  // Counters "bump" when they change, so score, lines and combo read at a glance.
+  function setBump(id, text) { const el = $(id); if (el.textContent === text) return; el.textContent = text; el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
   function tHud() {
-    const best = bestOf("tetris");
-    $("t-score").textContent = fmt(S.score);
+    const best = bestOf("tetris"), lv = levelOf(S.score);
+    setBump("t-score", fmt(S.score)); setBump("t-lines", String(S.lines)); setBump("t-combo", S.combo > 1 ? "×" + S.combo : "—"); setBump("t-lvl", String(lv));
+    $("t-speed").textContent = "×" + (1000 / tInterval(S.score)).toFixed(1).replace(".", ",");
+    $("t-combo-box").classList.toggle("hot", S.combo > 1);
+    $("t-fill").style.filter = `hue-rotate(${(lv - 1) * 16}deg)`;
     $("t-score").classList.toggle("rec", best > 0 && S.score > best);
     $("t-best").textContent = fmt(Math.max(best, S.score));
     $("t-level").textContent = levelOf(S.score);
@@ -2640,6 +3105,7 @@ window.Scene = (() => {
       S.next = [tBag(), tBag(), tBag()];
     }
     show("tetris");
+    setModeAccent("tetris");
     T = { raf: 0, last: performance.now(), acc: 0, lockAt: null, lockMoves: 0, clearRows: [], clearUntil: 0, paused: false, soft: false, cells: [], dirty: true };
     const bd = $("t-board"); bd.innerHTML = "";
     bd.style.gridTemplateColumns = `repeat(${TW}, var(--tcell))`;
@@ -2659,9 +3125,9 @@ window.Scene = (() => {
   // ---- controls: buttons (with hold-to-repeat), swipes on the well, keyboard ----
   function holdBtn(id, fn, repeat) {
     const el = $(id); let t1 = 0, t2 = 0;
-    const stop = () => { clearTimeout(t1); clearInterval(t2); };
+    const stop = () => { clearTimeout(t1); clearInterval(t2); el.classList.remove("held"); };
     el.addEventListener("pointerdown", (e) => {
-      e.preventDefault(); if (!tCanAct()) return; fn();
+      e.preventDefault(); if (!tCanAct()) return; el.classList.add("held"); fn();
       if (repeat) t1 = setTimeout(() => { t2 = setInterval(() => (tCanAct() ? fn() : stop()), repeat); }, 170);
     });
     for (const ev of ["pointerup", "pointerleave", "pointercancel"]) el.addEventListener(ev, stop);
@@ -2670,8 +3136,8 @@ window.Scene = (() => {
   holdBtn("t-right", () => tMove(1, 0), 55);
   holdBtn("t-rot", tRotate, 0);
   holdBtn("t-drop", tHardDrop, 0);
-  $("t-soft").addEventListener("pointerdown", (e) => { e.preventDefault(); if (T) T.soft = true; });
-  for (const ev of ["pointerup", "pointerleave", "pointercancel"]) $("t-soft").addEventListener(ev, () => { if (T) T.soft = false; });
+  $("t-soft").addEventListener("pointerdown", (e) => { e.preventDefault(); if (T) { T.soft = true; $("t-soft").classList.add("held"); } });
+  for (const ev of ["pointerup", "pointerleave", "pointercancel"]) $("t-soft").addEventListener(ev, () => { if (T) T.soft = false; $("t-soft").classList.remove("held"); });
   let sw = null;
   $("t-board").addEventListener("pointerdown", (e) => {
     if (!tCanAct()) return;
@@ -2713,6 +3179,7 @@ window.Scene = (() => {
   // ---------- screens ----------
   function show(id) {
     if (id !== "tetris") tStop();
+    if (id !== "game" && id !== "tetris") setModeAccent(null);
     for (const s of ["menu", "records", "levels", "game", "tetris"]) $(s).hidden = s !== id;
     const sc = $(id); sc.classList.remove("enter"); void sc.offsetWidth; sc.classList.add("enter");
     $("board").classList.remove("dead"); $("t-board").classList.remove("dead");
@@ -2742,21 +3209,23 @@ window.Scene = (() => {
     S = null;
     show("levels");
     music.play(menuTrack());
-    const un = storyUnlocked(), best = storyBest(), grid = $("lv-grid");
+    const un = storyUnlocked(), best = storyBest(), grid = $("lv-grid"), st = storyStars(), medals = store.get("story.medals", {});
     $("lv-done").textContent = Object.keys(best).length;
     grid.innerHTML = "";
     let next = null;
     for (let L = 1; L <= STORY_LEVELS; L++) {
       if ((L - 1) % LEVELS_PER_WORLD === 0) {
         const w = document.createElement("div"), wi = worldOf(L);
-        w.className = "world"; w.innerHTML = `Mundo ${wi + 1} · <span>${Scene.names[wi]}</span>`;
+        let ws = 0; for (let k = wi * 10 + 1; k <= wi * 10 + 10; k++) ws += starCount(st[k]);
+        w.className = "world"; w.innerHTML = `Mundo ${wi + 1} · <span>${Scene.names[wi]}</span><span class="wstars">★ ${ws}/30${medals[wi] ? `<i class="medal ${medals[wi]}" title="Medalha de ${MEDAL_NAME[medals[wi]]}"></i>` : ""}</span>`;
         grid.appendChild(w);
       }
       const b = document.createElement("button"), clear = storyGoal(L) === "clear", done = best[L] != null;
       b.dataset.l = L;
       b.className = "lv" + (done ? " done" : "") + (L === un && !done ? " next" : "");
       b.disabled = L > un;
-      b.innerHTML = `${L}<small>${clear ? "<i class=\"goal-ic clear\"></i>" : fmt(storyTarget(L))}</small>`;
+      const sc = starCount(st[L]);
+      b.innerHTML = `${done ? `<span class="lv-stars"><b>${"★".repeat(sc)}</b>${"★".repeat(3 - sc)}</span>` : ""}${L}<small>${clear ? "<i class=\"goal-ic clear\"></i>" : fmt(storyTarget(L))}</small>`;
       b.setAttribute("aria-label", `Fase ${L}, ${clear ? "destruir blocos marcados" : "meta de " + storyTarget(L) + " pontos"}${done ? ", concluída" : L > un ? ", bloqueada" : ""}`);
       b.addEventListener("click", () => startStory(L, false));
       if (L === un) next = b;
@@ -2777,7 +3246,7 @@ window.Scene = (() => {
     }
     for (const b2 of box.children) b2.setAttribute("aria-checked", String(b2.dataset.track === cur));
   }
-  $("btn-settings").addEventListener("click", () => { renderSettings(); $("settings").hidden = false; $("set-close").focus(); });
+  $("btn-settings").addEventListener("click", () => { renderSettings(); renderVisualPick(); $("settings").hidden = false; $("set-close").focus(); });
   $("set-close").addEventListener("click", () => { $("settings").hidden = true; });
   function showRecords(mode) {
     S = null;
@@ -2804,7 +3273,8 @@ window.Scene = (() => {
     } else {
       const lv = storyLevel(L);
       S = { mode: "story", rules: lv.rules, n: lv.n, level: L, goal: lv.goal, target: lv.target, marks: lv.marks, marksTotal: lv.marks,
-        board: lv.board, tray: [], score: 0, combo: 0, lines: 0, maxCombo: 0, power: 0, powerEarned: 0, powerTaps: 0 };
+        board: lv.board, tray: [], score: 0, combo: 0, lines: 0, maxCombo: 0, power: 0, powerEarned: 0, powerTaps: 0,
+        moves: 0, bestMulti: 0, powerUsed: false };
       S.tray = newTray();
       store.set("played.story", store.get("played.story", 0) + 1);
     }
@@ -2813,16 +3283,19 @@ window.Scene = (() => {
   // Classic and Sudoku use the chosen texture; story and Tetris keep wood.
   // Block colours: Classic shifts palette every level, story every phase.
   const paletteFor = () => (S.mode === "classic" ? levelOf(S.score) - 1 : S.mode === "story" ? S.level - 1 : 0);
-  const applySkin = () => Skins.apply(S && (S.mode === "classic" || S.mode === "sudoku") ? store.get("skin", "wood") : "wood", S ? paletteFor() : 0);
+  const chosenSkin = () => { const k = store.get("skin", "wood"), m = Skins.KINDS.find(([x]) => x === k); return m && totalStars() >= m[2] ? k : "wood"; };
+  const applySkin = () => Skins.apply(S && (S.mode === "classic" || S.mode === "sudoku") ? chosenSkin() : "wood", S ? paletteFor() : 0);
   function enterGame(label) {
     selected = -1;
     show("game");
     applySkin();
+    setModeAccent(S.mode);
     if (S.mode === "story") S.theme = Scene.ids[worldOf(S.level)];
     else if (!S.theme) S.theme = randomTheme();
     Scene.set(S.theme);
     const intro = S.mode === "story" ? `Mundo ${worldOf(S.level) + 1}<small>${Scene.nameOf(S.theme)}</small>` : `Cenário<small>${Scene.nameOf(S.theme)}</small>`;
     setTimeout(() => fx("lvl", intro, $("board").clientHeight / 2 - 20, 1900), 250);
+    if (S.mode === "story") setTimeout(() => S && S.mode === "story" && !S.over && fx("lvl", `Desafio<small>${challengeFor(S).text}</small>`, $("board").clientHeight / 2 - 20, 2200), 2300);
     $("mode-label").textContent = label;
     music.play(S.rules);
     music.setRate(rateFor(S.score));
@@ -2915,26 +3388,61 @@ window.Scene = (() => {
   }
   document.querySelectorAll("[data-thumb]").forEach((el) => { el.innerHTML = thumbSVG(el.dataset.thumb); });
 
+  // ---------- visual style: Animação / Realismo ----------
+  // One setting drives the block painter (Skins), the effects (Scene) and the CSS animations (body class).
+  const visualStyle = () => (store.get("visualStyle", "real") === "anim" ? "anim" : "real");
+  function applyVisualStyle() {
+    const st = visualStyle();
+    document.body.classList.toggle("vs-anim", st === "anim");
+    document.body.classList.toggle("vs-real", st !== "anim");
+    Skins.setStyle(st); Scene.setStyle(st);
+    // The wordmark is filled with the game's own wood: pale maple for BLOCK/UNO, amber for ALT.
+    for (const [id, hex] of [["wm-a", "#ead1a2"], ["wm-b", "#f0a63a"], ["wm-c", "#ead1a2"]]) $(id).style.backgroundImage = `url(${Skins.texture("wood", hex)})`;
+    $("skins").innerHTML = "";
+    if (!$("menu").hidden) renderSkins();
+  }
+  function renderVisualPick() {
+    const cur = visualStyle();
+    for (const b2 of $("vs-pick").children) {
+      const st = b2.dataset.vs, tiles = b2.querySelector(".tiles");
+      if (!tiles.children.length) tiles.innerHTML = ["wood", "brick", "ice"].map((k, i) => `<i style="background-image:url(${Skins.preview(k, [0, 2, 5][i], st)})"></i>`).join("");
+      b2.setAttribute("aria-checked", String(st === cur));
+    }
+  }
+  for (const b2 of $("vs-pick").children) b2.addEventListener("click", () => { store.set("visualStyle", b2.dataset.vs); applyVisualStyle(); renderVisualPick(); });
+  function setModeAccent(mode) { if (mode) document.body.dataset.mode = mode; else delete document.body.dataset.mode; }
+
   // ---------- texture picker ----------
+  const skinUnlocked = (need) => totalStars() >= need;
   function renderSkins() {
-    const cur = store.get("skin", "wood"), box = $("skins");
+    let cur = store.get("skin", "wood");
+    const box = $("skins"), stars = totalStars();
+    if (!Skins.KINDS.some(([k, , need]) => k === cur && stars >= need)) cur = "wood";
     if (!box.children.length) {
-      for (const [k, name] of Skins.KINDS) {
+      for (const [k, name, need] of Skins.KINDS) {
         const b2 = document.createElement("button");
-        b2.className = "skin"; b2.dataset.skin = k; b2.setAttribute("role", "radio");
+        b2.className = "skin"; b2.dataset.skin = k; b2.dataset.need = need; b2.setAttribute("role", "radio");
         b2.innerHTML = `<i style="background-image:url(${Skins.preview(k)})"></i><span>${name}</span>`;
-        b2.addEventListener("click", () => { store.set("skin", k); renderSkins(); sfx.place(); });
+        b2.addEventListener("click", () => {
+          if (!skinUnlocked(need)) { $("skins-note").textContent = `${name}: ganhe ${need} estrelas no modo História (você tem ${totalStars()})`; return; }
+          store.set("skin", k); renderSkins(); sfx.place();
+        });
         box.appendChild(b2);
       }
     }
-    for (const b2 of box.children) b2.setAttribute("aria-checked", String(b2.dataset.skin === cur));
+    for (const b2 of box.children) {
+      const locked = !skinUnlocked(+b2.dataset.need);
+      b2.classList.toggle("locked", locked);
+      b2.querySelector("span").textContent = locked ? `★ ${b2.dataset.need}` : Skins.KINDS.find(([k]) => k === b2.dataset.skin)[1];
+      b2.setAttribute("aria-checked", String(b2.dataset.skin === cur));
+    }
+    $("skins-note").textContent = "Textura dos blocos · vale para Clássico e Sudoku";
     Skins.apply(cur, 0);
   }
 
   function start(data) {
     document.body.classList.add("skinned");
-    // The wordmark is filled with the game's own wood: pale maple for BLOCK/UNO, amber for ALT.
-    for (const [id, hex] of [["wm-a", "#ead1a2"], ["wm-b", "#f0a63a"], ["wm-c", "#ead1a2"]]) $(id).style.backgroundImage = `url(${Skins.texture("wood", hex)})`;
+    applyVisualStyle();
     const vm = document.querySelector('meta[name="bau-version"]');
     $("ver").textContent = "v" + (vm ? vm.content : "");
     renderToggles();
