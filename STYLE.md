@@ -298,3 +298,16 @@ As 7 novas têm percussão leve para servir também durante o jogo. Na História
 | 10 | Campo de Batalha | Tijolo |
 
 Cada mundo alterna duas paletas entre as fases e gira a ordem das cores, então nenhuma fase repete as cores da anterior. O material da História é do mundo e não depende da textura escolhida no menu (que vale para Clássico e Sudoku).
+
+## v23
+
+- **Contra o Tempo:** 2 minutos com regras do Clássico (8×8); o relógio fica no HUD e pisca nos últimos 10 s. Recordes próprios (aba "Tempo").
+- **Dicas:** depois de 20 s sem tocar na tela (Clássico, Sudoku e Contra o Tempo), uma casa boa para uma das peças pulsa de leve. Não aparece na História, no Diário nem no Tetris.
+- **Chefes de mundo:** a fase 20 de cada mundo tem blocos de pedra (cinza, com moldura interna). A 1ª linha racha a pedra; a 2ª linha quebra. O poder também racha. Meta: quebrar todas as pedras. 👑 no mapa.
+- **Loja de estrelas:** saldo = estrelas ganhas − gastas (desbloqueio de Mármore/Metal continua usando as ganhas). 3 músicas extras (Mozart, Rossini, Vivaldi), 5 molduras de tabuleiro, 3 efeitos (estrelas, arco-íris, fogos). Sem dinheiro real.
+- **Música:** a do menu e a do jogo são escolhidas separadamente em Ajustes ("Automática" = a de cada modo, e a História troca a cada 10 fases).
+- **Perfil:** tempo jogado, linhas no total e material favorito, junto das conquistas.
+- **Progresso em arquivo:** Ajustes → Salvar arquivo / Restaurar (JSON `{app, v, date, data}`), pelo seletor de arquivos do Android, sem internet.
+- **Vibração:** padrões mais fortes nos combos ×2/×3 e na vitória (amplitude máxima no Android).
+- **Textos:** tamanhos de 9–11,5 px subiram para 10,5–13 px.
+- **Identidade:** ícone com tabuleiro escuro, borda neon cobre da História e um bloco de cada material; tela de abertura com a mesma moldura neon e blocos texturizados.

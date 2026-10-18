@@ -1,7 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="22">
+<meta name="bau-version" content="23">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -118,9 +118,9 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
 .mode .thumb { display: block; flex: 1 1 0; min-height: 24px; max-width: 100%; border-radius: 11px; overflow: hidden; background: rgba(0,0,0,.28); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
 .mode .thumb svg { display: block; width: 100%; height: 100%; }
 .mode b { display: block; font-family: var(--font-display); font-size: clamp(14px, 2.2vh, 19px); line-height: 1.05; letter-spacing: .03em; text-transform: uppercase; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,.25); }
-.mode small { display: block; margin-top: 3px; color: rgba(255,255,255,.78); font-size: 11.5px; line-height: 1.3; }
+.mode small { display: block; margin-top: 3px; color: rgba(255,255,255,.78); font-size: 13px; line-height: 1.3; }
 .mode .rec { display: flex; justify-content: space-between; align-items: baseline; padding: 3px 8px; border-radius: 9px; background: rgba(0,0,0,.25); font-variant-numeric: tabular-nums; margin-top: auto; }
-.mode .rec em { font-style: normal; font-size: 10px; color: rgba(255,255,255,.75); letter-spacing: .12em; text-transform: uppercase; }
+.mode .rec em { font-style: normal; font-size: 11.5px; color: rgba(255,255,255,.75); letter-spacing: .12em; text-transform: uppercase; }
 .mode .rec strong { font-size: 17px; color: var(--gold); }
 .mini-board { width: 52px; height: 52px; border-radius: 8px; background: var(--maple); display: grid; gap: 2px; padding: 4px; box-sizing: border-box; }
 .mini-board i { border-radius: 2px; background: var(--maple-2); }
@@ -137,7 +137,7 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
 /* ---------- Settings ---------- */
 .settings-card { text-align: left; gap: 14px; max-height: 100%; overflow-y: auto; }
 .settings-card h2 { text-align: center; }
-.set-label { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; }
+.set-label { font-size: 12.5px; font-weight: 700; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; }
 .music-list { display: grid; gap: 8px; margin-top: 8px; }
 .music-opt { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,.05); text-align: left; }
 .music-opt svg { width: 22px; height: 22px; flex: none; fill: none; stroke: var(--muted); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
@@ -152,10 +152,10 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
 .skins { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
 .skin { display: grid; justify-items: center; gap: 3px; padding: clamp(4px, .7vh, 7px) 2px clamp(4px, .6vh, 6px); border-radius: 12px; background: rgba(10,8,20,.55); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
 .skin i { width: clamp(22px, 3.5vh, 34px); height: clamp(22px, 3.5vh, 34px); border-radius: 7px; background-size: 100% 100%; box-shadow: inset 0 3px 0 rgba(255,255,255,.28), inset 0 -4px 0 rgba(0,0,0,.25), 0 2px 6px rgba(0,0,0,.4); }
-.skin span { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: rgba(255,255,255,.8); }
+.skin span { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: rgba(255,255,255,.8); }
 .skin[aria-checked="true"] { background: rgba(234,165,60,.25); box-shadow: inset 0 0 0 2px var(--amber); }
 .skin[aria-checked="true"] span { color: var(--gold); }
-.skins-note { margin: 0; text-align: center; font-size: 11px; color: var(--muted); letter-spacing: .04em; }
+.skins-note { margin: 0; text-align: center; font-size: 12.5px; color: var(--muted); letter-spacing: .04em; }
 
 /* ---------- Power (story) ---------- */
 .power { width: 100%; }
@@ -164,7 +164,7 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
 .power-btn svg { width: 30px; height: 30px; flex: none; }
 .power-btn .pw-text { flex: 1; min-width: 0; }
 .power-btn b { display: block; font-size: 14px; letter-spacing: .04em; text-transform: uppercase; }
-.power-btn small { display: block; font-size: 11.5px; color: var(--muted); }
+.power-btn small { display: block; font-size: 13px; color: var(--muted); }
 .power-btn .pw-count { min-width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: rgba(255,255,255,.08); font-family: var(--font-display); font-weight: 800; font-size: 20px; }
 .power-btn.ready { background: linear-gradient(135deg, #e0673b, #a8301e); animation: pulse 1.4s ease-in-out infinite; }
 .power-btn.ready small { color: rgba(255,255,255,.85); }
@@ -179,10 +179,10 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
 #records { max-width: 460px; display: flex; flex-direction: column; gap: 16px; }
 .rec-head { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; }
 .rec-head h2 { margin: 0; text-align: center; font-family: var(--font-display); font-size: 30px; letter-spacing: .06em; text-transform: uppercase; }
-.tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 5px; border-radius: 14px; background: var(--panel); }
+.tabs { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; padding: 5px; border-radius: 14px; background: var(--panel); }
 .tab { padding: 10px 4px; border-radius: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 14px; color: var(--muted); }
 .tab[aria-selected="true"] { background: var(--amber); color: #2a1a0c; }
-.tab { font-size: 11px; letter-spacing: .04em; padding: 10px 2px; }
+.tab { font-size: 12.5px; letter-spacing: .04em; padding: 10px 2px; }
 .menu-row .btn { gap: 6px; padding-inline: 8px; font-size: 13px; }
 #btn-daily.done { box-shadow: inset 0 0 0 2px var(--ok); }
 .toast { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); left: 50%; transform: translateX(-50%); z-index: 60; display: grid; gap: 2px; text-align: center; padding: 10px 18px; border-radius: 14px; background: rgba(30,20,12,.95); box-shadow: inset 0 0 0 2px var(--gold), 0 8px 20px rgba(0,0,0,.5); color: var(--ink); pointer-events: none; }
@@ -190,10 +190,14 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
 .toast.in { animation: toast-in 2.6s ease both; }
 @keyframes toast-in { 0% { opacity: 0; transform: translate(-50%, -20px); } 10%, 85% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -10px); } }
 .rank li.ach-off { opacity: .45; }
+.chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.chip-opt { padding: 7px 11px; border-radius: 99px; background: rgba(255,255,255,.07); font-size: 13px; font-weight: 600; }
+.chip-opt[aria-checked="true"] { background: rgba(234,165,60,.25); box-shadow: inset 0 0 0 2px var(--amber); color: var(--gold); }
+.rank li.ach-head { background: rgba(234,165,60,.14); }
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .stat { padding: 12px 8px; border-radius: 12px; background: var(--panel); text-align: center; font-variant-numeric: tabular-nums; }
 .stat strong { display: block; font-family: var(--font-display); font-size: 26px; color: var(--ink); }
-.stat span { font-size: 11px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
+.stat span { font-size: 12.5px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
 .stat.hl strong { color: var(--amber); }
 .rank { list-style: none; margin: 0; padding: 0; display: grid; align-content: start; gap: 6px; overflow-y: auto; min-height: 0; flex: 1; }
 .rank li { display: grid; grid-template-columns: 38px 1fr auto; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,.04); font-variant-numeric: tabular-nums; }
@@ -211,10 +215,10 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
 .bar .right { display: flex; gap: 8px; justify-content: flex-end; }
 .bar .left { display: flex; gap: 6px; }
 .undo-btn { position: relative; }
-.undo-btn i { position: absolute; top: -4px; right: -4px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--amber); color: #2a1a0c; font-style: normal; font-size: 11px; font-weight: 800; line-height: 17px; text-align: center; }
+.undo-btn i { position: absolute; top: -4px; right: -4px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--amber); color: #2a1a0c; font-style: normal; font-size: 12.5px; font-weight: 800; line-height: 17px; text-align: center; }
 .undo-btn:disabled { opacity: .35; }
 .set-row > span { text-align: left; }
-.set-hint { display: block; font-weight: 400; font-size: 11px; color: var(--muted); }
+.set-hint { display: block; font-weight: 400; font-size: 12.5px; color: var(--muted); }
 .switch { width: 48px; height: 28px; border-radius: 14px; background: rgba(255,255,255,.15); position: relative; flex: none; transition: background .2s; }
 .switch i { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform .2s; }
 .switch[aria-checked="true"] { background: var(--amber); }
@@ -233,7 +237,7 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
 .scores .best b { color: var(--amber); }
 .scores .now { font-family: var(--font-display); font-weight: 800; font-size: 44px; line-height: 1; transition: color .3s; }
 .scores .now.rec { color: var(--gold); }
-.mode-label { font-size: 11px; color: var(--muted); letter-spacing: .2em; text-transform: uppercase; }
+.mode-label { font-size: 12.5px; color: var(--muted); letter-spacing: .2em; text-transform: uppercase; }
 .mode-label b { color: var(--ink); }
 .level-bar { width: 100%; height: 6px; border-radius: 6px; background: rgba(255,255,255,.07); overflow: hidden; }
 .level-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--w3), var(--amber)); border-radius: 6px; transition: width .4s; }
@@ -307,7 +311,7 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
 .tboard .cell.ghost { background: var(--maple-3); box-shadow: inset 0 0 0 2px rgba(255,255,255,.6); }
 .t-side { display: grid; gap: 8px; width: 68px; flex: none; }
 .t-box { padding: 8px 6px; border-radius: 12px; background: rgba(18,11,7,.55); text-align: center; display: grid; gap: 6px; justify-items: center; font-variant-numeric: tabular-nums; }
-.t-box span { font-size: 10px; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; }
+.t-box span { font-size: 11.5px; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; }
 .t-box b { font-family: var(--font-display); font-size: 22px; }
 .t-ctrl { width: 100%; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; touch-action: none; }
 .t-ctrl button { height: 58px; border-radius: 14px; background: rgba(51,36,26,.92); box-shadow: 0 5px 0 var(--shadow); display: grid; place-items: center; }
@@ -329,13 +333,13 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
 .wpath { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(4, auto); gap: 10px 6px; padding: 6px 4px 10px; }
 .wpath svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .wpath .lv { justify-self: center; width: min(58px, 100%); border-radius: 50%; z-index: 1; }
-.next-row { width: 100%; display: flex; align-items: center; justify-content: flex-end; gap: 8px; height: 18px; color: var(--muted); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+.next-row { width: 100%; display: flex; align-items: center; justify-content: flex-end; gap: 8px; height: 18px; color: var(--muted); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; }
 #next-tray { display: flex; gap: 10px; align-items: center; opacity: .8; }
 #next-tray .piece.mini { gap: 1px; }
 #next-tray .piece.mini i { width: 7px; height: 7px; border-radius: 2px; }
 .lv { position: relative; aspect-ratio: 1; max-width: 100%; border-radius: 12px; background: var(--panel); box-shadow: 0 4px 0 var(--shadow);
   display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 22px; font-variant-numeric: tabular-nums; }
-.lv small { position: absolute; bottom: 5px; font-family: var(--font-body); font-size: 9px; font-weight: 700; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; }
+.lv small { position: absolute; bottom: 5px; font-family: var(--font-body); font-size: 10.5px; font-weight: 700; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; }
 .lv.done { background: linear-gradient(180deg, rgba(234,165,60,.28), rgba(234,165,60,.1)), var(--panel); }
 .lv.done::after { content: "✓"; position: absolute; top: 4px; right: 7px; font-size: 13px; color: var(--gold); }
 .lv.next { background: var(--amber); color: #2a1a0c; }
@@ -353,6 +357,66 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
 :root { --mode-accent: #eaa53c; --ease-pop: cubic-bezier(.2,.9,.3,1.25); --ease-out: cubic-bezier(.2,.8,.3,1); }
 body[data-mode="classic"] { --mode-accent: #eaa53c; }
 body[data-mode="sudoku"] { --mode-accent: #3fb59a; }
+body[data-mode="timed"] { --mode-accent: #3fa9f5; --tray-over: repeating-radial-gradient(circle at 50% 50%, rgba(63,169,245,.14) 0 3px, transparent 3px 16px), linear-gradient(rgba(0,14,30,.32), rgba(0,14,30,.42)); }
+body.hurry .mode-label { color: var(--danger) !important; animation: willpulse .5s ease-in-out infinite alternate; }
+.mode-wide { display: flex; align-items: center; gap: 10px; padding: clamp(6px, 1vh, 10px) 12px; border-radius: 16px; text-align: left;
+  background: linear-gradient(120deg, #2f7fc8, #173a66); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 5px 0 rgba(0,0,0,.4); }
+.mode-wide svg { width: 28px; height: 28px; flex: none; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; }
+.mode-wide b { display: block; font-family: var(--font-display); font-size: clamp(14px, 2.1vh, 18px); text-transform: uppercase; color: #fff; }
+.mode-wide small { display: block; font-size: 12px; color: rgba(255,255,255,.8); }
+.mode-wide > span:nth-child(2) { flex: 1; min-width: 0; }
+.mode-wide .rec { display: grid; text-align: right; }
+.mode-wide .rec em { font-style: normal; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.7); }
+.mode-wide .rec strong { font-family: var(--font-display); font-size: 18px; color: var(--gold); }
+.menu-row.four { gap: 7px; }
+.menu-row.four .btn { flex-direction: column; gap: 3px; padding: clamp(6px, 1vh, 10px) 4px; font-size: 12.5px; min-width: 0; }
+.shop-bal { text-align: center; margin: 0; } .shop-bal b { color: var(--gold); font-size: 20px; } .shop-bal small { display: block; font-size: 12px; opacity: .75; margin-top: 2px; }
+.shop-tabs { display: flex; gap: 6px; }
+.shop-tab { flex: 1; padding: 8px 4px; border-radius: 10px; font-weight: 700; font-size: 13px; color: inherit; background: rgba(255,255,255,.07); }
+.shop-tab[aria-selected="true"] { background: var(--gold); color: #3a2410; }
+.shop-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.shop-list li { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 12px; background: rgba(0,0,0,.22); }
+.shop-list .ico { width: 40px; height: 40px; flex: none; border-radius: 10px; display: grid; place-items: center; font-size: 20px; background: rgba(255,255,255,.08); }
+.shop-list .txt { flex: 1; min-width: 0; } .shop-list .txt b { display: block; font-size: 14px; } .shop-list .txt small { display: block; font-size: 12px; opacity: .75; }
+.shop-list .buy { flex: none; min-width: 84px; padding: 8px 10px; border-radius: 10px; font-weight: 800; font-size: 13px; background: var(--gold); color: #3a2410; }
+.shop-list .buy.poor { background: rgba(255,255,255,.1); color: rgba(255,255,255,.55); }
+.shop-list .buy.own { background: rgba(255,255,255,.14); color: #fff; }
+.shop-list .buy.on { background: #6cc070; color: #0f2a12; }
+.shop-list .fr { width: 28px; height: 28px; border-radius: 6px; background: #5a3a22; }
+/* v23 shop frames: wrap the board without touching the blocks */
+body.frame-gold #board, body.frame-gold .tboard { outline: 5px solid #e8b94a; outline-offset: 3px; box-shadow: inset 0 2px 0 rgba(255,255,255,.35), 0 0 0 11px #6b4a12, 0 0 0 13px #f6d77a, 0 18px 30px rgba(0,0,0,.5), 0 0 30px rgba(255,200,80,.45); }
+body.frame-neon #board, body.frame-neon .tboard { outline: 3px solid #5ff4ff; outline-offset: 4px; box-shadow: inset 0 2px 0 rgba(255,255,255,.35), 0 0 0 9px rgba(10,10,30,.85), 0 0 0 11px #ff4fd8, 0 0 22px #ff4fd8, 0 0 34px rgba(95,244,255,.6), 0 18px 30px rgba(0,0,0,.5); }
+body.frame-wood #board, body.frame-wood .tboard { outline: 6px double #c58a4a; outline-offset: 3px; box-shadow: inset 0 2px 0 rgba(255,255,255,.35), 0 0 0 12px #5a3418, 0 0 0 14px #2c1708, 0 18px 30px rgba(0,0,0,.55); }
+body.frame-crystal #board, body.frame-crystal .tboard { outline: 4px solid rgba(200,240,255,.95); outline-offset: 3px; box-shadow: inset 0 2px 0 rgba(255,255,255,.45), 0 0 0 10px rgba(140,200,255,.35), 0 0 0 12px rgba(230,250,255,.9), 0 0 28px rgba(150,220,255,.7), 0 18px 30px rgba(0,0,0,.45); }
+body.frame-lava #board, body.frame-lava .tboard { outline: 4px solid #ff8a2a; outline-offset: 3px; box-shadow: inset 0 2px 0 rgba(255,255,255,.3), 0 0 0 10px #3a0e04, 0 0 0 12px #ff5a1a, 0 0 26px rgba(255,100,30,.7), 0 18px 30px rgba(0,0,0,.5); }
+/* v23 boss stones (above every skin) */
+#board .cell.c10, #board .cell.c11 { background-color: #6f6a64 !important; background-size: 100% 100% !important;
+  background-image: radial-gradient(circle at 30% 28%, rgba(255,255,255,.28), transparent 45%), radial-gradient(circle at 70% 75%, rgba(0,0,0,.3), transparent 50%), linear-gradient(145deg, #9a948c, #5d5853 60%, #44403c) !important;
+  box-shadow: inset 0 3px 0 rgba(255,255,255,.3), inset 0 -4px 0 rgba(0,0,0,.45), inset 0 0 0 2px #2f2b28 !important; }
+#board .cell.c11 { background-image: linear-gradient(62deg, transparent 44%, #1d1a18 45% 50%, transparent 51%), linear-gradient(-28deg, transparent 50%, #1d1a18 51% 55%, transparent 56%), linear-gradient(105deg, transparent 30%, #26221f 31% 34%, transparent 35%), linear-gradient(145deg, #8d877f, #57524d 60%, #3e3a36) !important; }
+#board .cell.c10::after { content: ""; position: absolute; inset: 22%; border-radius: 3px; border: 2px solid rgba(255,255,255,.12); }
+#board .cell { position: relative; }
+#board .cell.cracking { animation: crackhit .45s ease-out; }
+@keyframes crackhit { 0% { transform: scale(1); filter: brightness(1.8); } 40% { transform: scale(.88) rotate(-4deg); } 100% { transform: none; filter: none; } }
+.lv.boss { box-shadow: 0 0 0 2px #ffd36b, 0 0 14px rgba(255,211,107,.55) !important; }
+.save-row { display: flex; gap: 8px; } .save-row .btn { flex: 1; font-size: 13px; padding-inline: 6px; }
+/* v23 opening screen: neon frame of the story card + material tiles; never blocks touches */
+#splash { position: fixed; inset: 0; z-index: 99; display: grid; place-items: center; pointer-events: none;
+  background: radial-gradient(circle at 50% 40%, #3a2416, #120a06 75%); transition: opacity .55s ease; }
+#splash.out { opacity: 0; }
+.sp-box { position: relative; display: grid; justify-items: center; gap: 18px; padding: 34px 30px 26px; border-radius: 26px;
+  box-shadow: 0 0 0 2px #ff9d4a, 0 0 18px #ff7a2a, 0 0 46px rgba(255,140,60,.55), inset 0 0 26px rgba(255,140,60,.35); animation: spneon 1.4s ease-in-out infinite alternate; }
+@keyframes spneon { from { box-shadow: 0 0 0 2px #ff9d4a, 0 0 12px #ff7a2a, 0 0 30px rgba(255,140,60,.4), inset 0 0 18px rgba(255,140,60,.25); } to { box-shadow: 0 0 0 2px #ffc27a, 0 0 22px #ff7a2a, 0 0 56px rgba(255,140,60,.65), inset 0 0 30px rgba(255,140,60,.4); } }
+.sp-tiles { display: grid; grid-template-columns: repeat(4, 38px); gap: 6px; }
+.sp-tiles i { width: 38px; height: 38px; border-radius: 8px; background-size: cover; box-shadow: inset 0 2px 0 rgba(255,255,255,.3), 0 4px 0 rgba(0,0,0,.45); animation: sptile .5s var(--ease-pop, ease-out) both; }
+@keyframes sptile { from { transform: translateY(-26px) scale(.6); opacity: 0; } }
+.sp-logo { margin: 0; text-align: center; font-family: var(--font-display); font-size: 40px; line-height: .95; color: #f4e7d4; letter-spacing: .04em; text-shadow: 0 4px 0 rgba(0,0,0,.5); }
+.sp-logo span { display: block; font-size: 26px; color: #ffb766; text-shadow: 0 0 12px rgba(255,140,60,.8), 0 3px 0 rgba(0,0,0,.5); }
+.sp-credit { margin: 0; font-size: 13px; letter-spacing: .08em; color: rgba(244,231,212,.75); }
+.cell.hint { animation: hintpulse 1.3s ease-in-out infinite; }
+@keyframes hintpulse { 0%, 100% { box-shadow: inset 0 0 0 2px rgba(255,211,107,.3); } 50% { box-shadow: inset 0 0 0 3px rgba(255,225,130,1), 0 0 14px rgba(255,211,107,.85); background-color: rgba(255,211,107,.32); } }
+.slot.hint .piece { animation: hintbob .9s ease-in-out infinite alternate; }
+@keyframes hintbob { to { transform: translateY(-5px) scale(1.06); } }
 body[data-mode="tetris"] { --mode-accent: #a66be0; }
 body[data-mode="story"] { --mode-accent: #d9824a; }
 body[data-mode] .mode-label { color: var(--mode-accent); }
@@ -416,11 +480,11 @@ body.themed[data-mode] .bar { box-shadow: inset 0 -3px 0 var(--mode-accent); }
 .power-btn { flex: 1.15; min-width: 0; padding: 8px 10px; gap: 8px; }
 .power-btn svg { width: 26px; height: 26px; }
 .power-btn b { font-size: 12px; }
-.power-btn small { font-size: 11px; }
+.power-btn small { font-size: 12.5px; }
 .chal { flex: 1; min-width: 0; display: grid; gap: 1px; align-content: center; padding: 6px 10px; border-radius: 14px; background: rgba(18,11,7,.62); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), 0 4px 0 var(--shadow); }
-.chal .chal-k { font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mode-accent); }
+.chal .chal-k { font-size: 11.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mode-accent); }
 .chal b { font-size: 12px; line-height: 1.2; }
-.chal .chal-p { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.chal .chal-p { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .chal.done { box-shadow: inset 0 0 0 2px var(--ok), 0 4px 0 var(--shadow); }
 .chal.done .chal-p { color: var(--ok); font-weight: 800; }
 .chal.failed .chal-p { color: var(--danger); }
@@ -435,7 +499,7 @@ body.themed[data-mode] .bar { box-shadow: inset 0 -3px 0 var(--mode-accent); }
 .power .power-btn { padding: 6px 7px; gap: 6px; }
 .power .power-btn svg { width: 22px; height: 22px; }
 .power .power-btn .pw-count { min-width: 26px; height: 26px; font-size: 16px; border-radius: 8px; }
-.power .power-btn small { font-size: 10px; }
+.power .power-btn small { font-size: 11.5px; }
 .win-story { display: grid; gap: 10px; }
 .stars { display: flex; justify-content: center; gap: 10px; }
 .stars i { width: 46px; height: 46px; background: #4a3a2a; clip-path: polygon(50% 2%, 63% 36%, 99% 37%, 70% 59%, 80% 96%, 50% 74%, 20% 96%, 30% 59%, 1% 37%, 37% 36%); }
@@ -449,13 +513,13 @@ body.themed[data-mode] .bar { box-shadow: inset 0 -3px 0 var(--mode-accent); }
 .goals li::before { content: "✓"; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--ok); color: #10260f; font-weight: 900; font-size: 12px; }
 .goals li.no::before { content: "✗"; background: rgba(224,103,75,.85); color: #fff; }
 .goals li.no { color: var(--muted); }
-.goals li em { font-style: normal; color: var(--muted); font-size: 11px; display: block; }
+.goals li em { font-style: normal; color: var(--muted); font-size: 12.5px; display: block; }
 .rewards { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
 .rewards span { padding: 5px 10px; border-radius: 99px; background: rgba(255,211,107,.18); box-shadow: inset 0 0 0 1px rgba(255,211,107,.5); color: var(--gold); font-weight: 800; font-size: 12px; letter-spacing: .04em; }
 .rewards span.dim { background: rgba(255,255,255,.06); box-shadow: none; color: var(--muted); font-weight: 600; }
 .vs-anim .card { animation: drop .4s var(--ease-pop); }
 .card.story-win .line, .card.story-win #over-why { display: none; }
-.lv .lv-stars { position: absolute; top: 4px; left: 0; right: 0; text-align: center; font-size: 9px; letter-spacing: 1px; color: rgba(255,255,255,.25); }
+.lv .lv-stars { position: absolute; top: 4px; left: 0; right: 0; text-align: center; font-size: 10.5px; letter-spacing: 1px; color: rgba(255,255,255,.25); }
 .lv .lv-stars b { color: var(--gold); font-weight: 400; }
 .lv.done::after { content: none; }
 .world .wstars { float: right; font-size: 13px; color: var(--gold); letter-spacing: .04em; }
@@ -522,7 +586,7 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
 .vs-anim .tboard .cell.ghost { background: color-mix(in srgb, var(--gh, #fff) 28%, #ecd3a3); box-shadow: inset 0 0 0 3px var(--gh, #fff); }
 .bump { animation: bump .26s var(--ease-pop); }
 @keyframes bump { 40% { transform: scale(1.3); } }
-.t-box small { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.t-box small { font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .t-box.hot { box-shadow: inset 0 0 0 2px var(--gold); }
 .t-box.hot b { color: var(--gold); }
 .t-ctrl button.held { transform: translateY(3px); box-shadow: 0 2px 0 var(--shadow), inset 0 0 0 3px var(--mode-accent); }
@@ -533,7 +597,7 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
 .vs-opt .tiles { display: flex; gap: 4px; }
 .vs-opt .tiles i { width: 24px; height: 24px; border-radius: 6px; background-size: 100% 100%; }
 .vs-opt b { font-size: 14px; }
-.vs-opt small { font-size: 11px; color: var(--muted); line-height: 1.25; }
+.vs-opt small { font-size: 12.5px; color: var(--muted); line-height: 1.25; }
 .vs-opt[aria-checked="true"] { background: rgba(234,165,60,.2); box-shadow: inset 0 0 0 2px var(--amber); }
 .skins { display: flex !important; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; }
 .skins::-webkit-scrollbar { display: none; }
@@ -607,7 +671,12 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
         <span class="rec"><em>Fase</em><strong id="rec-story">1</strong></span>
       </button>
     </div>
-    <div class="menu-row">
+    <button class="mode-wide" id="play-timed" data-mode="timed">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>
+      <span><b>Contra o Tempo</b><small>2 minutos · faça o máximo de pontos</small></span>
+      <span class="rec"><em>Recorde</em><strong id="rec-timed">0</strong></span>
+    </button>
+    <div class="menu-row four">
       <button class="btn ghost" id="btn-records">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0zM7 6H4v1a3 3 0 003 3M17 6h3v1a3 3 0 01-3 3"/></svg>
         Recordes
@@ -615,6 +684,10 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       <button class="btn ghost" id="btn-daily">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>
         <span id="daily-label">Diário</span>
+      </button>
+      <button class="btn ghost" id="btn-shop">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16l-1.5 11h-13zM8 9V7a4 4 0 018 0v2"/></svg>
+        Loja
       </button>
       <button class="btn ghost" id="btn-settings">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
@@ -637,7 +710,8 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       <button class="tab" role="tab" id="tab-sudoku" data-mode="sudoku" aria-selected="false">Sudoku</button>
       <button class="tab" role="tab" id="tab-tetris" data-mode="tetris" aria-selected="false">Tetris</button>
       <button class="tab" role="tab" id="tab-story" data-mode="story" aria-selected="false">História</button>
-      <button class="tab" role="tab" id="tab-ach" data-mode="ach" aria-selected="false">Conquistas</button>
+      <button class="tab" role="tab" id="tab-timed" data-mode="timed" aria-selected="false">Tempo</button>
+      <button class="tab" role="tab" id="tab-ach" data-mode="ach" aria-selected="false">Perfil</button>
     </div>
     <div class="stats">
       <div class="stat hl"><strong id="st-best">0</strong><span id="st-best-label">Recorde</span></div>
@@ -656,7 +730,7 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       <span></span>
     </div>
     <div class="lv-progress"><b id="lv-done">0</b> de 1000 fases concluídas</div>
-    <div class="lv-legend"><span><i class="goal-ic score"></i>Meta de pontos</span><span><i class="goal-ic clear"></i>Linhas de uma vez</span><span>▪ blocos · ↻ jogadas</span></div>
+    <div class="lv-legend"><span><i class="goal-ic score"></i>Meta de pontos</span><span><i class="goal-ic clear"></i>Linhas de uma vez</span><span>▪ blocos · ↻ jogadas · 👑 chefe</span></div>
     <div class="lv-grid" id="lv-grid"></div>
   </section>
 
@@ -754,10 +828,23 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
         <span class="set-label">Música do menu</span>
         <div class="music-list" id="menu-music" role="radiogroup" aria-label="Música do menu"></div>
       </div>
+      <div>
+        <span class="set-label">Música do jogo</span>
+        <div class="chip-list" id="game-music" role="radiogroup" aria-label="Música do jogo"></div>
+      </div>
       <div class="set-row"><span>Modo leve<small class="set-hint">Fundo parado e menos efeitos, para celulares mais simples</small></span>
         <button class="switch" id="lite-toggle" role="switch" aria-checked="false" aria-label="Modo leve"><i></i></button>
       </div>
       <button class="btn ghost" id="btn-tutorial">Como jogar</button>
+      <div>
+        <span class="set-label">Progresso</span>
+        <div class="save-row">
+          <button class="btn ghost" id="btn-export">Salvar arquivo</button>
+          <button class="btn ghost" id="btn-import">Restaurar</button>
+        </div>
+        <p class="skins-note">Guarde o arquivo para levar fases, estrelas, recordes e compras para outro celular. Nada vai para a internet.</p>
+        <input type="file" id="import-file" accept=".json,application/json,text/plain" hidden>
+      </div>
       <div class="set-row"><span>Música</span>
         <button class="icon-btn music-toggle" aria-label="Música" aria-pressed="true">
           <svg viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/><path class="off" d="M3 3l18 18"/></svg>
@@ -769,6 +856,36 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
         </button>
       </div>
       <button class="btn primary" id="set-close">Pronto</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="shop" hidden>
+    <div class="card settings-card shop-card" role="dialog" aria-modal="true" aria-labelledby="shop-title">
+      <h2 id="shop-title">Loja de estrelas</h2>
+      <p class="shop-bal">Você tem <b id="shop-stars">0</b> ★ para gastar<small>Ganhe estrelas no modo História, no Diário e com conquistas. Sem dinheiro real.</small></p>
+      <div class="shop-tabs" role="tablist">
+        <button class="shop-tab" data-cat="music" aria-selected="true">Músicas</button>
+        <button class="shop-tab" data-cat="frame" aria-selected="false">Molduras</button>
+        <button class="shop-tab" data-cat="effect" aria-selected="false">Efeitos</button>
+      </div>
+      <ul class="shop-list" id="shop-list"></ul>
+      <button class="btn primary" id="shop-close">Pronto</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="confirm" hidden>
+    <div class="card" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
+      <h2 id="confirm-title">Restaurar progresso?</h2>
+      <p id="confirm-text"></p>
+      <div class="save-row"><button class="btn ghost" id="confirm-no">Cancelar</button><button class="btn primary" id="confirm-yes">Restaurar</button></div>
+    </div>
+  </div>
+
+  <div id="splash" aria-hidden="true">
+    <div class="sp-box">
+      <div class="sp-tiles" id="sp-tiles"></div>
+      <h1 class="sp-logo">BLOCK<span>ALT UNO</span></h1>
+      <p class="sp-credit">Feito pelo Jovem Gafanhoto</p>
     </div>
   </div>
 
@@ -2012,7 +2129,7 @@ window.Skins = (() => {
     preview: (kind, i, st) => tex(kind, PALETTES[0][i == null ? 2 : i], st),
     texture: (kind, hex, st) => tex(kind, hex, st),
     material: () => now.kind,
-    colorOf: (i) => (i === 7 ? "#2e2219" : now.colors[i] || "#c27f3c"),
+    colorOf: (i) => (i === 7 ? "#2e2219" : i >= 10 ? "#77726c" : now.colors[i] || "#c27f3c"),
     texOf: (i) => tex(now.kind, i === 7 ? "#2e2219" : now.colors[i] || "#c27f3c"),
   };
 })();
@@ -3326,6 +3443,24 @@ window.Scene = (() => {
       }
       if (tier >= 3) { this.confetti(x, y, 40); flash = { c: vstyle === "anim" ? "rgba(255,255,255,.35)" : "rgba(255,214,140,.22)", t: .35 }; }
     },
+    // v23 shop effects drawn over the board rect.
+    special(kind, rc, power) {
+      if (!theme || lite) return;
+      if (kind === "fx-stars") {
+        for (let i = 0; i < 14 + power * 6; i++) spawn({ kind: vstyle === "pixel" ? "pix" : "tstar", x: rc.x + R(0, rc.w), y: rc.y - R(10, 80), vx: R(-30, 30), vy: R(120, 320), g: 260, drag: .99, life: -R(0, .5), max: R(1.1, 1.7), size: vstyle === "pixel" ? 6 : R(6, 11), color: pick(["#ffd36b", "#fff3a0", "#ffffff", "#ffe9a8"]), rot: R(0, TAU), vr: R(-5, 5), wob: 0 });
+      } else if (kind === "fx-rainbow") {
+        const cs = ["255,90,90", "255,170,60", "255,230,80", "110,220,110", "80,170,255", "170,110,255"], h = rc.h / cs.length;
+        cs.forEach((c, i) => sweeps.push({ x: rc.x, y: rc.y + i * h, w: rc.w, h, t: -i * .05, max: .55, c }));
+        for (let i = 0; i < 20; i++) { const a = R(0, TAU), sp = R(120, 360); spawn({ kind: "streak", x: rc.x + rc.w / 2, y: rc.y + rc.h / 2, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 200, drag: .96, life: 0, max: R(.5, .9), size: R(1.6, 2.6), color: `rgb(${pick(cs)})`, rot: 0, vr: 0, wob: 0 }); }
+      } else if (kind === "fx-fireworks") {
+        const n = Math.min(5, 1 + Math.ceil(power / 2));
+        for (let j = 0; j < n; j++) {
+          const x = rc.x + R(.15, .85) * rc.w, y = rc.y + R(.05, .5) * rc.h, c = pick(["#ff5a7a", "#ffd34a", "#5ab4ff", "#7aff9a", "#ff8af0"]), d = j * .18;
+          rings.push({ x, y, r: 70, w: 3, c, t: -d, max: .5 });
+          for (let i = 0; i < 22; i++) { const a = i / 22 * TAU, sp = R(200, 300); spawn({ kind: "streak", x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 260, drag: .955, life: -d, max: R(.7, 1.1), size: 2, color: c, rot: 0, vr: 0, wob: 0 }); }
+        }
+      }
+    },
     // Victory celebration (story win, new record).
     celebrate(x, y) {
       if (!theme) return;
@@ -3591,12 +3726,41 @@ window.Scene = (() => {
     ["menu_green", "Greensleeves", "Tradicional inglesa"],
     ["menu_minuet", "Minueto em Sol", "Christian Petzold"],
   ];
+  // v23: three extra public-domain pieces sold in the star shop.
+  const SHOP_TRACKS = [
+    ["shop_twinkle", "Brilha, Brilha Estrelinha", "Wolfgang Amadeus Mozart (Ah vous dirai-je)"],
+    ["shop_tell", "Abertura Guilherme Tell", "Gioachino Rossini"],
+    ["shop_spring", "Primavera (As Quatro Estações)", "Antonio Vivaldi"],
+  ];
   // v18: story music changes every 10 phases, cycling through all the pieces.
   const STORY_TRACKS = ["menu", "menu_elise", "classic", "menu_ode", "menu_bach", "menu_mozart", "sudoku", "menu_grieg", "menu_brahms", "menu_green", "menu_satie", "menu_minuet"];
   const storyTrack = (L) => STORY_TRACKS[Math.floor((L - 1) / 10) % STORY_TRACKS.length];
-  const menuTrack = () => { const t = store.get("menuMusic", "menu"); return MENU_TRACKS.some(([k]) => k === t) ? t : "menu"; };
+  const menuTrack = () => { const t = store.get("menuMusic", "menu"); return allTracks().some(([k]) => k === t) ? t : "menu"; };
+  // v23: game music is chosen separately: "auto" = each mode's own (story rotates every 10 phases).
+  const GAME_TRACKS = [["classic", "Na Gruta do Rei da Montanha", "Edvard Grieg"], ["sudoku", "Marcha Turca", "Wolfgang Amadeus Mozart"], ["tetris", "Korobeiniki", "Tradicional russa"]];
+  const allTracks = () => [...MENU_TRACKS, ...GAME_TRACKS, ...SHOP_TRACKS.filter(([k]) => owned(k))];
+  const gameTrack = (auto) => { const t = store.get("gameMusic", "auto"); return t !== "auto" && allTracks().some(([k]) => k === t) ? t : auto; };
 
   const TRACKS = {
+    shop_twinkle: { title: "Mozart · Brilha, Brilha Estrelinha", bpm: 92, vol: .5, wet: .34, voices: [
+      { i: "piano", v: .2, s: rep("C5:1 C5:1 G5:1 G5:1 A5:1 A5:1 G5:2 F5:1 F5:1 E5:1 E5:1 D5:1 D5:1 C5:2", 1) + " " + rep("G5:1 G5:1 F5:1 F5:1 E5:1 E5:1 D5:2", 2) + " C5:1 C5:1 G5:1 G5:1 A5:1 A5:1 G5:2 F5:1 F5:1 E5:1 E5:1 D5:1 D5:1 C5:2" },
+      { i: "harp", v: .12, s: "C3:.5 G3:.5 E4:.5 G3:.5 C3:.5 G3:.5 E4:.5 G3:.5 F3:.5 C4:.5 A4:.5 C4:.5 C3:.5 G3:.5 E4:.5 G3:.5 F3:.5 C4:.5 A4:.5 C4:.5 C3:.5 G3:.5 E4:.5 G3:.5 G2:.5 D3:.5 B3:.5 D3:.5 C3:.5 G3:.5 E4:.5 G3:.5 " + rep("C3:.5 G3:.5 E4:.5 G3:.5 G2:.5 D3:.5 B3:.5 D3:.5", 4) + " C3:.5 G3:.5 E4:.5 G3:.5 C3:.5 G3:.5 E4:.5 G3:.5 F3:.5 C4:.5 A4:.5 C4:.5 C3:.5 G3:.5 E4:.5 G3:.5 F3:.5 C4:.5 A4:.5 C4:.5 C3:.5 G3:.5 E4:.5 G3:.5 G2:.5 D3:.5 B3:.5 D3:.5 C3:.5 G3:.5 E4:.5 G3:.5" },
+      { i: "kick", v: .07, s: rep("C2:1 -:3", 12) },
+      { i: "hat", v: .022, s: rep("-:.5 C6:.5", 48) },
+    ] },
+    shop_tell: { title: "Rossini · Guilherme Tell", bpm: 138, vol: .48, wet: .16, voices: [
+      { i: "reed", v: .16, s: rep("G4:.25 G4:.25 G4:.5 G4:.25 G4:.25 G4:.5 G4:.25 G4:.25 C5:.5 D5:.5 E5:.5 G4:.25 G4:.25 G4:.5 G4:.25 G4:.25 G4:.5 G4:.25 G4:.25 D5:.5 B4:.5 G4:.5", 1) + " G4:.25 G4:.25 G4:.5 G4:.25 G4:.25 G4:.5 G4:.25 G4:.25 C5:.5 D5:.5 E5:.5 G4:.25 G4:.25 G4:.5 C5:.25 C5:.25 C5:.5 E5:.25 E5:.25 D5:.5 C5:1", tr: 12 },
+      { i: "pluck", v: .28, s: rep("C3:.5 G3:.5", 2) + " " + rep("G2:.5 D3:.5", 2) + " " + rep("C3:.5 G3:.5", 2) + " " + rep("G2:.5 D3:.5", 2) + " " + rep("C3:.5 G3:.5", 2) + " " + rep("G2:.5 D3:.5", 2) + " " + rep("C3:.5 G3:.5", 2) + " G2:.5 D3:.5 C3:1" },
+      { i: "kick", v: .18, s: rep("C2:1", 16) },
+      { i: "hat", v: .05, s: rep("-:.5 C6:.5", 16) },
+    ] },
+    shop_spring: { title: "Vivaldi · Primavera", bpm: 104, vol: .5, wet: .3, voices: [
+      { i: "harp", v: .18, s: rep("E5:1 G#5:.5 G#5:.5 G#5:.5 F#5:.25 E5:.25 B5:1 -:.5 B5:.25 A5:.25 G#5:.5 G#5:.5 G#5:.5 F#5:.25 E5:.25 B5:1 -:.5 B5:.25 A5:.25 G#5:.5 A5:.5 B5:.5 A5:.5 G#5:1 F#5:1 D#5:1 E5:2", 2) },
+      { i: "pluck", v: .22, s: rep(rep("E3:.5 B3:.5", 8) + " " + rep("A2:.5 E3:.5", 2) + " " + rep("E3:.5 B3:.5", 2) + " " + rep("B2:.5 F#3:.5", 2) + " " + rep("E3:.5 B3:.5", 2), 2) },
+      { i: "bass", v: .22, s: rep("E3:2 B2:2 E3:2 B2:2 A2:2 E3:2 B2:2 E3:2", 2), tr: -12 },
+      { i: "kick", v: .07, s: rep("C2:1 -:1", 16) },
+      { i: "hat", v: .022, s: rep("-:.5 C6:.5", 32) },
+    ] },
     // v18: seven more public-domain pieces, soft percussion so they also work during play.
     menu_elise: { title: "Beethoven · Para Elise", bpm: 66, vol: 0.5, wet: 0.36, voices: [
       { i: "piano", v: 0.2, s: "E5:.5 D#5:.5 E5:.5 D#5:.5 E5:.5 B4:.5 D5:.5 C5:.5 A4:1.5 C4:.5 E4:.5 A4:.5 B4:1.5 E4:.5 G#4:.5 B4:.5 C5:1.5 E4:.5 E5:.5 D#5:.5 E5:.5 D#5:.5 E5:.5 B4:.5 D5:.5 C5:.5 A4:1.5 C4:.5 E4:.5 A4:.5 B4:1.5 E4:.5 C5:.5 B4:.5 A4:3 -:2" },
@@ -3844,6 +4008,12 @@ window.Scene = (() => {
     if (!sfxOn) return;
     try { if (window.BAUNative && BAUNative.vibrate) BAUNative.vibrate(ms); else if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {}
   }
+  // v23: strong patterns for big moments [on, off, on, …] in ms, at full strength on Android.
+  function buzzPattern(pat) {
+    if (!sfxOn) return;
+    try { if (window.BAUNative && BAUNative.vibratePattern) BAUNative.vibratePattern(pat.join(",")); else if (navigator.vibrate) navigator.vibrate(pat); else buzz(pat[0]); } catch (e) {}
+  }
+  const BUZZ_COMBO = { 2: [70, 50, 110], 3: [90, 40, 90, 40, 180] }, BUZZ_WIN = [120, 70, 120, 70, 320];
 
   function renderToggles() {
     document.querySelectorAll(".music-toggle").forEach((b) => b.setAttribute("aria-pressed", String(musicOn)));
@@ -3911,6 +4081,7 @@ window.Scene = (() => {
     classic: { n: 8, label: "Clássico", sub: "Tabuleiro 8×8 · limpe linhas e colunas" },
     sudoku: { n: 9, label: "Sudoku", sub: "Tabuleiro 9×9 · linhas, colunas e quadrados 3×3" },
     tetris: { label: "Tetris", sub: "Arcade · fica mais rápido a cada 100 pontos" },
+    timed: { n: 8, label: "Contra o Tempo", sub: "2 minutos · faça o máximo de pontos" },
     story: { label: "História" },
   };
   const LEVEL_POINTS = 100;
@@ -3983,14 +4154,19 @@ window.Scene = (() => {
   // Levels are generated from a fixed seed, so level N is always the same board.
   // Every 3rd level (2, 5, 8 …) asks to destroy the marked blocks; the rest ask for a score.
   // Every 5th level uses the Sudoku rules on a 9×9 board. Difficulty grows with N.
-  const STORY_LEVELS = 1000, MARK = 7;
+  // v14: 50 worlds of 20 phases; every world has its own scene (Scene.worlds).
+  const LEVELS_PER_WORLD = 20;
+  const STORY_LEVELS = 1000, MARK = 7, STONE = 10, CRACK = 11;
+  const isStone = (v) => v === STONE || v === CRACK;
+  const stonesLeft = (b) => b.filter(isStone).length;
   // v20: phases ending in 8 and 9 (the climax before the music changes) ask to clear 2 or 3 lines
   // at once; every other phase asks for a score. (Saves from before v20 may still hold "clear".)
   // v22: …4 asks to place N blocks and …6 to make N moves without losing (neither needs lines).
-  const storyGoal = (L) => (L % 10 === 8 || L % 10 === 9 ? "multi" : L % 10 === 4 ? "blocks" : L % 10 === 6 ? "moves" : "score");
-  const goalNeed = (L) => { const g = storyGoal(L), d = storyDiff(L); return g === "multi" ? multiNeed(L) : g === "blocks" ? 24 + Math.round(d * 40 / 4) * 4 : g === "moves" ? 14 + Math.round(d * 20) : 0; };
-  const goalBadge = (L) => { const g = storyGoal(L); return g === "multi" ? `×${multiNeed(L)} linhas` : g === "blocks" ? `${goalNeed(L)} blocos` : g === "moves" ? `${goalNeed(L)} jogadas` : null; };
-  const goalLabel = (L) => { const g = storyGoal(L); return g === "multi" ? `${multiNeed(L)} linhas de uma vez` : g === "blocks" ? `colocar ${goalNeed(L)} blocos` : g === "moves" ? `${goalNeed(L)} jogadas sem perder` : `meta de ${fmt(storyTarget(L))} pontos`; };
+  // v23: phase 20 of every world is the world boss: stone blocks that only break after two lines.
+  const storyGoal = (L) => (L % LEVELS_PER_WORLD === 0 ? "boss" : L % 10 === 8 || L % 10 === 9 ? "multi" : L % 10 === 4 ? "blocks" : L % 10 === 6 ? "moves" : "score");
+  const goalNeed = (L) => { const g = storyGoal(L), d = storyDiff(L); return g === "boss" ? 3 + Math.round(storyDiff(L) * 7) : g === "multi" ? multiNeed(L) : g === "blocks" ? 24 + Math.round(d * 40 / 4) * 4 : g === "moves" ? 14 + Math.round(d * 20) : 0; };
+  const goalBadge = (L) => { const g = storyGoal(L); return g === "boss" ? `${goalNeed(L)} pedras` : g === "multi" ? `×${multiNeed(L)} linhas` : g === "blocks" ? `${goalNeed(L)} blocos` : g === "moves" ? `${goalNeed(L)} jogadas` : null; };
+  const goalLabel = (L) => { const g = storyGoal(L); return g === "boss" ? `chefe do mundo · quebrar ${goalNeed(L)} pedras` : g === "multi" ? `${multiNeed(L)} linhas de uma vez` : g === "blocks" ? `colocar ${goalNeed(L)} blocos` : g === "moves" ? `${goalNeed(L)} jogadas sem perder` : `meta de ${fmt(storyTarget(L))} pontos`; };
   const multiNeed = (L) => (L % 10 === 8 ? 2 : 3);
   // Difficulty 0..~0.65, in waves: inside every block of 10 phases it goes easy, a bit harder, easy
   // again…, with 8 and 9 as the peak; the whole curve rises slowly over the 1000 phases.
@@ -4036,6 +4212,13 @@ window.Scene = (() => {
       for (let h = 0; h < holes; h++) reserved.add(cells[ri(n)]);
       for (const i of cells) put(i, color());
     }
+    // 1b) Boss: stone blocks, preferably inside the almost-complete lines so the first crack comes quickly.
+    if (goal === "boss") {
+      const want = goalNeed(L); let k = 0;
+      const lineBlocks = board.map((v, i) => (v ? i : -1)).filter((i) => i >= 0);
+      for (let a = 0; a < 40 && k < Math.ceil(want / 2) && lineBlocks.length; a++) { const i = lineBlocks[ri(lineBlocks.length)]; if (board[i] !== STONE) { board[i] = STONE; k++; } }
+      for (let a = 0; a < 800 && k < want; a++) { const i = ri(n * n); if (put(i, STONE)) k++; }
+    }
     // 2) Marked blocks to destroy (clear levels only).
     if (goal === "clear") {
       const want = 2 + Math.round(t * 15) + (t > .3 ? ri(3) : 0);
@@ -4051,10 +4234,9 @@ window.Scene = (() => {
     // 3) Scattered clutter that gets in the way, up to the fill cap.
     for (let a = 0; a < 1500 && filled < cap; a++) put(ri(n * n), color());
     const marks = board.filter((v) => v === MARK).length;
-    return { L, rules, n, goal, board, target: goal === "score" ? storyTarget(L) : 0, marks, need: goal === "score" ? 0 : goalNeed(L), key };
+    return { L, rules, n, goal, board, target: goal === "score" ? storyTarget(L) : 0, marks, need: goal === "score" ? 0 : goal === "boss" ? stonesLeft(board) : goalNeed(L), key };
   }
-  // v14: 50 worlds of 20 phases; every world has its own scene (Scene.worlds).
-  const LEVELS_PER_WORLD = 20;
+
   const worldOf = (L) => Math.min(Math.floor((L - 1) / LEVELS_PER_WORLD), 49);
   // Medals earned on the old 10-phase worlds become medals of the new 20-phase world that contains
   // both halves (the lower of the two), once.
@@ -4089,7 +4271,7 @@ window.Scene = (() => {
   const starCount = (arr) => (arr ? arr.reduce((a, v) => a + (v ? 1 : 0), 0) : 0);
   function totalStars() { const st = storyStars(); let n = 0; for (const L in st) n += starCount(st[L]); return n + Object.keys(store.get("ach", {})).length; }
   // ---------- v22: lifetime stats and achievements (each one is worth +1 star) ----------
-  function stat(update) { const s2 = store.get("stats", { lines: 0, maxCombo: 0, bestMulti: 0, tex: [] }); if (update) { update(s2); store.set("stats", s2); } return s2; }
+  function stat(update) { const s2 = store.get("stats", { lines: 0, maxCombo: 0, bestMulti: 0, tex: [], time: 0, mats: {} }); if (update) { update(s2); store.set("stats", s2); } return s2; }
   const ACH = [
     ["first", "Primeira linha", "Limpe sua primeira linha", (x) => x.lines >= 1],
     ["lines100", "Cem linhas", "Limpe 100 linhas no total", (x) => x.lines >= 100],
@@ -4124,6 +4306,10 @@ window.Scene = (() => {
     for (const [id, title] of ACH) if (!got[id] && ACH.find((a) => a[0] === id)[3](x)) { got[id] = Date.now(); changed = true; toast(`<b>🏆 Conquista: ${title}</b><small>+1 estrela</small>`); sfx.levelUp(); }
     if (changed) store.set("ach", got);
   }
+  // v23: time played, counted every 10 s while a game screen is open and the app is visible
+  setInterval(() => { if (document.hidden || !S || S.over || ($("game").hidden && $("tetris").hidden)) return; stat((x) => { x.time = (x.time || 0) + 10; }); }, 10000);
+  const fmtTime = (sec) => { const h = Math.floor(sec / 3600), m = Math.floor(sec / 60) % 60; return h ? `${h}h ${m}min` : `${m}min`; };
+  function favMaterial() { const m = stat().mats || {}; let best = null; for (const k in m) if (!best || m[k] > m[best]) best = k; return best ? (Skins.KINDS.find(([x]) => x === best) || [0, best])[1] : "—"; }
   // ---------- v22: daily challenge (offline, generated from the date) ----------
   const dayKey = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
   const dayIdx = () => { const d = new Date(); return Math.floor((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(2024, 0, 1)) / 864e5); };
@@ -4135,9 +4321,9 @@ window.Scene = (() => {
   const MEDAL_NAME = { bronze: "bronze", silver: "prata", gold: "ouro" }, MEDAL_RANK = { bronze: 1, silver: 2, gold: 3 };
   // One special challenge per phase, built only from things the game already measures.
   function challengeFor(st) {
-    const L = st.level, d = storyDiff(L), type = st.goal === "multi" ? 2 : st.goal === "moves" ? (L % 20 < 10 ? 0 : 1) : (L - 1) % 3;
+    const L = st.level, d = storyDiff(L), type = st.goal === "multi" || st.goal === "boss" ? 2 : st.goal === "moves" ? (L % 20 < 10 ? 0 : 1) : (L - 1) % 3;
     if (type === 0) { const n = 2 + Math.floor(d * 2); return { text: `Faça um combo ×${n}`, need: n, val: st.maxCombo || 0, kind: "min" }; }
-    if (type === 2) { const n = st.goal === "clear" ? (st.marksTotal || 0) * 3 + 8 : st.goal === "multi" ? 8 + (st.need || 2) * 4 : st.goal === "blocks" ? Math.ceil(st.need / 3) + 8 : Math.ceil(st.target / 8) + 8; return { text: `Vença em até ${n} jogadas`, need: n, val: st.moves || 0, kind: "max" }; }
+    if (type === 2) { const n = st.goal === "clear" ? (st.marksTotal || 0) * 3 + 8 : st.goal === "multi" ? 8 + (st.need || 2) * 4 : st.goal === "boss" ? st.need * 5 + 12 : st.goal === "blocks" ? Math.ceil(st.need / 3) + 8 : Math.ceil(st.target / 8) + 8; return { text: `Vença em até ${n} jogadas`, need: n, val: st.moves || 0, kind: "max" }; }
     const n = 3 + Math.floor(d * 5); return { text: `Limpe ${n} linhas no total`, need: n, val: st.lines || 0, kind: "min" };
   }
   const challengeMet = (c) => (c.kind === "min" ? c.val >= c.need : c.val <= c.need);
@@ -4171,10 +4357,10 @@ window.Scene = (() => {
     document.querySelectorAll(".tab").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.mode === recTab)));
     if (recTab === "ach") {
       const got = store.get("ach", {}), x = achStats(), ol = $("rank");
-      $("st-best").textContent = `${Object.keys(got).length}/${ACH.length}`; $("st-best-label").textContent = "Conquistas";
+      $("st-best").textContent = fmtTime(stat().time || 0); $("st-best-label").textContent = "Tempo jogado";
       $("st-played").textContent = fmt(x.lines); $("st-played-label").textContent = "Linhas no total";
-      $("st-combo").textContent = x.daily; $("st-combo-label").textContent = "Desafios do dia";
-      ol.innerHTML = ACH.map(([id, t, d]) => `<li class="${got[id] ? "top" : "ach-off"}"><span class="pos">${got[id] ? "🏆" : "🔒"}</span><span><span class="sc">${t}</span><br><span class="meta">${d}</span></span><span class="date">${got[id] ? "+1 ★" : ""}</span></li>`).join("");
+      $("st-combo").textContent = favMaterial(); $("st-combo-label").textContent = "Material favorito";
+      ol.innerHTML = `<li class="ach-head"><span class="pos">🏆</span><span><span class="sc">Conquistas ${Object.keys(got).length}/${ACH.length}</span><br><span class="meta">Desafios do dia: ${x.daily} · estrelas: ${totalStars()}</span></span><span class="date"></span></li>` + ACH.map(([id, t, d]) => `<li class="${got[id] ? "top" : "ach-off"}"><span class="pos">${got[id] ? "🏆" : "🔒"}</span><span><span class="sc">${t}</span><br><span class="meta">${d}</span></span><span class="date">${got[id] ? "+1 ★" : ""}</span></li>`).join("");
       return;
     }
     const mc = store.get("maxcombo." + recTab, 0), story = recTab === "story";
@@ -4330,7 +4516,7 @@ window.Scene = (() => {
     });
   }
   function renderScore() {
-    renderPower(); renderChallenge(); renderUndo();
+    renderPower(); renderChallenge(); renderUndo(); renderTimer();
     if (S.mode === "story") {
       renderGoal();
       $("score").textContent = fmt(S.score);
@@ -4371,6 +4557,7 @@ window.Scene = (() => {
     fx("combo t" + tier, (tier === 3 ? "Combo épico ×" : "Combo ×") + combo, 30);
     Scene.combo(br.left + br.width / 2, br.top + br.height * .42, tier);
     if (tier === 3) Scene.hitstop(80);
+    if (tier >= 2) setTimeout(() => buzzPattern(BUZZ_COMBO[tier]), 60);
   }
   // A light band runs along each cleared row/column/box, staggered slightly.
   function sweepGroups(groups, cellOf) {
@@ -4392,6 +4579,7 @@ window.Scene = (() => {
     const { idx, lines, groups } = findClears(S.board);
     const midTop = $("board").clientHeight / 2;
     S.moves = (S.moves || 0) + 1; S.placed = (S.placed || 0) + p.cells.length;
+    { const mt = Skins.material(); stat((x) => { x.mats = x.mats || {}; x.mats[mt] = (x.mats[mt] || 0) + 1; }); }
     if (lines) {
       S.bestMulti = Math.max(S.bestMulti || 0, lines);
       stat((x) => { x.lines += lines; x.bestMulti = Math.max(x.bestMulti, lines); x.maxCombo = Math.max(x.maxCombo, (S.combo || 0) + 1); });
@@ -4400,9 +4588,12 @@ window.Scene = (() => {
       S.lines = (S.lines || 0) + lines;
       S.maxCombo = Math.max(S.maxCombo || 0, S.combo);
       gained += 10 * lines * lines * S.combo;
-      const was = new Map([...idx].map((i) => [i, S.board[i]]));
-      idx.forEach((i) => { S.board[i] = 0; });
+      // v23 boss stones: a cleared line cracks a stone; a cracked stone breaks on the next line.
+      const was = new Map([...idx].filter((i) => S.board[i] !== STONE).map((i) => [i, S.board[i]]));
+      const cracked = [...idx].filter((i) => S.board[i] === STONE);
+      idx.forEach((i) => { S.board[i] = S.board[i] === STONE ? CRACK : 0; });
       renderBoard();
+      if (cracked.length) { crackFx(cracked); }
       // Cells burst in a quick wave, from the placed piece outward.
       was.forEach((v, i) => {
         const r = Math.floor(i / S.n), c = i % S.n, dist = Math.abs(r - r0) + Math.abs(c - c0);
@@ -4416,7 +4607,7 @@ window.Scene = (() => {
       if (power >= 3) Scene.hitstop(70);
       Scene.explode([...was].map(([i, v]) => { const r = cellEls[i].getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, size: r.width, color: Skins.colorOf(v), tex: Skins.texOf(v) }; }), power, Skins.material());
       if (lines >= 2) fx("praise", PRAISE[Math.min(lines, 5)], midTop - 70);
-      comboFx(S.combo, $("board"));
+      comboFx(S.combo, $("board")); shopEffect(lines, S.combo);
     } else {
       S.combo = 0;
       renderBoard();
@@ -4440,7 +4631,7 @@ window.Scene = (() => {
     }
     if (S.mode !== "story" && !S.recShown && bestBefore > 0 && S.score > bestBefore) {
       S.recShown = true;
-      setTimeout(() => { sfx.record(); buzz(120); fx("newrec", "Novo recorde!", 70, 1900); }, 700);
+      setTimeout(() => { sfx.record(); buzzPattern(BUZZ_WIN); fx("newrec", "Novo recorde!", 70, 1900); }, 700);
     }
 
     if (S.mode === "story") {
@@ -4470,9 +4661,9 @@ window.Scene = (() => {
   // No power at the start of a level; every 300 points in the level earns one use.
   const POWER_POINTS = 300, POWER_TAPS = 4;
   // Has the phase's goal been met? (score, N lines at once, or — old saves — the marked blocks)
-  const goalVal = () => (S.goal === "multi" ? S.bestMulti || 0 : S.goal === "blocks" ? S.placed || 0 : S.goal === "moves" ? S.moves || 0 : S.score);
+  const goalVal = () => (S.goal === "boss" ? S.need - stonesLeft(S.board) : S.goal === "multi" ? S.bestMulti || 0 : S.goal === "blocks" ? S.placed || 0 : S.goal === "moves" ? S.moves || 0 : S.score);
   const storyDone = () => (S.goal === "clear" ? S.marks === 0 : S.goal === "score" ? S.score >= S.target : goalVal() >= S.need);
-  const goalText = (st) => (st.goal === "clear" ? "Destrua os blocos marcados" : st.goal === "multi" ? `Destrua ${st.need} linhas de uma vez` : st.goal === "blocks" ? `Coloque ${st.need} blocos` : st.goal === "moves" ? `Faça ${st.need} jogadas sem perder` : `Faça ${fmt(st.target)} pontos`);
+  const goalText = (st) => (st.goal === "boss" ? `Chefe: quebre ${st.need} pedras` : st.goal === "clear" ? "Destrua os blocos marcados" : st.goal === "multi" ? `Destrua ${st.need} linhas de uma vez` : st.goal === "blocks" ? `Coloque ${st.need} blocos` : st.goal === "moves" ? `Faça ${st.need} jogadas sem perder` : `Faça ${fmt(st.target)} pontos`);
   function renderGoal() {
     const done = storyDone();
     $("goal-text").textContent = goalText(S);
@@ -4517,9 +4708,15 @@ window.Scene = (() => {
       renderTray(); renderPower(); save();
     }
   });
+  function crackFx(list) {
+    sfx.ui(); buzz(40);
+    for (const i of list) { const el = cellEls[i]; el.classList.add("cracking"); setTimeout(() => el.classList.remove("cracking"), 500); }
+    Scene.dust(list.map((i) => { const rc = cellEls[i].getBoundingClientRect(); return { x: rc.left + rc.width / 2, y: rc.bottom, size: rc.width }; }));
+  }
   function destroyCell(i) {
     const v = S.board[i];
     if (!v) return;
+    if (v === STONE) { S.board[i] = CRACK; renderBoard(); crackFx([i]); S.powerTaps--; renderScore(); if (S.powerTaps === 0) afterPower(); else { renderPower(); save(); } return; }
     S.board[i] = 0;
     renderBoard();
     cellEls[i].classList.add("c" + v, "b", "clearing");
@@ -4530,7 +4727,7 @@ window.Scene = (() => {
     S.powerTaps--;
     S.marks = S.board.filter((x) => x === MARK).length;
     renderScore();
-    if (S.goal === "clear" && S.marks === 0) {
+    if ((S.goal === "clear" && S.marks === 0) || (S.goal === "boss" && storyDone())) {
       S.powerTaps = 0; S.over = true; renderPower();
       setTimeout(storyWin, 700);
       return;
@@ -4566,7 +4763,7 @@ window.Scene = (() => {
     if (S.daily) return dailyWin();
     store.del("game.story");
     music.stop(); music.want = null;
-    sfx.record(); buzz(150);
+    sfx.record(); buzzPattern(BUZZ_WIN);
     const best = storyBest();
     best[S.level] = Math.max(best[S.level] || 0, S.score);
     store.set("story.best", best);
@@ -4585,7 +4782,7 @@ window.Scene = (() => {
     if (medal && (MEDAL_RANK[medal] || 0) > (MEDAL_RANK[medals[w]] || 0)) { medals[w] = medal; store.set("story.medals", medals); rewards.push(`Medalha de ${MEDAL_NAME[medal]} · Mundo ${w + 1}`); }
     for (const [, name, need] of Skins.KINDS) if (need && starsBefore < need && starsAfter >= need) rewards.push(`Nova textura: ${name}`);
 
-    const why = S.goal === "clear" ? "Você destruiu todos os blocos marcados." : S.goal === "multi" ? `Você destruiu ${S.need} linhas de uma vez!` : S.goal === "blocks" ? `Você colocou ${S.need} blocos.` : S.goal === "moves" ? `Você fez ${S.need} jogadas sem perder.` : `Você bateu a meta de ${fmt(S.target)} pontos.`;
+    const why = S.goal === "boss" ? "Você derrotou o chefe do mundo!" : S.goal === "clear" ? "Você destruiu todos os blocos marcados." : S.goal === "multi" ? `Você destruiu ${S.need} linhas de uma vez!` : S.goal === "blocks" ? `Você colocou ${S.need} blocos.` : S.goal === "moves" ? `Você fez ${S.need} jogadas sem perder.` : `Você bateu a meta de ${fmt(S.target)} pontos.`;
     overlay("win", `Fase ${S.level} concluída!`, why);
     $("over-badge").hidden = true;
     $("over-rank").textContent = S.level < STORY_LEVELS ? `Fase ${S.level + 1} desbloqueada` : `Você completou as ${STORY_LEVELS} fases da História!`;
@@ -4607,7 +4804,7 @@ window.Scene = (() => {
     const br = $("board").getBoundingClientRect();
     Scene.celebrate(br.left + br.width / 2, br.top + br.height * .35);
   }
-  function gameOver() {
+  function gameOver(reason) {
     if (!S || S.over) return;
     if (S.mode === "story") {
       S.over = true;
@@ -4615,7 +4812,7 @@ window.Scene = (() => {
       music.stop(); music.want = null;
       sfx.lose(); buzz(400); $("board").classList.add("dead");
       store.set("maxcombo.story", Math.max(store.get("maxcombo.story", 0), S.maxCombo || 0));
-      const left = S.goal === "clear"
+      const left = S.goal === "boss" ? `Faltaram ${stonesLeft(S.board)} pedras. Cada pedra racha na 1ª linha e quebra na 2ª.` : S.goal === "clear"
         ? `Faltaram ${S.marks} ${S.marks === 1 ? "bloco marcado" : "blocos marcados"}.`
         : S.goal === "multi" ? `Faltou destruir ${S.need} linhas de uma vez. Dica: guarde a peça reta para a coluna vazia.`
         : S.goal === "blocks" ? `Faltaram ${S.need - (S.placed || 0)} blocos para a meta de ${S.need}.`
@@ -4637,12 +4834,170 @@ window.Scene = (() => {
     music.stop(); music.want = null;
     if (isRec) sfx.record(); else sfx.lose();
     buzz(isRec ? 150 : 400);
-    overlay(isRec ? "win" : "lose", isRec ? "Novo recorde!" : "Você perdeu", "Nenhuma peça cabe no tabuleiro.");
+    overlay(isRec ? "win" : "lose", isRec ? "Novo recorde!" : reason ? "Tempo esgotado!" : "Você perdeu", reason || "Nenhuma peça cabe no tabuleiro.");
     $("over-badge").hidden = !isRec;
     $("over-badge").textContent = prev > 0 ? `Superou ${fmt(prev)}` : "Primeiro recorde";
     $("over-rank").textContent = rank ? `${rank}º lugar no ranking do modo ${MODES[S.mode].label}` : `Recorde: ${fmt(prev)}`;
   }
 
+  // ---------- v23: save / restore progress in a file (works offline) ----------
+  const SAVE_APP = "BLOCK ALT UNO";
+  function exportData() {
+    const data = {};
+    try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith("bau.") && !k.startsWith("bau.game.")) data[k] = localStorage.getItem(k); } } catch (e) {}
+    const v = +(document.querySelector('meta[name="bau-version"]') || {}).content || 0;
+    return JSON.stringify({ app: SAVE_APP, v, date: new Date().toISOString(), data });
+  }
+  window.bauExported = (ok) => toast(ok ? "<b>Progresso salvo no arquivo ✓</b><small>Copie para o celular novo e use Restaurar</small>" : "<b>O arquivo não foi salvo</b>");
+  $("btn-export").addEventListener("click", () => {
+    sfx.ui();
+    const json = exportData(), name = `block-alt-uno-progresso-${dayKey()}.json`;
+    if (window.BAUNative && BAUNative.exportSave) { BAUNative.exportSave(json, name); return; }
+    try {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([json], { type: "application/json" })); a.download = name;
+      document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+      window.bauExported(true);
+    } catch (e) { window.bauExported(false); }
+  });
+  $("btn-import").addEventListener("click", () => {
+    sfx.ui();
+    if (window.BAUNative && BAUNative.importSave) BAUNative.importSave(); else $("import-file").click();
+  });
+  $("import-file").addEventListener("change", (e) => {
+    const f = e.target.files && e.target.files[0]; e.target.value = "";
+    if (!f) return;
+    const rd = new FileReader(); rd.onload = () => window.bauImport(String(rd.result)); rd.onerror = () => window.bauImport(null); rd.readAsText(f);
+  });
+  let pendingImport = null;
+  window.bauImport = (text) => {
+    if (text == null) return;
+    let o = null;
+    try { o = JSON.parse(text); } catch (e) {}
+    if (!o || o.app !== SAVE_APP || !o.data || typeof o.data !== "object") { toast("<b>Arquivo inválido</b><small>Escolha um arquivo salvo pelo BLOCK ALT UNO</small>"); return; }
+    const keys = Object.keys(o.data).filter((k) => k.startsWith("bau.") && typeof o.data[k] === "string");
+    let un = 1, stars = 0;
+    try { un = JSON.parse(o.data["bau.story.unlocked"] || "1"); const st = JSON.parse(o.data["bau.story.stars"] || "{}"); for (const L in st) stars += starCount(st[L]); } catch (e) {}
+    pendingImport = keys.reduce((m, k) => ((m[k] = o.data[k]), m), {});
+    $("confirm-text").textContent = `Arquivo de ${o.date ? new Date(o.date).toLocaleDateString("pt-BR") : "data desconhecida"} · até a fase ${un} · ${stars} ★ na História. O progresso atual deste aparelho será substituído.`;
+    $("confirm").hidden = false;
+  };
+  $("confirm-no").addEventListener("click", () => { pendingImport = null; $("confirm").hidden = true; });
+  $("confirm-yes").addEventListener("click", () => {
+    const d = pendingImport; if (!d) return;
+    try { for (let i = localStorage.length - 1; i >= 0; i--) { const k = localStorage.key(i); if (k && k.startsWith("bau.")) localStorage.removeItem(k); } for (const k in d) localStorage.setItem(k, d[k]); } catch (e) {}
+    try { if (window.BAUNative && BAUNative.replaceAll) BAUNative.replaceAll(JSON.stringify(d)); } catch (e) {}
+    $("confirm").hidden = true; $("settings").hidden = true;
+    toast("<b>Progresso restaurado ✓</b>");
+    setTimeout(() => { if (window.BAUNative && BAUNative.restart) BAUNative.restart(); else location.reload(); }, 900);
+  });
+  // ---------- v23: opening screen ----------
+  {
+    const sp = $("splash"), box = $("sp-tiles");
+    try { ["wood", "lava", "ice", "gold", "electric", "crystal", "grass", "galaxy"].forEach((k, i) => { const t = document.createElement("i"); t.style.backgroundImage = `url(${Skins.preview(k)})`; t.style.animationDelay = i * 70 + "ms"; box.appendChild(t); }); } catch (e) {}
+    // Counted from the end of loading (texture generation can take a moment on slow phones).
+    const hide = () => setTimeout(() => { sp.classList.add("out"); setTimeout(() => sp.remove(), 650); }, 1300);
+    if (document.readyState === "complete") hide(); else window.addEventListener("load", hide, { once: true });
+  }
+  // ---------- v23: star shop (no real money) ----------
+  // Stars are earned in story, daily and achievements; spending never re-locks materials (those use stars earned).
+  const SHOP = [
+    ["shop_twinkle", "music", "Brilha, Brilha Estrelinha", "Mozart · música extra", 8, "♪"],
+    ["shop_tell", "music", "Guilherme Tell", "Rossini · galope rápido", 15, "♪"],
+    ["shop_spring", "music", "Primavera", "Vivaldi · As Quatro Estações", 15, "♪"],
+    ["frame-wood", "frame", "Moldura entalhada", "Madeira escura com filete duplo", 6, "#7a4a22"],
+    ["frame-gold", "frame", "Moldura de ouro", "Borda dourada com brilho", 12, "#e8b94a"],
+    ["frame-crystal", "frame", "Moldura de cristal", "Vidro azul translúcido", 18, "#bfe9ff"],
+    ["frame-lava", "frame", "Moldura de lava", "Brasa acesa em volta do tabuleiro", 18, "#ff6a1a"],
+    ["frame-neon", "frame", "Moldura neon", "Rosa e ciano, estilo fliperama", 25, "#ff4fd8"],
+    ["fx-stars", "effect", "Chuva de estrelas", "Estrelas caem ao destruir linhas", 10, "✦"],
+    ["fx-rainbow", "effect", "Arco-íris", "As linhas somem num brilho colorido", 16, "🌈"],
+    ["fx-fireworks", "effect", "Fogos de artifício", "Fogos estouram nos combos", 24, "🎆"],
+  ];
+  const shopOwned = () => store.get("shop", {});
+  function owned(k) { return !!shopOwned()[k]; }
+  const starsSpent = () => store.get("starsSpent", 0);
+  const starBalance = () => Math.max(0, totalStars() - starsSpent());
+  let shopCat = "music";
+  function applyFrame() {
+    const fr = store.get("frame", ""), ok = fr && owned(fr);
+    for (const [k, cat] of SHOP) if (cat === "frame") document.body.classList.toggle(k, ok && k === fr);
+  }
+  function renderShop() {
+    $("shop-stars").textContent = starBalance();
+    document.querySelectorAll(".shop-tab").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.cat === shopCat)));
+    const eq = { music: null, frame: store.get("frame", ""), effect: store.get("effect", "") }, bal = starBalance();
+    $("shop-list").innerHTML = SHOP.filter(([, cat]) => cat === shopCat).map(([k, cat, name, desc, price, ico]) => {
+      const own = owned(k), on = own && (cat === "music" ? store.get("gameMusic", "") === k || store.get("menuMusic", "") === k : eq[cat] === k);
+      const icon = cat === "frame" ? `<span class="fr" style="outline:3px solid ${ico};outline-offset:2px"></span>` : ico;
+      const label = !own ? `${price} ★` : cat === "music" ? (on ? "Tocando" : "Ouvir") : on ? "Em uso" : "Usar";
+      return `<li><span class="ico">${icon}</span><span class="txt"><b>${name}</b><small>${desc}</small></span><button class="buy${!own && bal < price ? " poor" : own ? (on ? " on" : " own") : ""}" data-k="${k}">${label}</button></li>`;
+    }).join("");
+  }
+  function shopAction(k) {
+    const it = SHOP.find(([x]) => x === k); if (!it) return;
+    const [, cat, name, , price] = it, had = owned(k);
+    if (!had) {
+      if (starBalance() < price) { toast(`Faltam ${price - starBalance()} ★ para ${name}`); sfx.ui(); return; }
+      store.set("shop", { ...shopOwned(), [k]: Date.now() }); store.set("starsSpent", starsSpent() + price);
+      sfx.record(); toast(`Desbloqueado: ${name}!`);
+    } else sfx.ui();
+    if (cat === "music") { store.set("gameMusic", k); music.play(k); }
+    else if (cat === "frame") { store.set("frame", had && store.get("frame", "") === k ? "" : k); applyFrame(); }
+    else store.set("effect", had && store.get("effect", "") === k ? "" : k);
+    renderShop();
+  }
+  $("shop-list").addEventListener("click", (e) => { const b = e.target.closest(".buy"); if (b) shopAction(b.dataset.k); });
+  document.querySelectorAll(".shop-tab").forEach((t) => t.addEventListener("click", () => { shopCat = t.dataset.cat; sfx.ui(); renderShop(); }));
+  $("btn-shop").addEventListener("click", () => { sfx.ui(); renderShop(); $("shop").hidden = false; });
+  $("shop-close").addEventListener("click", () => { $("shop").hidden = true; music.play(menuTrack()); });
+  applyFrame();
+  // Shop effects fire on top of the material explosion when lines are cleared.
+  function shopEffect(lines, combo) {
+    const k = store.get("effect", ""); if (!k || !owned(k) || !lines) return;
+    const br = $(S && S.mode === "tetris" ? "t-board" : "board").getBoundingClientRect();
+    if (k === "fx-fireworks" && combo < 2 && lines < 2) return;
+    Scene.special(k, { x: br.left, y: br.top, w: br.width, h: br.height }, lines + (combo || 0));
+  }
+  // ---------- v23: Contra o Tempo timer ----------
+  const TIMED_SECONDS = 120;
+  function renderTimer() {
+    if (!S || S.mode !== "timed") { document.body.classList.remove("hurry"); return; }
+    const t = Math.ceil(Math.max(0, S.timeLeft)); $("mode-label").textContent = `⏱ ${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`;
+    document.body.classList.toggle("hurry", t <= 10 && !S.over);
+  }
+  setInterval(() => {
+    if (!S || S.mode !== "timed" || S.over || $("game").hidden || document.hidden || !$("over").hidden || !$("tut").hidden || !$("settings").hidden) return;
+    S.timeLeft -= .25;
+    if (Math.abs(S.timeLeft - Math.round(S.timeLeft)) < .01) { const t = Math.round(S.timeLeft); if (t > 0 && t <= 5) sfx.ui(); }
+    renderTimer();
+    if (S.timeLeft <= 0) { document.body.classList.remove("hurry"); gameOver(`O tempo acabou. Você fez ${fmt(S.score)} pontos em 2 minutos.`); }
+  }, 250);
+  // ---------- v23: hints (not in story, not in Tetris) ----------
+  // After 20 s without touching the screen, a good spot for one of the pieces glows softly.
+  let lastAct = Date.now(), hintOn = false;
+  const clearHint = () => { if (!hintOn) return; hintOn = false; document.querySelectorAll(".hint").forEach((e) => e.classList.remove("hint")); };
+  document.addEventListener("pointerdown", () => { lastAct = Date.now(); clearHint(); }, true);
+  function showHint() {
+    let best = null;
+    S.tray.forEach((p, ti) => {
+      if (!p) return;
+      for (let r = 0; r < S.n; r++) for (let c = 0; c < S.n; c++) {
+        if (!canPlace(S.board, S.n, p.cells, r, c)) continue;
+        const b2 = S.board.slice(); for (const [pr, pc] of p.cells) b2[(r + pr) * S.n + c + pc] = 1;
+        let touch = 0; for (const [pr, pc] of p.cells) for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const rr = r + pr + dr, cc = c + pc + dc; if (rr < 0 || cc < 0 || rr >= S.n || cc >= S.n || S.board[rr * S.n + cc]) touch++; }
+        const sc = findClears(b2).lines * 100 + touch + Math.random() * .5;
+        if (!best || sc > best.sc) best = { sc, ti, cells: p.cells.map(([pr, pc]) => (r + pr) * S.n + c + pc) };
+      }
+    });
+    if (!best) return;
+    hintOn = true;
+    for (const i of best.cells) cellEls[i].classList.add("hint");
+    const sl = $("tray").children[best.ti]; if (sl) sl.classList.add("hint");
+  }
+  setInterval(() => {
+    if (hintOn || !S || S.over || S.mode === "story" || S.mode === "tetris" || $("game").hidden || !$("over").hidden || Date.now() - lastAct < 20000) return;
+    showHint();
+  }, 1000);
   // ---------- v21: undo and continue (story) ----------
   let overTimer = 0;
   const UNDOS = 2;
@@ -4671,7 +5026,7 @@ window.Scene = (() => {
     $("over").hidden = true; $("board").classList.remove("dead");
     const n = S.n, rows = [...Array(n).keys()].map((r) => [r, S.board.slice(r * n, r * n + n).filter(Boolean).length]).sort((a, b) => b[1] - a[1]).slice(0, 3);
     const pts = [];
-    for (const [r] of rows) for (let c = 0; c < n; c++) { const i = r * n + c, v = S.board[i]; if (!v) continue; const rc = cellEls[i].getBoundingClientRect(); pts.push({ x: rc.left + rc.width / 2, y: rc.top + rc.height / 2, size: rc.width, color: Skins.colorOf(v), tex: Skins.texOf(v) }); S.board[i] = 0; }
+    for (const [r] of rows) for (let c = 0; c < n; c++) { const i = r * n + c, v = S.board[i]; if (!v) continue; const rc = cellEls[i].getBoundingClientRect(); if (v === STONE) { S.board[i] = CRACK; continue; } pts.push({ x: rc.left + rc.width / 2, y: rc.top + rc.height / 2, size: rc.width, color: Skins.colorOf(v), tex: Skins.texOf(v) }); S.board[i] = 0; }
     if (pts.length) Scene.explode(pts, 2, Skins.material());
     S.marks = S.board.filter((v) => v === MARK).length;
     S.tray = newTray(); S.next = newTray(); S.undoSnap = null;
@@ -4886,7 +5241,7 @@ window.Scene = (() => {
       buzz(power >= 4 ? 90 : power >= 2 ? 55 : 30);
       shake(power >= 3);
       if (n >= 2) fx("praise", n >= 4 ? "TETRIS!" : PRAISE[n], midTop - 70);
-      comboFx(S.combo, $("t-board"));
+      comboFx(S.combo, $("t-board")); shopEffect(n, S.combo);
       fx("gain", "+" + fmt(gained), midTop - 10, 1000);
     } else {
       S.combo = 0;
@@ -5016,7 +5371,7 @@ window.Scene = (() => {
     if (!S.mat || !S.theme) { S.mat = chosenSkin(); S.theme = MAT_SCENE[S.mat]; }
     Scene.set(S.theme);
     applySkin();
-    music.play("tetris"); music.setRate(rateFor(S.score)); music.setTranspose(Math.min(levelOf(S.score) - 1, 12));
+    music.play(gameTrack("tetris")); music.setRate(rateFor(S.score)); music.setTranspose(Math.min(levelOf(S.score) - 1, 12));
     tHud();
     if (S.piece) renderNext(); else tSpawn();
     tRender();
@@ -5136,11 +5491,11 @@ window.Scene = (() => {
       }
       const b = document.createElement("button"), badge = goalBadge(L), done = best[L] != null;
       b.dataset.l = L;
-      b.className = "lv" + (done ? " done" : "") + (L === un && !done ? " next" : "");
+      b.className = "lv" + (storyGoal(L) === "boss" ? " boss" : "") + (done ? " done" : "") + (L === un && !done ? " next" : "");
       const row = Math.floor(k / 5); b.style.gridRow = row + 1; b.style.gridColumn = (row % 2 ? 4 - (k % 5) : k % 5) + 1;
       b.disabled = L > un;
       const sc = starCount(st[L]);
-      b.innerHTML = `${done ? `<span class="lv-stars"><b>${"★".repeat(sc)}</b>${"★".repeat(3 - sc)}</span>` : ""}${L}<small>${badge ? (storyGoal(L) === "multi" ? `<i class="goal-ic clear"></i>×${multiNeed(L)}` : badge.split(" ")[0] + (storyGoal(L) === "blocks" ? "▪" : "↻")) : fmt(storyTarget(L))}</small>`;
+      b.innerHTML = `${done ? `<span class="lv-stars"><b>${"★".repeat(sc)}</b>${"★".repeat(3 - sc)}</span>` : ""}${L}<small>${badge ? (storyGoal(L) === "boss" ? `👑${goalNeed(L)}` : storyGoal(L) === "multi" ? `<i class="goal-ic clear"></i>×${multiNeed(L)}` : badge.split(" ")[0] + (storyGoal(L) === "blocks" ? "▪" : "↻")) : fmt(storyTarget(L))}</small>`;
       b.setAttribute("aria-label", `Fase ${L}, ${goalLabel(L)}${done ? ", concluída" : L > un ? ", bloqueada" : ""}`);
       if (L === un) next = b;
       path.appendChild(b);
@@ -5150,8 +5505,10 @@ window.Scene = (() => {
   $("lv-grid").addEventListener("click", (e) => { const b = e.target.closest(".lv"); if (b && !b.disabled) startStory(+b.dataset.l, false); });
   function renderSettings() {
     const box = $("menu-music"), cur = menuTrack();
-    if (!box.children.length) {
-      for (const [k, title, who] of MENU_TRACKS) {
+    renderGameMusic();
+    if (box.children.length !== allTracks().length) {
+      box.innerHTML = "";
+      for (const [k, title, who] of allTracks()) {
         const b2 = document.createElement("button");
         b2.className = "music-opt"; b2.dataset.track = k; b2.setAttribute("role", "radio");
         b2.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg><span><b>${title}</b><small>${who}</small></span>`;
@@ -5160,6 +5517,11 @@ window.Scene = (() => {
       }
     }
     for (const b2 of box.children) b2.setAttribute("aria-checked", String(b2.dataset.track === cur));
+  }
+  function renderGameMusic() {
+    const box = $("game-music"), cur = store.get("gameMusic", "auto"), list = [["auto", "Automática", "Cada modo tem a sua; na História troca a cada 10 fases"], ...allTracks()];
+    box.innerHTML = list.map(([k, t, w]) => `<button class="chip-opt" data-track="${k}" role="radio" aria-checked="${k === cur}" title="${w}">${k === "auto" ? "★ " : "♪ "}${t}</button>`).join("");
+    for (const b2 of box.children) b2.addEventListener("click", () => { store.set("gameMusic", b2.dataset.track); renderGameMusic(); sfx.ui(); });
   }
   $("btn-settings").addEventListener("click", () => { renderSettings(); renderVisualPick(); renderSkins(); $("settings").hidden = false; $("set-close").focus(); });
   $("set-close").addEventListener("click", () => { $("settings").hidden = true; });
@@ -5176,7 +5538,8 @@ window.Scene = (() => {
       S = saved;
       S.rules = S.rules || mode;
     } else {
-      S = { mode, rules: mode, n, board: new Array(n * n).fill(0), tray: [], score: 0, combo: 0, lines: 0, maxCombo: 0, recShown: false };
+      S = { mode, rules: mode === "timed" ? "classic" : mode, n, board: new Array(n * n).fill(0), tray: [], score: 0, combo: 0, lines: 0, maxCombo: 0, recShown: false };
+      if (mode === "timed") S.timeLeft = TIMED_SECONDS;
       S.tray = newTray(); S.next = newTray();
     }
     enterGame(MODES[mode].label);
@@ -5197,7 +5560,7 @@ window.Scene = (() => {
   }
   function dailyWin() {
     store.del("game.daily");
-    music.stop(); music.want = null; sfx.record(); buzz(150);
+    music.stop(); music.want = null; sfx.record(); buzzPattern(BUZZ_WIN);
     const done = store.get("daily.done", {}), first = !done[S.daily];
     done[S.daily] = Math.max(done[S.daily] || 0, S.score); store.set("daily.done", done);
     let streak = 0; for (let d = new Date(); ; d.setDate(d.getDate() - 1)) { const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; if (done[k] == null) break; streak++; }
@@ -5242,7 +5605,7 @@ window.Scene = (() => {
   // v16: the board itself is painted with the game's material, in the current style, tinted by the
   // mode's colour; the empty cells are see-through holes in it, so every mode × material ×
   // style combination has its own board.
-  const MODE_TINT = { classic: "#eaa53c", sudoku: "#3fb59a", tetris: "#a66be0", story: "#d9824a" };
+  const MODE_TINT = { classic: "#eaa53c", sudoku: "#3fb59a", tetris: "#a66be0", story: "#d9824a", timed: "#3fa9f5" };
   const TRAY_BASE = { wood: "#6b4226", cement: "#7a7872", brick: "#8a3a22", ice: "#3a7ab0", water: "#1f5f8f", lava: "#4a1a0c", marble: "#c8c0b4",
     metal: "#5a6270", bolt: "#2a2a5a", electric: "#2a1650", rain: "#3a5a70", future: "#1a2438", sand: "#c09050", grass: "#2f6a24", smoke: "#4a4a52",
     crystal: "#4a2a70", gold: "#8a6418", snow: "#9ab4cc", cloud: "#6a9ac0", candy: "#b04a7a", galaxy: "#1a1240", moss: "#4a5a40", stained: "#2a2230", leather: "#5a341c", coral: "#a04a3e" };
@@ -5300,14 +5663,16 @@ window.Scene = (() => {
     Scene.set(S.theme, wo ? wo.v : 0);
     const intro = S.daily ? `Desafio do dia<small>${S.daily.split("-").reverse().join("/")}</small>` : wo ? `Mundo ${worldOf(S.level) + 1}<small>${wo.name}</small>` : `Cenário<small>${Scene.nameOf(S.theme)}</small>`;
     setTimeout(() => fx("lvl", intro, $("board").clientHeight / 2 - 20, 1900), 250);
+    if (S.mode === "story" && S.goal === "boss") setTimeout(() => S && S.goal === "boss" && !S.over && (sfx.levelUp(), fx("lvl", `👑 Chefe do mundo!<small>Cada pedra pede 2 linhas</small>`, $("board").clientHeight / 2 - 20, 2400)), 1200);
     if (S.mode === "story") setTimeout(() => S && S.mode === "story" && !S.over && fx("lvl", `Desafio<small>${challengeFor(S).text}</small>`, $("board").clientHeight / 2 - 20, 2200), 2300);
     if (S.mode === "story") { const L0 = S.level; setTimeout(() => S && S.mode === "story" && S.level === L0 && !S.over && fx("lvl", `Música<small>♪ ${TRACKS[storyTrack(L0)].title}</small>`, $("board").clientHeight / 2 - 20, 1800), 4700); }
-    $("mode-label").textContent = label;
+    $("mode-label").textContent = label; lastAct = Date.now(); renderTimer();
     if (!store.get("tutorialSeen", 0)) setTimeout(showTutorial, 350);
-    music.play(S.mode === "story" ? storyTrack(S.level) : S.rules);
+    music.play(gameTrack(S.mode === "story" ? storyTrack(S.level) : S.rules));
     music.setRate(rateFor(S.score));
     buildBoard(); sizeBoard(); renderScore(); save();
   }
+  $("play-timed").addEventListener("click", () => startGame("timed", false));
   document.querySelectorAll(".mode[data-mode]").forEach((b) => b.addEventListener("click", () => (b.dataset.mode === "tetris" ? startTetris(false) : startGame(b.dataset.mode, false))));
   $("play-story").addEventListener("click", showLevels);
   $("lv-back").addEventListener("click", showMenu);
@@ -5324,6 +5689,7 @@ window.Scene = (() => {
 
   // Hooks used by the Android app shell.
   window.blockAltUnoBack = () => {
+    for (const id of ["confirm", "shop", "settings"]) if (!$(id).hidden) { $(id).hidden = true; if (id === "shop") music.play(menuTrack()); return true; }
     if (!$("menu").hidden) return false;
     if (!$("tetris").hidden && $("over").hidden && tRunning()) { tPause(); return true; }
     if ((!$("game").hidden || !$("over").hidden) && S && S.mode === "story") showLevels(); else showMenu();
