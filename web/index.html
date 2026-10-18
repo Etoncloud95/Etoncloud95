@@ -1,7 +1,7 @@
-<title>BLOCK ALT UNO</title>
+<title>BLOCK SUPER GF</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="29">
+<meta name="bau-version" content="30">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -522,6 +522,47 @@ body.frame-lava #board, body.frame-lava .tboard { outline: 4px solid #ff8a2a; ou
 #board .cell.c17 { background-color: #3d4150 !important; background-size: 100% 100% !important; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.07) 0 4px, transparent 4px 9px), linear-gradient(180deg, #555a6b, #2e313c) !important; box-shadow: inset 0 0 0 2px rgba(255,211,107,.45), inset 0 -4px 0 rgba(0,0,0,.4) !important; }
 #board .cell.c17::after { content: "🔒"; position: absolute; inset: 0; display: grid; place-items: center; font-size: calc(var(--cell) * .45); }
 #board .cell.unlock { animation: crackhit .5s ease-out; box-shadow: inset 0 0 0 3px #ffd36b !important; }
+/* v30 Super Desafio */
+.super-card { display: flex; align-items: center; gap: 10px; padding: clamp(6px, 1vh, 10px) 12px; border-radius: 16px; text-align: left; color: #fff;
+  background: linear-gradient(110deg, #6a1fb0, #2a0b52 60%, #8a1f5a); box-shadow: 0 0 0 2px #c77dff, 0 0 18px rgba(199,125,255,.55), 0 5px 0 rgba(0,0,0,.45); }
+.super-card .sc-ic { font-size: 24px; flex: none; }
+.super-card > span:nth-child(2) { flex: 1; min-width: 0; }
+.super-card b { display: block; font-family: var(--font-display); font-size: clamp(14px, 2.1vh, 18px); text-transform: uppercase; letter-spacing: .04em; }
+.super-card small { display: block; font-size: 11.5px; opacity: .85; }
+.super-card .rec { display: grid; text-align: right; } .super-card .rec em { font-style: normal; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; opacity: .75; } .super-card .rec strong { font-family: var(--font-display); font-size: 17px; color: var(--gold); }
+body[data-mode="super"] { --mode-accent: #c77dff; }
+body[data-mode="super"] .lvl-part { display: none; }
+.sk-strip { width: 100%; display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; white-space: nowrap; align-items: center; gap: 4px; min-height: 26px; padding: 2px 6px; border-radius: 10px; background: rgba(40,12,70,.6); box-shadow: inset 0 0 0 1px rgba(199,125,255,.45); font-size: 15px; cursor: pointer; }
+.sk-strip i { font-style: normal; position: relative; } .sk-strip sup { font-size: 9px; color: var(--gold); font-weight: 800; }
+.sk-strip span { font-size: 12px; opacity: .8; } .sk-strip .sk-x { margin-left: auto; font-size: 11.5px; color: var(--gold); opacity: 1; }
+.sk-strip .sk-x + .sk-x { margin-left: 8px; }
+.ss-opt { display: grid; gap: 3px; width: 100%; padding: 12px 14px; border-radius: 14px; text-align: left; background: rgba(106,31,176,.35); box-shadow: inset 0 0 0 2px rgba(199,125,255,.6); margin-bottom: 8px; }
+.ss-opt b { font-size: 16px; } .ss-opt small { font-size: 12.5px; opacity: .85; } .ss-opt em { font-style: normal; font-size: 12px; color: var(--gold); }
+.cards-card { max-width: 460px; }
+.cards-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cards-row.three { grid-template-columns: 1fr 1fr 1fr; }
+.sk-card { display: grid; justify-items: center; align-content: start; gap: 6px; padding: 12px 8px; border-radius: 16px; text-align: center; color: #fff;
+  background: linear-gradient(180deg, #3a1a5c, #1c0d30); box-shadow: inset 0 0 0 2px var(--tc, #6cc070), 0 6px 0 rgba(0,0,0,.45); animation: cardflip .55s var(--ease-pop, ease-out) both; }
+.sk-card:nth-child(2) { animation-delay: .12s; } .sk-card:nth-child(3) { animation-delay: .24s; }
+@keyframes cardflip { from { transform: perspective(600px) rotateY(90deg) scale(.8); opacity: 0; } }
+.sk-card.t1 { --tc: #6cc070; } .sk-card.t2 { --tc: #ffd36b; } .sk-card.t3 { --tc: #ff5a4a; } .sk-card.relief { --tc: #5fe0a0; background: linear-gradient(180deg, #1d4a35, #0e2a1d); }
+.sk-card .sk-tier { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--tc); }
+.sk-card .sk-ic { font-size: 34px; line-height: 1.1; } .sk-card b { font-size: 14.5px; } .sk-card small { font-size: 12px; opacity: .85; line-height: 1.3; } .sk-card em { font-style: normal; font-size: 11.5px; color: var(--gold); }
+.sk-chip { padding: 10px 8px; border-radius: 12px; background: rgba(255,255,255,.08); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); font-size: 13px; text-align: left; }
+.sk-line { grid-column: 1 / -1; text-align: left; font-size: 14px; padding: 6px 4px; border-bottom: 1px solid rgba(255,255,255,.08); } .sk-line small { display: block; font-size: 12px; opacity: .8; }
+#board .cell.c18 { background-color: #5a2a24 !important; background-size: 100% 100% !important; background-image: linear-gradient(0deg, rgba(0,0,0,.35) 2px, transparent 2px), linear-gradient(90deg, rgba(0,0,0,.35) 2px, transparent 2px), linear-gradient(180deg, #9a4a3a, #5a2a24) !important; box-shadow: inset 0 0 0 2px #2a120e !important; }
+#board .cell.hardc { box-shadow: inset 0 0 0 3px #cfd8e6, 0 0 8px rgba(200,220,255,.8) !important; }
+#board .cell.fogc { filter: none; } #board .cell.fogc::before { content: ""; position: absolute; inset: -2px; border-radius: 6px; z-index: 2; background: radial-gradient(circle at 40% 40%, #d8d4e4, #8a879a); opacity: .97; }
+#board .cell.rbomb { box-shadow: inset 0 0 0 3px #ff5a4a !important; }
+#board .cell.rbomb::after { content: "🧨" attr(data-n); position: absolute; inset: 0; display: grid; place-items: center; font-size: calc(var(--cell) * .3); font-weight: 900; color: #ffdd88; text-shadow: 0 1px 2px #000; z-index: 3; }
+#board .cell.invis { opacity: .07; }
+#board.blackout .cell.b { opacity: 0 !important; transition: opacity .25s; }
+#tray .slot.cover .piece { opacity: 0; } #tray .slot.cover { position: relative; } #tray .slot.cover::after { content: "?"; position: absolute; inset: 10px; display: grid; place-items: center; border-radius: 12px; font-family: var(--font-display); font-size: 40px; color: #c77dff; background: rgba(40,12,70,.7); box-shadow: inset 0 0 0 2px #c77dff; }
+body.sk-blind #next-tray { visibility: hidden; }
+body.land #menu { grid-template-rows: 1fr auto auto auto; }
+body.land #menu .super-card { grid-column: 2; grid-row: 2; }
+body.land #menu .wide-row { grid-row: 3; } body.land #menu .menu-row { grid-row: 2 / 4; align-self: center; } body.land #menu .foot { grid-row: 4; }
+body.land #game > .sk-strip { grid-column: 2; grid-row: 3; }
 #fog { position: fixed; inset: 0; z-index: 36; pointer-events: none; display: grid; place-items: center; opacity: 0;
   background: radial-gradient(ellipse 60% 40% at 30% 40%, rgba(220,215,235,.75), transparent 70%), radial-gradient(ellipse 70% 45% at 70% 60%, rgba(200,195,220,.7), transparent 70%), rgba(40,30,60,.45); }
 #fog b { font-family: var(--font-display); font-size: clamp(30px, 9vw, 52px); color: #fff; letter-spacing: .04em; text-align: center; text-shadow: 0 0 18px #b26bff, 0 0 40px #ff4f8a, 0 4px 0 rgba(0,0,0,.5); }
@@ -824,7 +865,7 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       <div class="logo-blocks" aria-hidden="true">
         <i class="blk c1"></i><i class="blk c3"></i><i class="blk c4"></i><i class="blk c6"></i>
       </div>
-      <h1 class="wordmark"><span class="wm" id="wm-a">BLOCK</span> <span class="wm" id="wm-b">ALT</span> <span class="wm" id="wm-c">UNO</span></h1>
+      <h1 class="wordmark"><span class="wm" id="wm-a">BLOCK</span> <span class="wm" id="wm-b">SUPER</span> <span class="wm" id="wm-c">GF</span></h1>
       <span class="ver" id="ver"></span>
       <p class="tag">Quebra-cabeça de blocos</p>
     </div>
@@ -850,6 +891,11 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
         <span class="rec"><em>Fase</em><strong id="rec-story">1</strong></span>
       </button>
     </div>
+    <button class="super-card" id="play-super">
+      <span class="sc-ic" aria-hidden="true">⚔️</span>
+      <span><b>Super Desafio</b><small id="super-sub">Vença fases e escolha habilidades que dificultam</small></span>
+      <span class="rec"><em>Recorde</em><strong id="rec-super">—</strong></span>
+    </button>
     <div class="wide-row">
     <button class="mode-wide" id="play-timed" data-mode="timed">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>
@@ -938,6 +984,7 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       </div>
     </div>
     <div class="level-bar" aria-hidden="true"><i id="level-fill"></i></div>
+    <div class="sk-strip" id="sk-strip" hidden role="button" aria-label="Habilidades ativas"></div>
     <div class="board-wrap" id="board-wrap">
       <div id="board" role="grid" aria-label="Tabuleiro"></div>
     </div>
@@ -1122,7 +1169,7 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
   <div id="splash" aria-hidden="true">
     <div class="sp-box">
       <div class="sp-tiles" id="sp-tiles"></div>
-      <h1 class="sp-logo">BLOCK<span>ALT UNO</span></h1>
+      <h1 class="sp-logo">BLOCK<span>SUPER GF</span></h1>
       <p class="sp-credit">Feito pelo Jovem Gafanhoto</p>
     </div>
   </div>
@@ -1136,6 +1183,25 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       <div class="tut-dots" id="tut-dots"><i></i><i></i><i></i></div>
       <button class="btn primary" id="tut-next">Próximo</button>
       <button class="btn ghost" id="tut-skip">Pular</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="super-start" hidden>
+    <div class="card settings-card" role="dialog" aria-modal="true" aria-labelledby="ss-title">
+      <h2 id="ss-title">Super Desafio ⚔️</h2>
+      <p class="skins-note">A cada vitória aparecem 2 habilidades e você escolhe 1. Elas deixam o jogo mais difícil e se acumulam até a corrida acabar — mas cada uma aumenta os seus pontos. A cada 5 escolhas pode surgir um Alívio 🍀.</p>
+      <button class="ss-opt" id="ss-fases-btn"><b>🏁 Corrida de fases</b><small>Bata a meta de cada fase. Quantas fases você aguenta?</small><em id="ss-fases"></em></button>
+      <button class="ss-opt" id="ss-sobrev-btn"><b>♾️ Sobrevivência</b><small>Um tabuleiro só, sem meta. A cada 20 jogadas, uma nova habilidade.</small><em id="ss-sobrev"></em></button>
+      <button class="btn ghost" id="ss-close">Voltar</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="cards" hidden>
+    <div class="card cards-card" role="dialog" aria-modal="true" aria-labelledby="cards-title">
+      <h2 id="cards-title">Escolha uma habilidade</h2>
+      <p class="skins-note" id="cards-sub"></p>
+      <div class="cards-row" id="cards-row"></div>
+      <button class="btn ghost" id="cards-close" hidden>Fechar</button>
     </div>
   </div>
 
@@ -4435,10 +4501,13 @@ window.Scene = (() => {
   }
   function randomPiece() {
     const df = difficulty(), w = BASE.map((b2) => EASY_W[b2] * (1 - df) + HARD_W[b2] * df);
-    let r = Math.random() * w.reduce((a, c) => a + c, 0), k = 0;
-    while (r > w[k] && k < w.length - 1) { r -= w[k]; k++; }
-    const v = VARIANTS[k];
-    return { cells: v[rnd(v.length)], color: S.rules === "sudoku" ? 3 : 1 + rnd(6) };
+    for (let tries = 0; ; tries++) {
+      let r = Math.random() * w.reduce((a, c) => a + c, 0), k = 0;
+      while (r > w[k] && k < w.length - 1) { r -= w[k]; k++; }
+      const v = VARIANTS[k], cells = v[rnd(v.length)];
+      if (S && S.mode === "super" && tries < 40 && !superPieceOk(cells)) continue;
+      return { cells, color: S && S.mode === "super" && skLv("mono") ? S.run.mono : S.rules === "sudoku" ? 3 : 1 + rnd(6) };
+    }
   }
   const dims = (cells) => [1 + Math.max(...cells.map((p) => p[0])), 1 + Math.max(...cells.map((p) => p[1]))];
 
@@ -4499,7 +4568,8 @@ window.Scene = (() => {
   }
   // Early on the game deals a helpful hand (pieces that fit and that can finish lines);
   // as difficulty rises it looks at fewer hands and helps less often.
-  function newTray() {
+  function newTray() { const t = newTrayBase(); return S && S.mode === "super" ? superHand(t) : t; }
+  function newTrayBase() {
     const df = difficulty(), tries = Math.round(10 - 7 * df), helpChance = .9 - .65 * df;
     let best = null, bestScore = -1;
     for (let t = 0; t < tries; t++) {
@@ -4852,7 +4922,7 @@ window.Scene = (() => {
     const land = document.body.classList.contains("land"), wide = innerWidth >= 700;
     const inner = app.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), innerH = app.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
     const w = land ? Math.min(inner - 300, inner * .6) : Math.min(inner, wide ? 640 : 480);
-    const h = land ? innerH - 86 - 20 - 20 : innerH - 96 - 20 - 130 - 60 - 20 - (S.mode === "story" ? 66 : 0);
+    const h = land ? innerH - 86 - 20 - 20 : innerH - 96 - 20 - 130 - 60 - 20 - (S.mode === "story" ? 66 : 0) - (S.mode === "super" ? 34 : 0);
     const gap = 3, pad = 14;
     const avail = Math.max(160, Math.min(w, h));
     const cell = Math.floor((avail - pad - gap * (S.n - 1)) / S.n);
@@ -4903,7 +4973,9 @@ window.Scene = (() => {
       else if (preview && preview.ok && preview.cells.has(i)) cls += " preview c" + preview.color;
       if (preview && preview.ok && preview.will.has(i)) cls += " will";
       if (preview && !preview.ok) { if (preview.bad.has(i)) cls += " bad"; else if (preview.conflict.has(i)) cls += " conflict"; }
+      if (S.sx) cls += superCellCls(i, v);
       if (v === BOMB && S.bombT && S.bombT[i] != null) { cellEls[i].dataset.n = S.bombT[i]; if (S.bombT[i] <= 3) cls += " hot"; }
+      else if (S.sx && S.sx.rb[i] != null) cellEls[i].dataset.n = S.sx.rb[i];
       else if (cellEls[i].dataset.n) delete cellEls[i].dataset.n;
       cellEls[i].className = cls;
       cellEls[i].style.removeProperty("--d");
@@ -4925,14 +4997,15 @@ window.Scene = (() => {
   function dealTray() {
     if (S.mode === "puzzle") { S.tray = [0, 1, 2].map(() => S.queue.shift() || null); S.next = S.queue.slice(0, 3); return; }
     const nx = S.next;
-    S.tray = nx && nx.some(fitsAnywhere) ? nx : newTray();
+    S.tray = nx && nx.some((p) => p && fitsAnywhere(p)) ? nx : newTray();
     S.next = newTray();
+    if (S.mode === "super") superCover();
   }
   function renderNextHand() {
     const box = $("next-tray"); box.innerHTML = "";
     if (!S || S.mode === "tetris") return;
     if (!S.next) S.next = newTray();
-    for (const p of S.next) { const d = document.createElement("div"); d.className = "piece mini"; pieceGrid(p, d, true); d.style.setProperty("--m", "7px"); box.appendChild(d); }
+    for (const p of S.next) { if (!p) continue; const d = document.createElement("div"); d.className = "piece mini"; pieceGrid(p, d, true); d.style.setProperty("--m", "7px"); box.appendChild(d); }
   }
   function renderTray() {
     renderNextHand();
@@ -4956,6 +5029,7 @@ window.Scene = (() => {
         slot.setAttribute("aria-label", `Peça ${i + 1}, ${p.cells.length} blocos`);
         if (!fitsAnywhere(p)) slot.classList.add("dim");
         if (i === selected) slot.classList.add("sel");
+        if (S.mode === "super" && i === S.coverIdx) slot.classList.add("cover");
       }
       tray.appendChild(slot);
     });
@@ -4977,6 +5051,13 @@ window.Scene = (() => {
   }
   function renderScore() {
     renderPower(); renderChallenge(); renderUndo(); renderTimer();
+    if (S.mode === "super") {
+      const R = S.run;
+      setScore(S.score); $("score").classList.remove("rec");
+      $("best-label").textContent = R.kind === "fases" ? "Meta" : "Total"; $("best").textContent = fmt(R.kind === "fases" ? S.target : R.total + S.score);
+      $("level-fill").style.width = (R.kind === "fases" ? Math.min(100, Math.round(S.score / S.target * 100)) : Math.round((S.moves % 20) / 20 * 100)) + "%";
+      renderSkillStrip(); return;
+    }
     if (S.mode === "story") {
       renderGoal();
       setScore(S.score);
@@ -5044,7 +5125,7 @@ window.Scene = (() => {
     selected = -1;
     const levelBefore = levelOf(S.score), bestBefore = bestOf(S.mode);
     let gained = p.cells.length;
-    const { idx, lines, groups } = clearsOf(S.board);
+    const { idx, lines, groups, cols } = clearsOf(S.board);
     const midTop = $("board").clientHeight / 2;
     S.moves = (S.moves || 0) + 1; S.placed = (S.placed || 0) + p.cells.length;
     mission("blocks", p.cells.length); if (lines) { mission("lines", lines); if ((S.combo || 0) + 1 === 3) mission("combo", 1); }
@@ -5056,7 +5137,7 @@ window.Scene = (() => {
       S.combo += 1;
       S.lines = (S.lines || 0) + lines;
       S.maxCombo = Math.max(S.maxCombo || 0, S.combo);
-      gained += 10 * lines * lines * S.combo;
+      gained += S.mode === "super" ? superLinePts(lines) : 10 * lines * lines * S.combo;
       // v23 boss stones: a cleared line cracks a stone; a cracked stone breaks on the next line.
       for (const i of idx) bossHit(i);
       const was = new Map([...idx].filter((i) => S.board[i] !== STONE).map((i) => [i, S.board[i]]));
@@ -5090,7 +5171,8 @@ window.Scene = (() => {
     placed.forEach((i) => cellEls[i].classList.add("land"));
     const low = Math.max(...p.cells.map(([r]) => r));
     Scene.dust(p.cells.filter(([r]) => r === low).map(([r, c]) => { const rc = cellEls[(r0 + r) * S.n + c0 + c].getBoundingClientRect(); return { x: rc.left + rc.width / 2, y: rc.bottom, size: rc.width }; }));
-    S.score += gained;
+    if (S.mode === "super") { gained = Math.round((gained - 2 * skLv("tax")) * S.run.mult); S.score = Math.max(0, S.score + gained); }
+    else S.score += gained;
     if (lines) fx("gain", "+" + fmt(gained), midTop - 10, 1000);
 
     const lv = levelOf(S.score);
@@ -5106,12 +5188,12 @@ window.Scene = (() => {
     }
 
     S.holdLock = false;
-    if (S.mode === "story" && S.moves >= LOCK_MOVES && S.board.includes(LOCK)) {
+    if ((S.mode === "story" || S.mode === "super") && S.moves >= (S.mode === "super" ? Math.max(1, LOCK_MOVES - haste()) : LOCK_MOVES) && S.board.includes(LOCK)) {
       const opened = []; S.board.forEach((v, i) => { if (v === LOCK) { S.board[i] = 0; opened.push(i); } });
       renderBoard(); for (const i of opened) { cellEls[i].classList.add("unlock"); setTimeout(() => cellEls[i].classList.remove("unlock"), 600); }
       sfx.unlock(); fx("lvl", "🔓 Casas liberadas!", $("board").clientHeight / 2 - 20, 1100);
     }
-    if (canBankUndo()) {
+    if (canBankUndo() && S.mode !== "super") {
       const m = Math.floor(S.score / UNDO_EVERY);
       if (m > (S.undoMile || 0)) {
         const before = S.undoBank || 0; S.undoBank = Math.min(UNDO_MAX, before + m - (S.undoMile || 0)); S.undoMile = m;
@@ -5119,6 +5201,7 @@ window.Scene = (() => {
         renderUndo();
       }
     }
+    if (S.mode === "super" && superAfterMove(lines, cols || 0, placed)) return true;
     if (S.mode === "puzzle" && !S.board.includes(0)) { S.over = true; renderTray(); renderScore(); store.del("game.puzzle"); setTimeout(puzzleWin, 350); return true; }
     if (S.mode === "story") {
       checkPowerEarned();
@@ -5260,7 +5343,7 @@ window.Scene = (() => {
     setTimeout(() => { f.hidden = true; f.classList.remove("on"); }, 2900);
   }
   // ---------- v24: hold a piece, rotate once per phase, danger warning ----------
-  const holdAllowed = () => !!S && S.mode !== "tetris" && S.mode !== "puzzle" && !(S.mode === "story" && !S.daily && S.level <= LEVELS_PER_WORLD);
+  const holdAllowed = () => !!S && S.mode !== "tetris" && S.mode !== "puzzle" && !(S.mode === "super" && skLv("nohold")) && !(S.mode === "story" && !S.daily && S.level <= LEVELS_PER_WORLD);
   const ROTATES = 1;
   const rotLeft = () => (S && S.mode === "story" && !S.daily ? ROTATES - (S.rotUsed || 0) : 0);
   let rotAim = false;
@@ -5550,6 +5633,7 @@ window.Scene = (() => {
   }
   function gameOver(reason) {
     if (!S || S.over) return;
+    if (S.mode === "super") return superOver(reason);
     if (S.mode === "puzzle") {
       S.over = true; sfx.lose(); buzz(200);
       overlay("lose", "Sem encaixe", "Nenhuma das peças cabe no que sobrou. Desfaça algumas jogadas ou recomece o desenho.");
@@ -5647,6 +5731,7 @@ window.Scene = (() => {
     locks: ["Casas trancadas 🔒", "Esta fase começa com 4 casas trancadas: nenhuma peça entra nelas. Depois da 2ª jogada elas se abrem e você pode usá-las a partir da 3ª.", `<svg viewBox="0 0 120 120"><rect x="24" y="24" width="72" height="72" rx="10" fill="#3d4150" stroke="#ffd36b" stroke-width="3"/><text x="60" y="76" text-anchor="middle" font-size="40">🔒</text></svg>`],
     morph: ["Tabuleiro que muda", "Nesta fase o tabuleiro se mexe sozinho de tempos em tempos: pode girar, dar meia-volta ou ficar espelhado. Os blocos vão junto — pense no próximo giro!", `<svg viewBox="0 0 120 120"><rect x="30" y="30" width="60" height="60" rx="8" fill="#3a2a1c"/><path d="M20 60h80M60 20v80" stroke="#ffd36b" stroke-width="4" stroke-dasharray="6 5"/></svg>`],
     twist: ["Tabuleiro que gira", "Nesta fase, a cada 5 jogadas o tabuleiro gira 90°. Nas fases 10, 20, 40, 60 e 80 ele também treme e gira para a esquerda; nas 30, 60 e 90 gira para a direita.", `<svg viewBox="0 0 120 120"><rect x="30" y="30" width="60" height="60" rx="8" fill="#3a2a1c"/><path d="M24 60a36 36 0 0172-12" fill="none" stroke="#ffd36b" stroke-width="6" stroke-linecap="round"/><path d="M98 34v16H82" fill="none" stroke="#ffd36b" stroke-width="6" stroke-linecap="round"/></svg>`],
+    super: ["Super Desafio ⚔️", "Bata a meta para vencer a fase. A cada vitória você escolhe 1 entre 2 habilidades que deixam o jogo mais difícil — e aumentam seus pontos. Toque na faixa roxa para ver as habilidades ativas.", `<svg viewBox="0 0 120 120"><rect x="14" y="26" width="42" height="64" rx="8" fill="#3a1a5c" stroke="#6cc070" stroke-width="3"/><rect x="64" y="26" width="42" height="64" rx="8" fill="#3a1a5c" stroke="#ff5a4a" stroke-width="3"/><text x="35" y="66" text-anchor="middle" font-size="24">↻</text><text x="85" y="66" text-anchor="middle" font-size="24">💣</text></svg>`],
     items: ["Itens especiais 🎒", "A partir do Mundo 2 você ganha itens nas fases 5, 10, 15 e 20: 💣 Bomba (explode 3×3), ⛏️ Picareta (quebra qualquer bloco, até pedra) e 🌈 Arco-íris (completa uma linha). Toque em 🎒 para usar.", `<svg viewBox="0 0 120 120"><text x="60" y="78" text-anchor="middle" font-size="56">🎒</text></svg>`],
     boss_final: ["Chefe final!", "Pedras, bombas e fantasmas juntos. Pedras precisam de 2 linhas, bombas têm contador e fantasmas andam. Destrua todos — use Guardar, Girar e o Poder com calma.", MINI([20, 43], 8, [12, 51])],
   };
@@ -5668,6 +5753,7 @@ window.Scene = (() => {
     if (S.rules === "sudoku") showTip("sudoku");
     if (S.mode === "timed") showTip("timed");
     if (S.mode === "puzzle") showTip("puzzle");
+    if (S.mode === "super") showTip("super");
     if (S.mode === "story" && S.goal === "boss") showTip("boss_" + (S.boss || "stone"));
     if (itemsAllowed() && itemTotal() > 0) showTip("items");
     if (S.mode === "story" && !S.daily && twistOf(S.level)) showTip(twistOf(S.level).sub ? "subboss" : "twist");
@@ -5681,7 +5767,7 @@ window.Scene = (() => {
   applyA11y();
   try { localStorage.removeItem("bauBackup"); localStorage.removeItem("bau.autoBackup"); localStorage.removeItem("bau.autoBackupAt"); } catch (e) {}
   // ---------- v23: save / restore progress in a file (works offline) ----------
-  const SAVE_APP = "BLOCK ALT UNO";
+  const SAVE_APP = "BLOCK SUPER GF", SAVE_APPS = [SAVE_APP, "BLOCK ALT UNO"]; // old save files still restore
   function exportData() {
     const data = {};
     try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith("bau.") && !k.startsWith("bau.game.")) data[k] = localStorage.getItem(k); } } catch (e) {}
@@ -5691,7 +5777,7 @@ window.Scene = (() => {
   window.bauExported = (ok) => toast(ok ? "<b>Progresso salvo no arquivo ✓</b><small>Copie para o celular novo e use Restaurar</small>" : "<b>O arquivo não foi salvo</b>");
   $("btn-export").addEventListener("click", () => {
     sfx.ui();
-    const json = exportData(), name = `block-alt-uno-progresso-${dayKey()}.json`;
+    const json = exportData(), name = `block-super-gf-progresso-${dayKey()}.json`;
     if (window.BAUNative && BAUNative.exportSave) { BAUNative.exportSave(json, name); return; }
     try {
       const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([json], { type: "application/json" })); a.download = name;
@@ -5713,7 +5799,7 @@ window.Scene = (() => {
     if (text == null) return;
     let o = null;
     try { o = JSON.parse(text); } catch (e) {}
-    if (!o || o.app !== SAVE_APP || !o.data || typeof o.data !== "object") { toast("<b>Arquivo inválido</b><small>Escolha um arquivo salvo pelo BLOCK ALT UNO</small>"); return; }
+    if (!o || !SAVE_APPS.includes(o.app) || !o.data || typeof o.data !== "object") { toast("<b>Arquivo inválido</b><small>Escolha um arquivo salvo pelo BLOCK SUPER GF</small>"); return; }
     const keys = Object.keys(o.data).filter((k) => k.startsWith("bau.") && typeof o.data[k] === "string");
     let un = 1, stars = 0;
     try { un = JSON.parse(o.data["bau.story.unlocked"] || "1"); const st = JSON.parse(o.data["bau.story.stars"] || "{}"); for (const L in st) stars += starCount(st[L]); } catch (e) {}
@@ -5819,20 +5905,364 @@ window.Scene = (() => {
     if (k === "fx-fireworks" && combo < 2 && lines < 2) return;
     Scene.special(k, { x: br.left, y: br.top, w: br.width, h: br.height }, lines + (combo || 0));
   }
-  const overlayOpen = () => ["over", "tut", "tip", "settings", "t-paused", "confirm", "items"].some((id) => !$(id).hidden);
+  const overlayOpen = () => ["over", "tut", "tip", "settings", "t-paused", "confirm", "items", "cards", "super-start"].some((id) => !$(id).hidden);
+  // ======================================================================
+  //  v30: SUPER DESAFIO — a run of short phases; after each win pick 1 of 2
+  //  "habilidades" that make the next phases harder. They pile up.
+  // ======================================================================
+  const WALLC = 18;
+  // t: 1 leve · 2 média · 3 pesada · base: every N moves (periodic) · st: once per run · max: how many times it can stack
+  // only: "f" = Corrida de fases only · ex: cards that never come together
+  const SKILLS = [
+    { id: "cw", ic: "↻", n: "Giro horário", d: (v) => `A cada ${v} jogadas o tabuleiro gira 90° no sentido horário.`, t: 1, base: 5, ex: ["ccw"] },
+    { id: "ccw", ic: "↺", n: "Giro anti-horário", d: (v) => `A cada ${v} jogadas o tabuleiro gira 90° no sentido anti-horário.`, t: 1, base: 5, ex: ["cw"] },
+    { id: "fh", ic: "⇋", n: "Espelho lateral", d: (v) => `A cada ${v} jogadas o tabuleiro espelha na horizontal.`, t: 1, base: 5 },
+    { id: "fv", ic: "⇵", n: "De cabeça para baixo", d: (v) => `A cada ${v} jogadas o tabuleiro espelha na vertical.`, t: 1, base: 5 },
+    { id: "shift", ic: "⇶", n: "Correnteza", d: (v) => `A cada ${v} jogadas uma linha desliza 1 casa para o lado.`, t: 2, base: 4 },
+    { id: "grav", ic: "⬇️", n: "Terremoto", d: (v) => `A cada ${v} jogadas todos os blocos caem para baixo.`, t: 2, base: 6 },
+    { id: "add", ic: "➕", n: "Bloco intruso", d: (v) => `A cada ${v} jogadas aparece um bloco numa casa vazia.`, t: 1, base: 5 },
+    { id: "rem", ic: "➖", n: "Bloco sumido", d: (v) => `A cada ${v} jogadas some um bloco aleatório (pode estragar uma linha).`, t: 1, base: 5 },
+    { id: "move", ic: "🔀", n: "Bloco andarilho", d: (v) => `A cada ${v} jogadas um bloco muda de lugar.`, t: 1, base: 5 },
+    { id: "hard", ic: "🛡️", n: "Bloco teimoso", d: (v) => `A cada ${v} jogadas um bloco fica indestrutível por 1 jogada.`, t: 2, base: 5 },
+    { id: "stones", ic: "🪨", n: "Pedreira", d: () => "Cada fase começa com 2 pedras (precisam de 2 linhas).", t: 2, st: 1 },
+    { id: "bomb", ic: "💣", n: "Bomba-relógio", d: () => `Uma bomba com contador ${bombFuseSk()} aparece em cada fase. Limpe a linha dela antes do zero!`, t: 3, st: 1 },
+    { id: "ghost", ic: "👻", n: "Assombração", d: () => "Um fantasma anda pelo tabuleiro e ocupa espaço.", t: 2, st: 1 },
+    { id: "ice", ic: "❄️", n: "Geada", d: (v) => `A cada ${v} jogadas aparece um bloco de gelo.`, t: 1, base: 6 },
+    { id: "locks", ic: "🔒", n: "Cadeado", d: () => "Cada fase começa com 4 casas trancadas até a 3ª jogada.", t: 1, st: 1 },
+    { id: "wall", ic: "🧱", n: "Muro", d: () => "Uma coluna fica bloqueada: nenhuma linha completa até você limpar 2 colunas.", t: 3, st: 1, ex: ["rows"] },
+    { id: "big", ic: "🧊", n: "Peças grandes", d: () => "Quase só vêm peças de 4 e 5 blocos.", t: 2, st: 1 },
+    { id: "nostraight", ic: "📏", n: "Sem retinhas", d: () => "As peças retas de 4 e 5 blocos nunca aparecem.", t: 1, st: 1 },
+    { id: "short", ic: "✋", n: "Mão curta", d: () => "A bandeja tem só 2 peças.", t: 3, st: 1 },
+    { id: "blind", ic: "🙈", n: "Às cegas", d: () => "As próximas peças ficam escondidas.", t: 1, st: 1 },
+    { id: "mystery", ic: "❓", n: "Peça surpresa", d: () => "Uma das peças vem tampada até você tocar nela.", t: 1, st: 1 },
+    { id: "twisted", ic: "🌀", n: "Peça torta", d: () => "A cada mão, uma peça vem girada.", t: 1, st: 1 },
+    { id: "nohold", ic: "🚫", n: "Sem Guardar", d: () => "O botão Guardar some.", t: 1, st: 1 },
+    { id: "swap", ic: "🔁", n: "Bandeja trocada", d: () => "Depois de cada jogada, as outras peças trocam de lugar.", t: 1, st: 1 },
+    { id: "lazy", ic: "😴", n: "Linha preguiçosa", d: () => "Limpar 1 linha só não dá pontos — só 2 ou mais de uma vez.", t: 2, st: 1 },
+    { id: "rows", ic: "↔️", n: "Só linhas", d: () => "As colunas não limpam, só as linhas.", t: 3, st: 1, ex: ["cols", "wall"] },
+    { id: "cols", ic: "↕️", n: "Só colunas", d: () => "As linhas não limpam, só as colunas.", t: 3, st: 1, ex: ["rows"] },
+    { id: "fragile", ic: "💔", n: "Combo frágil", d: () => "Quebrar o combo custa 20 pontos.", t: 1, st: 1 },
+    { id: "inflate", ic: "📈", n: "Meta inflada", d: () => "A meta de cada fase sobe 25% (acumula).", t: 1, st: 1, max: 3, only: "f" },
+    { id: "tax", ic: "💸", n: "Imposto", d: () => "Cada peça colocada custa 2 pontos (acumula).", t: 1, st: 1, max: 3 },
+    { id: "clock", ic: "⏱️", n: "Relógio", d: () => "Cada fase tem só 90 segundos.", t: 2, st: 1, only: "f" },
+    { id: "hurry", ic: "⚡", n: "Pressa", d: () => "Se ficar 6 segundos sem jogar, uma peça da bandeja é trocada.", t: 1, st: 1 },
+    { id: "limit", ic: "🔢", n: "Contagem", d: () => "Bata a meta em até 25 jogadas.", t: 2, st: 1, only: "f" },
+    { id: "fog", ic: "🌫️", n: "Neblina", d: () => "6 casas ficam cobertas por névoa até você jogar ao lado delas.", t: 1, st: 1 },
+    { id: "tremor", ic: "📳", n: "Tremedeira", d: (v) => `A tela treme a cada ${v} jogadas.`, t: 1, base: 3 },
+    { id: "small", ic: "🔲", n: "Tabuleiro menor", d: () => "As próximas fases usam um tabuleiro 7×7.", t: 3, st: 1, only: "f", ex: ["sudoku"] },
+    { id: "sudoku", ic: "▦", n: "Tabuleiro Sudoku", d: () => "As próximas fases usam 9×9 com quadrados 3×3.", t: 2, st: 1, only: "f", ex: ["small"] },
+    { id: "mono", ic: "🎨", n: "Monocromático", d: () => "Todas as peças ficam da mesma cor.", t: 1, st: 1 },
+    { id: "noundo", ic: "⛔", n: "Sem desfazer", d: () => "O desfazer de cada fase some.", t: 2, st: 1 },
+    { id: "mirror", ic: "🪞", n: "Dedo espelhado", d: () => "Arrastar para a esquerda leva a peça para a direita (e vice-versa).", t: 3, st: 1 },
+    { id: "tide", ic: "🌊", n: "Maré", d: (v) => `A cada ${v} jogadas sobe uma fileira de blocos por baixo (com 1 buraco).`, t: 3, base: 8 },
+    { id: "vanish", ic: "🫥", n: "Peças fantasmas", d: () => "Os blocos colocados ficam invisíveis 2 jogadas depois.", t: 3, st: 1 },
+    { id: "decay", ic: "⏳", n: "Desgaste", d: (v) => `A cada ${v} jogadas você perde 5% dos pontos da fase.`, t: 1, base: 7 },
+    { id: "lines2", ic: "🎯", n: "Meta dupla", d: () => "Além dos pontos, cada fase pede 5 linhas.", t: 2, st: 1, only: "f" },
+    { id: "spin", ic: "🎡", n: "Bandeja giratória", d: (v) => `A cada ${v} jogadas as peças da bandeja giram 90°.`, t: 1, base: 3 },
+    { id: "heavy", ic: "🏋️", n: "Mão pesada", d: () => "Toda mão traz uma peça de 5 blocos.", t: 2, st: 1 },
+    { id: "nocombo", ic: "🧮", n: "Sem combo", d: () => "Combos não multiplicam pontos.", t: 2, st: 1 },
+    { id: "blackout", ic: "🌑", n: "Apagão", d: (v) => `A cada ${v} jogadas os blocos do tabuleiro somem da vista por 2 segundos.`, t: 2, base: 6 },
+    { id: "rbomb", ic: "🧨", n: "Bomba-relógio invertida", d: (v) => `Uma casa fica sinalizada contando ${v} jogadas; ao explodir, enche de blocos as casas vizinhas.`, t: 2, base: 6 },
+    { id: "haste", ic: "⏩", n: "Diminuição de jogadas", d: () => "Tudo o que demora X jogadas passa a demorar 1 a menos (acumula, mínimo 2).", t: 2, st: 1, max: 4 },
+  ];
+  const SKD = Object.fromEntries(SKILLS.map((k) => [k.id, k]));
+  const TIER = { 1: ["🟢", "Leve", .1], 2: ["🟡", "Média", .2], 3: ["🔴", "Pesada", .35] };
+  const skLv = (id) => (S && S.run && S.run.sk[id]) || 0;
+  const haste = () => skLv("haste");
+  const ivOf = (id, lv) => Math.max(2, SKD[id].base - (Math.max(1, lv) - 1) - haste());
+  const due = (id) => skLv(id) > 0 && S.moves > 0 && S.moves % ivOf(id, skLv(id)) === 0;
+  const bombFuseSk = () => Math.max(4, 12 - haste());
+  const superOn = () => !!S && S.mode === "super";
+  const rndOf = (a) => a[Math.floor(Math.random() * a.length)];
+  const emptyCells = () => S.board.map((v, i) => (v ? -1 : i)).filter((i) => i >= 0);
+  const plainBlocks = () => S.board.map((v, i) => (v >= 1 && v <= 9 ? i : -1)).filter((i) => i >= 0);
+  // Every board move (turns, mirrors, gravity, tide…) carries the per-cell marks along.
+  function remapSX(fn) {
+    if (!S.sx) return;
+    for (const key of ["hard", "rb", "fog", "age"]) { const o = S.sx[key], nb = {}; for (const k in o) { const j = fn(+k); if (j >= 0) nb[j] = o[k]; } S.sx[key] = nb; }
+    if (S.bombT) { const t = {}; for (const k in S.bombT) { const j = fn(+k); if (j >= 0) t[j] = S.bombT[k]; } S.bombT = t; }
+  }
+  function moveCells(fn) { // fn(i) -> new index or -1 (dropped)
+    const nb = new Array(S.n * S.n).fill(0);
+    S.board.forEach((v, i) => { if (!v) return; const j = fn(i); if (j >= 0) nb[j] = v; });
+    remapSX(fn); S.board = nb;
+  }
+  // Line clears in the Super Desafio: rows/columns can be switched off, the wall blocks rows,
+  // and "teimoso" blocks stay put for one move.
+  function superClears(b) {
+    const n = S.n, idx = new Set(), groups = []; let lines = 0, cols = 0;
+    const full = (i) => b[i] && b[i] !== WALLC, keep = superKeep();
+    const rowsOn = !skLv("cols"), colsOn = !skLv("rows");
+    if (rowsOn) for (let r = 0; r < n; r++) { let ok = true; for (let c = 0; c < n; c++) if (!full(r * n + c)) { ok = false; break; } if (ok) { lines++; groups.push([r * n, r * n + n - 1]); for (let c = 0; c < n; c++) idx.add(r * n + c); } }
+    if (colsOn) for (let c = 0; c < n; c++) { let ok = true; for (let r = 0; r < n; r++) if (!full(r * n + c)) { ok = false; break; } if (ok) { lines++; cols++; groups.push([c, (n - 1) * n + c]); for (let r = 0; r < n; r++) idx.add(r * n + c); } }
+    if (S.rules === "sudoku") for (let br = 0; br < 3; br++) for (let bc = 0; bc < 3; bc++) {
+      let ok = true; for (let r = 0; r < 3 && ok; r++) for (let c = 0; c < 3; c++) if (!full((br * 3 + r) * n + bc * 3 + c)) { ok = false; break; }
+      if (ok) { lines++; groups.push([br * 3 * n + bc * 3, (br * 3 + 2) * n + bc * 3 + 2]); for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) idx.add((br * 3 + r) * n + bc * 3 + c); }
+    }
+    for (const i of keep) idx.delete(i);
+    return { idx, lines, groups, cols };
+  }
+  function superKeep() { const k = []; if (S.sx) for (const i in S.sx.hard) if (S.sx.hard[i] >= (S.moves || 0)) k.push(+i); return k; }
+  function superLinePts(lines) { if (skLv("lazy") && lines === 1) return 0; return 10 * lines * lines * (skLv("nocombo") ? 1 : S.combo); }
+  function superCellCls(i, v) {
+    let c = "";
+    if (S.sx.hard[i] != null && S.sx.hard[i] >= S.moves && v) c += " hardc";
+    if (S.sx.fog[i]) c += " fogc";
+    if (S.sx.rb[i] != null) c += " rbomb";
+    if (skLv("vanish") && v && S.sx.age[i] != null && S.moves - S.sx.age[i] >= 2) c += " invis";
+    return c;
+  }
+  // ---- pieces ----
+  function superPieceOk(cells) {
+    if (skLv("big") && cells.length < 4 && Math.random() < .85) return false;
+    if (skLv("nostraight") && cells.length >= 4) { const rs = new Set(cells.map((p) => p[0])), cs = new Set(cells.map((p) => p[1])); if (rs.size === 1 || cs.size === 1) return false; }
+    return true;
+  }
+  function superHand(t) {
+    if (skLv("heavy")) { for (let k = 0; k < 60; k++) { const p = randomPiece(); if (p.cells.length === 5) { t[1] = p; break; } } }
+    if (skLv("twisted")) { const i = Math.floor(Math.random() * 3); if (t[i]) for (let k = 1 + Math.floor(Math.random() * 3); k > 0; k--) t[i] = rotatePiece(t[i]); }
+    if (skLv("short")) t[2] = null;
+    return t;
+  }
+  // ---- run, phases and cards ----
+  function superBest() { return store.get("super.best", { phase: 0, fases: 0, sobrev: 0 }); }
+  function showSuperStart() {
+    const b = superBest();
+    $("ss-fases").textContent = b.phase ? `Recorde: fase ${b.phase} · ${fmt(b.fases)} pts` : "Ainda sem recorde";
+    $("ss-sobrev").textContent = b.sobrev ? `Recorde: ${fmt(b.sobrev)} pts` : "Ainda sem recorde";
+    $("super-start").hidden = false; sfx.ui();
+  }
+  function startSuper(kind) {
+    $("super-start").hidden = true;
+    S = { mode: "super", run: { kind, phase: 1, sk: {}, total: 0, mult: 1, picks: 0, mono: 1 + Math.floor(Math.random() * 6) } };
+    newSuperPhase();
+  }
+  function newSuperPhase() {
+    const R = S.run, n = skLv("small") ? 7 : skLv("sudoku") ? 9 : 8;
+    S = { mode: "super", rules: n === 9 ? "sudoku" : "classic", n, run: R, board: new Array(n * n).fill(0), tray: [], score: 0, combo: 0, lines: 0, maxCombo: 0,
+      moves: 0, placed: 0, sx: { hard: {}, rb: {}, fog: {}, age: {} }, bombT: {}, linesPhase: 0, colsPhase: 0, prevCombo: 0, recShown: true,
+      undoBank: skLv("noundo") ? 0 : 1, undoMile: 1e9 };
+    if (R.kind === "fases") {
+      S.target = Math.round((120 + 60 * (R.phase - 1)) * Math.pow(1.25, skLv("inflate")) / 10) * 10;
+      if (skLv("limit")) S.moveLimit = 25;
+      if (skLv("clock")) S.timeLeft = 90;
+    }
+    for (const k of SKILLS) if (k.st && skLv(k.id)) superSetup(k.id);
+    if (skLv("rbomb")) superSetup("rbomb");
+    S.tray = newTray(); S.next = newTray(); superCover();
+    enterGame(R.kind === "fases" ? `Super · Fase ${R.phase}` : "Super · Sobrevivência");
+    renderSkillStrip();
+  }
+  // Puts a "static" skill on the board (start of a phase, or right away in Sobrevivência).
+  function superSetup(id) {
+    const n = S.n, E = () => { const e = emptyCells(); return e.length ? rndOf(e) : -1; };
+    const put = (v, k) => { for (let j = 0; j < k; j++) { const i = E(); if (i >= 0) S.board[i] = v; } };
+    if (id === "stones") put(STONE, 2);
+    if (id === "bomb") { const i = E(); if (i >= 0) { S.board[i] = BOMB; S.bombT[i] = bombFuseSk(); } }
+    if (id === "ghost" && !S.board.includes(GHOST)) put(GHOST, 1);
+    if (id === "locks") put(LOCK, 4);
+    if (id === "wall") { const c = Math.floor(Math.random() * n); for (let r = 0; r < n; r++) if (!S.board[r * n + c]) S.board[r * n + c] = WALLC; }
+    if (id === "fog") { for (let j = 0; j < 6; j++) S.sx.fog[Math.floor(Math.random() * n * n)] = 1; }
+    if (id === "rbomb" && !Object.keys(S.sx.rb).length) { const i = E(); if (i >= 0) S.sx.rb[i] = ivOf("rbomb", skLv("rbomb")); }
+  }
+  function superCover() { S.coverIdx = skLv("mystery") ? Math.floor(Math.random() * (skLv("short") ? 2 : 3)) : -1; }
+  // Called by place() after the move is scored. Returns true when the phase ended.
+  function superAfterMove(lines, cols, placedCells) {
+    const R = S.run, n = S.n;
+    S.linesPhase += lines; S.colsPhase += cols || 0;
+    for (const i of placedCells) {
+      S.sx.age[i] = S.moves;
+      const r = Math.floor(i / n), c = i % n;
+      for (const [a, b] of [[r, c], [r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]]) if (a >= 0 && b >= 0 && a < n && b < n) delete S.sx.fog[a * n + b];
+    }
+    if (!lines && S.prevCombo && skLv("fragile")) { S.score = Math.max(0, S.score - 20); fx("lvl", "💔 −20 pontos", $("board").clientHeight / 2, 900); }
+    S.prevCombo = S.combo;
+    if (S.board.includes(WALLC) && S.colsPhase >= 2) { S.board = S.board.map((v) => (v === WALLC ? 0 : v)); sfx.unlock(); fx("lvl", "🧱 O muro caiu!", $("board").clientHeight / 2 - 20, 1100); }
+    if (skLv("swap")) { const left = S.tray.map((p, i) => (p ? i : -1)).filter((i) => i >= 0); if (left.length === 2) { const [a, b] = left; [S.tray[a], S.tray[b]] = [S.tray[b], S.tray[a]]; } }
+    // phase goals
+    if (R.kind === "fases" && S.score >= S.target && (!skLv("lines2") || S.linesPhase >= 5)) { superPhaseWin(); return true; }
+    if (R.kind === "fases" && S.moveLimit && S.moves >= S.moveLimit) { renderBoard(); renderScore(); setTimeout(() => gameOver("Acabaram as jogadas da fase."), 400); S.over = true; return true; }
+    // bombs and ghosts
+    for (const k in S.bombT) if (--S.bombT[k] <= 0) {
+      S.boomed = +k; S.over = true; renderBoard();
+      const rc = cellEls[+k].getBoundingClientRect();
+      setTimeout(() => { Scene.explode([{ x: rc.left + rc.width / 2, y: rc.top + rc.height / 2, size: rc.width * 2, color: "#ff6a2a" }], 6, "lava"); shake(true); sfx.lose(); }, 200);
+      setTimeout(() => { S.over = false; gameOver("A bomba explodiu!"); }, 1000);
+      return true;
+    }
+    if (S.board.includes(GHOST) && S.moves % Math.max(1, 2 - haste()) === 0) {
+      const moved = new Set();
+      S.board.forEach((v, i) => {
+        if (v !== GHOST || moved.has(i)) return;
+        const r = Math.floor(i / n), c = i % n, nb = [[r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]].filter(([a, b]) => a >= 0 && b >= 0 && a < n && b < n && !S.board[a * n + b]).map(([a, b]) => a * n + b);
+        if (nb.length) { const j = rndOf(nb); S.board[j] = GHOST; S.board[i] = 0; moved.add(j); }
+      });
+    }
+    // reversed time bomb: the marked cell fills its neighbours when it reaches zero
+    for (const k in S.sx.rb) {
+      if (--S.sx.rb[k] > 0) continue;
+      const i = +k, r = Math.floor(i / n), c = i % n; delete S.sx.rb[k];
+      const pts = [];
+      for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) { const a = r + dr, b = c + dc; if (a < 0 || b < 0 || a >= n || b >= n || (!dr && !dc)) continue; const j = a * n + b; if (!S.board[j]) { S.board[j] = skLv("mono") ? R.mono : 1 + Math.floor(Math.random() * 6); pts.push(j); } }
+      const rc = cellEls[i].getBoundingClientRect(); Scene.explode([{ x: rc.left + rc.width / 2, y: rc.top + rc.height / 2, size: rc.width * 1.5, color: "#ff5a4a" }], 4, "lava");
+      shake(true); sfx.clear(2, 1); buzz(80); fx("lvl", "🧨 A bomba invertida estourou!", $("board").clientHeight / 2 - 20, 1100);
+      const e = emptyCells(); if (e.length) S.sx.rb[rndOf(e)] = ivOf("rbomb", skLv("rbomb"));
+    }
+    if (skLv("rbomb") && !Object.keys(S.sx.rb).length) { const e = emptyCells(); if (e.length) S.sx.rb[rndOf(e)] = ivOf("rbomb", skLv("rbomb")); }
+    // periodic skills
+    const ops = [];
+    for (const id of ["cw", "ccw", "fh", "fv"]) if (due(id)) ops.push(id);
+    if (due("shift")) { const rows = [...Array(n).keys()].filter((r) => S.board.slice(r * n, r * n + n).some(Boolean)); if (rows.length) { const r0 = rndOf(rows), d = Math.random() < .5 ? 1 : -1; moveCells((i) => (Math.floor(i / n) === r0 ? r0 * n + ((i % n) + d + n) % n : i)); fx("lvl", "⇶ Correnteza!", $("board").clientHeight / 2, 900); } }
+    if (due("grav")) {
+      const map = {};
+      for (let c = 0; c < n; c++) { let w = n - 1; for (let r = n - 1; r >= 0; r--) { const i = r * n + c; if (S.board[i]) { map[i] = w * n + c; w--; } } }
+      moveCells((i) => (map[i] != null ? map[i] : i)); shake(true); buzz(60); fx("lvl", "⬇️ Terremoto!", $("board").clientHeight / 2, 900);
+    }
+    if (due("tide")) {
+      if (S.board.slice(0, n).some(Boolean)) { renderBoard(); S.over = true; setTimeout(() => { S.over = false; gameOver("A maré encheu o tabuleiro!"); }, 500); return true; }
+      moveCells((i) => i - n);
+      const hole = Math.floor(Math.random() * n);
+      for (let c = 0; c < n; c++) if (c !== hole) S.board[(n - 1) * n + c] = skLv("mono") ? R.mono : 1 + Math.floor(Math.random() * 6);
+      fx("lvl", "🌊 A maré subiu!", $("board").clientHeight / 2, 900); sfx.turn();
+    }
+    if (due("add")) { const e = emptyCells(); if (e.length) S.board[rndOf(e)] = skLv("mono") ? R.mono : 1 + Math.floor(Math.random() * 6); }
+    if (due("rem")) { const b = plainBlocks(); if (b.length) { const i = rndOf(b), rc = cellEls[i].getBoundingClientRect(); Scene.explode([{ x: rc.left + rc.width / 2, y: rc.top + rc.height / 2, size: rc.width, color: Skins.colorOf(S.board[i]) }], 1, Skins.material()); S.board[i] = 0; } }
+    if (due("move")) { const b = plainBlocks(), e = emptyCells(); if (b.length && e.length) { const i = rndOf(b), j = rndOf(e); S.board[j] = S.board[i]; S.board[i] = 0; } }
+    if (due("hard")) { const b = plainBlocks(); if (b.length) S.sx.hard[rndOf(b)] = S.moves + 1; }
+    if (due("ice")) { const e = emptyCells(); if (e.length) S.board[rndOf(e)] = ICE; }
+    if (due("tremor")) { screenQuake(false); buzz(60); }
+    if (due("decay")) { S.score = Math.floor(S.score * .95); fx("lvl", "⏳ −5% de pontos", $("board").clientHeight / 2 + 40, 900); }
+    if (due("spin")) { S.tray = S.tray.map((p) => (p ? rotatePiece(p) : p)); fx("lvl", "🎡 A bandeja girou!", $("board").clientHeight / 2 + 80, 900); }
+    if (due("blackout")) { const bd = $("board"); bd.classList.add("blackout"); setTimeout(() => bd.classList.remove("blackout"), 2000); }
+    renderBoard(); renderTray(); renderScore();
+    if (ops.length) setTimeout(() => S && !S.over && runOps(ops), 200);
+    if (R.kind === "sobrev" && S.moves % 20 === 0) { setTimeout(() => S && !S.over && showCards(), 700); }
+    return false;
+  }
+  function superPhaseWin() {
+    const R = S.run; S.over = true;
+    R.total += S.score; R.phase++;
+    renderBoard(); renderTray(); renderScore();
+    sfx.record(); buzzPattern(BUZZ_WIN);
+    const br = $("board").getBoundingClientRect(); Scene.celebrate(br.left + br.width / 2, br.top + br.height * .35);
+    fx("lvl", `Fase ${R.phase - 1} vencida!<small>Total ${fmt(R.total)}</small>`, $("board").clientHeight / 2 - 20, 1600);
+    const b = superBest(); if (R.phase - 1 > b.phase || (R.phase - 1 === b.phase && R.total > b.fases)) { b.phase = R.phase - 1; b.fases = R.total; store.set("super.best", b); }
+    setTimeout(showCards, 1300);
+  }
+  // Two cards (three on every 5th: one is relief), weighted so early phases offer lighter cards.
+  function cardPool() {
+    const R = S.run, lvl = R.kind === "fases" ? R.phase - 1 : R.picks + 1, maxT = lvl < 3 ? 1 : lvl < 6 ? 2 : 3;
+    return SKILLS.filter((k) => {
+      const have = skLv(k.id), cap = k.st ? k.max || 1 : 3;
+      if (have >= cap || k.t > maxT) return false;
+      if (k.only === "f" && R.kind !== "fases") return false;
+      if (k.ex && k.ex.some((x) => skLv(x))) return false;
+      return true;
+    });
+  }
+  function showCards() {
+    const R = S.run, pool = cardPool(), pick = [];
+    while (pick.length < 2 && pool.length) pick.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+    R.picks++;
+    const relief = (R.kind === "fases" ? (R.phase - 1) % 5 === 0 : R.picks % 5 === 0) && Object.keys(R.sk).length;
+    $("cards-title").textContent = "Escolha uma habilidade";
+    $("cards-sub").textContent = R.kind === "fases" ? `Ela vale a partir da fase ${R.phase} e se acumula com as outras.` : "Ela vale a partir de agora e se acumula com as outras.";
+    const html = pick.map((k) => {
+      const lv = skLv(k.id) + 1, [dot, tn, bonus] = TIER[k.t];
+      return `<button class="sk-card t${k.t}" data-k="${k.id}"><span class="sk-tier">${dot} ${tn}${lv > 1 ? ` · nível ${lv}` : ""}</span><span class="sk-ic">${k.ic}</span><b>${k.n}</b><small>${k.d(k.base ? ivOf(k.id, lv) : 0)}</small><em>+${Math.round(bonus * 100)}% pontos</em></button>`;
+    });
+    if (relief) html.push(`<button class="sk-card relief" data-k="__relief"><span class="sk-tier">🍀 Alívio</span><span class="sk-ic">🍀</span><b>Alívio</b><small>Remova uma habilidade que você já tem.</small><em>sem bônus</em></button>`);
+    if (!html.length) html.push(`<button class="sk-card relief" data-k="__none"><span class="sk-ic">🏆</span><b>Você tem todas!</b><small>Continue jogando.</small></button>`);
+    $("cards-row").innerHTML = html.join("");
+    $("cards-row").classList.toggle("three", html.length === 3);
+    $("cards-close").hidden = true;
+    $("cards").hidden = false; sfx.levelUp();
+  }
+  function applyCard(id) {
+    const R = S.run;
+    $("cards").hidden = true;
+    if (id === "__relief") return showRelief();
+    if (id !== "__none") {
+      R.sk[id] = (R.sk[id] || 0) + 1; R.mult = +(R.mult * (1 + TIER[SKD[id].t][2])).toFixed(3);
+      toast(`<b>${SKD[id].ic} ${SKD[id].n}</b><small>${R.kind === "fases" ? "ativa a partir da próxima fase" : "ativa agora"}</small>`);
+    }
+    continueRun(id);
+  }
+  function continueRun(id) {
+    const R = S.run;
+    if (R.kind === "fases") return newSuperPhase();
+    if (id && SKD[id] && (SKD[id].st || id === "rbomb")) superSetup(id);
+    if (id === "short") S.tray[2] = null;
+    document.body.classList.toggle("sk-blind", !!skLv("blind"));
+    renderBoard(); renderTray(); renderScore(); renderSkillStrip(); checkStuck(400, 0);
+  }
+  function showRelief() {
+    const R = S.run;
+    $("cards-title").textContent = "Alívio 🍀"; $("cards-sub").textContent = "Escolha uma habilidade para remover.";
+    $("cards-row").innerHTML = Object.keys(R.sk).map((id) => `<button class="sk-chip" data-r="${id}">${SKD[id].ic} ${SKD[id].n}${R.sk[id] > 1 ? " ×" + R.sk[id] : ""}</button>`).join("");
+    $("cards-row").classList.remove("three");
+    $("cards-close").hidden = true;
+    $("cards").hidden = false;
+  }
+  $("cards-row").addEventListener("click", (e) => {
+    const c = e.target.closest(".sk-card"); if (c) { sfx.record(); return applyCard(c.dataset.k); }
+    const r = e.target.closest(".sk-chip[data-r]"); if (r) { const R = S.run; if (R.sk[r.dataset.r] > 1) R.sk[r.dataset.r]--; else delete R.sk[r.dataset.r]; $("cards").hidden = true; sfx.levelUp(); toast(`<b>🍀 ${SKD[r.dataset.r].n} removida</b>`); continueRun(null); }
+  });
+  $("cards-close").addEventListener("click", () => { $("cards").hidden = true; });
+  function renderSkillStrip() {
+    const el = $("sk-strip"), on = superOn();
+    el.hidden = !on; document.body.classList.toggle("sk-blind", on && !!skLv("blind"));
+    if (!on) return;
+    const R = S.run, ids = Object.keys(R.sk), extra = [];
+    if (S.moveLimit) extra.push(`${S.moves}/${S.moveLimit} jogadas`);
+    if (skLv("lines2")) extra.push(`${Math.min(5, S.linesPhase)}/5 linhas`);
+    el.innerHTML = (ids.length ? ids.map((id) => `<i title="${SKD[id].n}">${SKD[id].ic}${R.sk[id] > 1 ? `<sup>${R.sk[id]}</sup>` : ""}</i>`).join("") : `<span>Nenhuma habilidade ainda</span>`) + (extra.length ? `<span class="sk-x">${extra.join(" · ")}</span>` : "") + `<span class="sk-x">×${R.mult.toFixed(2)}</span>`;
+  }
+  $("sk-strip").addEventListener("click", () => {
+    if (!superOn()) return;
+    const R = S.run, ids = Object.keys(R.sk);
+    $("cards-title").textContent = "Habilidades ativas"; $("cards-sub").textContent = ids.length ? `Pontos ×${R.mult.toFixed(2)}` : "Vença a fase para escolher a primeira.";
+    $("cards-row").innerHTML = ids.map((id) => { const k = SKD[id]; return `<div class="sk-line">${k.ic} <b>${k.n}${R.sk[id] > 1 ? " ×" + R.sk[id] : ""}</b><small>${k.d(k.base ? ivOf(id, R.sk[id]) : 0)}</small></div>`; }).join("");
+    $("cards-row").classList.remove("three"); $("cards-close").hidden = false; $("cards").hidden = false;
+  });
+  function superOver(reason) {
+    const R = S.run; S.over = true;
+    const total = R.total + S.score, b = superBest();
+    let rec = false;
+    if (R.kind === "fases") { if (R.phase > b.phase || (R.phase === b.phase && total > b.fases)) { b.phase = R.phase; b.fases = total; rec = true; } }
+    else if (total > b.sobrev) { b.sobrev = total; rec = true; }
+    store.set("super.best", b);
+    music.stop(); music.want = null; if (rec) sfx.record(); else sfx.lose(); buzz(300);
+    overlay("lose", "Fim da corrida", reason || "Nenhuma peça cabe no tabuleiro.");
+    $("over-score").textContent = fmt(total);
+    $("over-badge").hidden = !rec; $("over-badge").textContent = "Novo recorde!";
+    $("over-rank").textContent = R.kind === "fases" ? `Chegou à fase ${R.phase} · ${Object.keys(R.sk).length} habilidades` : `${S.moves} jogadas · ${Object.keys(R.sk).length} habilidades`;
+    $("btn-again").textContent = "Nova corrida"; $("btn-levels").hidden = true; $("btn-next").hidden = true;
+    $("btn-undo-over").hidden = !(S.undoSnap && (S.undoBank || 0) > 0);
+  }
+  $("play-super").addEventListener("click", () => { wake(); showSuperStart(); });
+  $("ss-fases-btn").addEventListener("click", () => { sfx.ui(); startSuper("fases"); });
+  $("ss-sobrev-btn").addEventListener("click", () => { sfx.ui(); startSuper("sobrev"); });
+  $("ss-close").addEventListener("click", () => { $("super-start").hidden = true; });
+  // Pressa: 6 s without playing swaps one piece of the hand.
+  setInterval(() => {
+    if (!superOn() || !skLv("hurry") || S.over || $("game").hidden || overlayOpen() || Date.now() - lastAct < 6000) return;
+    const ix = S.tray.map((p, i) => (p ? i : -1)).filter((i) => i >= 0); if (!ix.length) return;
+    S.tray[rndOf(ix)] = randomPiece(); lastAct = Date.now(); renderTray(); sfx.nope(); fx("lvl", "⚡ Pressa! Uma peça mudou", $("board").clientHeight / 2, 900);
+  }, 1000);
   // ---------- v23: Contra o Tempo timer ----------
   const TIMED_SECONDS = 120;
   function renderTimer() {
-    if (!S || S.mode !== "timed") { document.body.classList.remove("hurry"); return; }
+    if (!S || (S.mode !== "timed" && !(S.mode === "super" && S.timeLeft != null))) { document.body.classList.remove("hurry"); return; }
     const t = Math.ceil(Math.max(0, S.timeLeft)); $("mode-label").textContent = `⏱ ${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`;
     document.body.classList.toggle("hurry", t <= 10 && !S.over);
   }
   setInterval(() => {
-    if (!S || S.mode !== "timed" || S.over || $("game").hidden || document.hidden || overlayOpen()) return;
+    if (!S || (S.mode !== "timed" && !(S.mode === "super" && S.timeLeft != null)) || S.over || $("game").hidden || document.hidden || overlayOpen()) return;
     S.timeLeft -= .25;
     if (Math.abs(S.timeLeft - Math.round(S.timeLeft)) < .01) { const t = Math.round(S.timeLeft); if (t > 0 && t <= 5) sfx.ui(); }
     renderTimer();
-    if (S.timeLeft <= 0) { document.body.classList.remove("hurry"); gameOver(`O tempo acabou. Você fez ${fmt(S.score)} pontos em 2 minutos.`); }
+    if (S.timeLeft <= 0) { document.body.classList.remove("hurry"); gameOver(S.mode === "super" ? "O tempo da fase acabou." : `O tempo acabou. Você fez ${fmt(S.score)} pontos em 2 minutos.`); }
   }, 250);
   // ---------- v23: hints (not in story, not in Tetris) ----------
   // After 20 s without touching the screen, a good spot for one of the pieces glows softly.
@@ -5864,14 +6294,14 @@ window.Scene = (() => {
     const sl = $("tray").children[best.ti]; if (sl) sl.classList.add("hint");
   }
   setInterval(() => {
-    if (hintOn || !S || S.over || S.mode === "story" || S.mode === "tetris" || $("game").hidden || overlayOpen() || Date.now() - lastAct < 20000) return;
+    if (hintOn || !S || S.over || S.mode === "story" || S.mode === "tetris" || S.mode === "super" || $("game").hidden || overlayOpen() || Date.now() - lastAct < 20000) return;
     showHint();
   }, 1000);
   // ---------- v21: undo and continue (story) ----------
   let overTimer = 0;
   const UNDOS = 2;
   // v27: Clássico and Sudoku earn one undo every 500 points, holding at most 3.
-  const canBankUndo = () => !!S && (S.mode === "classic" || S.mode === "sudoku");
+  const canBankUndo = () => !!S && (S.mode === "classic" || S.mode === "sudoku" || S.mode === "super");
   const UNDO_EVERY = 500, UNDO_MAX = 3;
   const undosLeft = () => (S.mode === "puzzle" ? 99 : canBankUndo() ? S.undoBank || 0 : UNDOS - (S.undoUsed || 0));
   function renderUndo() {
@@ -5922,7 +6352,7 @@ window.Scene = (() => {
   }
   // Valid: the cells the piece will fill plus every cell that will clear. Invalid (while over the
   // board): the free cells it would cover in red and the blocks in its way outlined in red.
-  const clearsOf = (b) => (S && S.rules === "puzzle" ? { idx: new Set(), lines: 0, groups: [] } : findClears(b));
+  const clearsOf = (b) => (S && S.rules === "puzzle" ? { idx: new Set(), lines: 0, groups: [] } : S && S.mode === "super" ? superClears(b) : findClears(b));
   function previewFor(ti, r0, c0) {
     const p = S.tray[ti];
     if (!canPlace(S.board, S.n, p.cells, r0, c0)) {
@@ -5941,6 +6371,7 @@ window.Scene = (() => {
   }
   function moveDrag(x, y) {
     const lf = store.get("dragLift", "mid"), lift = !drag.touch ? drag.h / 2 : lf === "near" ? drag.h * .55 + drag.cell * .25 : lf === "far" ? drag.h + drag.cell * 2.2 : drag.h + drag.cell * 1.1;
+    if (S.mode === "super" && skLv("mirror")) x = drag.sx - (x - drag.sx);
     const left = x - drag.w / 2 + (drag.touch && document.body.classList.contains("lefty") ? drag.cell * 1.2 : 0), top = y - lift;
     drag.el.style.transform = `translate(${left}px, ${top}px)`;
     const g = step();
@@ -5957,6 +6388,7 @@ window.Scene = (() => {
     const slot = e.target.closest(".slot");
     if (!slot || !S.tray[slot.dataset.i]) return;
     if (rotAim) { e.preventDefault(); doRotate(+slot.dataset.i); return; }
+    if (S.mode === "super" && +slot.dataset.i === S.coverIdx) { e.preventDefault(); S.coverIdx = -1; sfx.grab(); renderTray(); return; }
     e.preventDefault();
     const ti = +slot.dataset.i, p = S.tray[ti];
     const el = document.createElement("div");
@@ -6352,6 +6784,7 @@ window.Scene = (() => {
     }
     { const d = Object.keys(store.get("puzzle.done", {})).length; $("rec-puzzle").textContent = `${d}/${PUZZLES.length}`; $("puzzle-sub").textContent = store.get("game.puzzle", null) ? "Continuar desenho" : "Monte desenhos"; }
     showMenuBadges();
+    { const b = superBest(); $("rec-super").textContent = b.phase ? `Fase ${b.phase}` : "—"; }
     const ss = store.get("game.story", null);
     $("rec-story").textContent = storyUnlocked();
     $("story-sub").textContent = ss ? `Continuar fase ${ss.level} · ${fmt(ss.score)} pontos` : "1000 fases · bata a meta de pontos ou destrua várias linhas de uma vez";
@@ -6626,7 +7059,7 @@ window.Scene = (() => {
   // v16: the board itself is painted with the game's material, in the current style, tinted by the
   // mode's colour; the empty cells are see-through holes in it, so every mode × material ×
   // style combination has its own board.
-  const MODE_TINT = { classic: "#eaa53c", sudoku: "#3fb59a", tetris: "#a66be0", story: "#d9824a", timed: "#3fa9f5", puzzle: "#e070aa" };
+  const MODE_TINT = { classic: "#eaa53c", sudoku: "#3fb59a", tetris: "#a66be0", story: "#d9824a", timed: "#3fa9f5", puzzle: "#e070aa", super: "#c77dff" };
   const TRAY_BASE = { wood: "#6b4226", cement: "#7a7872", brick: "#8a3a22", ice: "#3a7ab0", water: "#1f5f8f", lava: "#4a1a0c", marble: "#c8c0b4",
     metal: "#5a6270", bolt: "#2a2a5a", electric: "#2a1650", rain: "#3a5a70", future: "#1a2438", sand: "#c09050", grass: "#2f6a24", smoke: "#4a4a52",
     crystal: "#4a2a70", gold: "#8a6418", snow: "#9ab4cc", cloud: "#6a9ac0", candy: "#b04a7a", galaxy: "#1a1240", moss: "#4a5a40", stained: "#2a2230", leather: "#5a341c", coral: "#a04a3e" };
@@ -6734,6 +7167,7 @@ window.Scene = (() => {
     if (!S) return;
     if (S.mode === "tetris") { tStop(); startTetris(true); }
     else if (S.mode === "puzzle") startPuzzle(S.pz, true);
+    else if (S.mode === "super") startSuper(S.run.kind);
     else if (S.daily) startDaily(true);
     else if (S.mode === "story") startStory(S.level, true, null, S.helped);
     else startGame(S.mode, true);
@@ -6756,7 +7190,7 @@ window.Scene = (() => {
   $("daily-play").addEventListener("click", () => { $("daily").hidden = true; sfx.ui(); startDaily(false); });
   $("daily-close").addEventListener("click", () => { $("daily").hidden = true; });
   $("missions").addEventListener("click", (e) => { const b = e.target.closest(".claim"); if (b) claimMission(b.dataset.k); });
-  $("btn-again").addEventListener("click", () => (S.mode === "puzzle" ? startPuzzle(S.pz, true) : S.daily ? startDaily(true) : S.mode === "story" ? startStory(S.level, true) : S.mode === "tetris" ? startTetris(true) : startGame(S.mode, true)));
+  $("btn-again").addEventListener("click", () => (S.mode === "super" ? ($("over").hidden = true, startSuper(S.run.kind)) : S.mode === "puzzle" ? startPuzzle(S.pz, true) : S.daily ? startDaily(true) : S.mode === "story" ? startStory(S.level, true) : S.mode === "tetris" ? startTetris(true) : startGame(S.mode, true)));
   // Test hook (offline game, no secrets): lets the automated tests set up a board.
   window.bauDebug = { get S() { return S; }, set(patch) { Object.assign(S, patch); renderBoard(); renderTray(); renderScore(); } };
   function applyLand() { document.body.classList.toggle("land", innerWidth > innerHeight * 1.15 && innerWidth >= 560); }
@@ -6766,7 +7200,7 @@ window.Scene = (() => {
 
   // Hooks used by the Android app shell.
   window.blockAltUnoBack = () => {
-    for (const id of ["confirm", "items", "shop", "settings", "puzzles", "daily", "levels-x"].filter((x) => $(x))) if (!$(id).hidden) { $(id).hidden = true; if (id === "shop") music.play(menuTrack()); return true; }
+    for (const id of ["confirm", "items", "shop", "settings", "puzzles", "daily", "super-start", "levels-x"].filter((x) => $(x))) if (!$(id).hidden) { $(id).hidden = true; if (id === "shop") music.play(menuTrack()); return true; }
     if (!$("tip").hidden) { $("tip-ok").click(); return true; }
     if (!$("t-paused").hidden) { if (S && S.mode === "tetris") tResume(); else $("t-paused").hidden = true; return true; }
     if (!$("menu").hidden) return false;

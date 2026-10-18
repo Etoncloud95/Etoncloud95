@@ -374,3 +374,13 @@ Regras da História pelo número real da fase (somam com as da v28; se duas caem
 - **Múltiplos de 6 a partir da 6:** meia-volta (180°) a cada 5 jogadas.
 - **Múltiplos de 9 a partir da 9:** espelha na horizontal (esquerda ↔ direita) a cada 5 jogadas.
 - **Múltiplos de 7 a partir da 17:** espelha na vertical (cima ↔ baixo) a cada 7 jogadas.
+
+## v30 — Block Super GF
+
+- **Novo nome:** BLOCK SUPER GF (título, logo, abertura, nome do app e do APK, arquivo de progresso). Os identificadores internos (pacote Android, chave de assinatura, armazenamento) continuam os mesmos para o app atualizar por cima e manter o progresso. Arquivos de progresso antigos ("BLOCK ALT UNO") continuam sendo aceitos.
+- **Super Desafio ⚔️** (cartão roxo no menu): corridas no estilo Hades.
+  - *Corrida de fases:* meta 120 pontos na fase 1, +60 por fase. Ao vencer, 2 cartas de habilidade; escolhe-se 1. Elas se acumulam até a corrida acabar. Recorde: fase alcançada e total.
+  - *Sobrevivência:* um tabuleiro só; a cada 20 jogadas, 2 cartas. Recorde: pontos.
+  - Cartas 🟢 leves (+10% pontos), 🟡 médias (+20%), 🔴 pesadas (+35%); as pesadas só depois da fase 6. Habilidades periódicas podem vir de novo (nível 2 e 3: 1 jogada a menos). A cada 5 escolhas pode aparecer um **Alívio 🍀** que remove uma habilidade.
+  - Faixa roxa acima do tabuleiro mostra as habilidades ativas (tocar abre a lista) e o multiplicador de pontos. 1 desfazer por fase (some com "Sem desfazer").
+  - **50 habilidades:** giro horário, giro anti-horário, espelho lateral, de cabeça para baixo, correnteza, terremoto, bloco intruso, bloco sumido, bloco andarilho, bloco teimoso, pedreira, bomba-relógio, assombração, geada, cadeado, muro, peças grandes, sem retinhas, mão curta, às cegas, peça surpresa, peça torta, sem Guardar, bandeja trocada, linha preguiçosa, só linhas, só colunas, combo frágil, meta inflada, imposto, relógio, pressa, contagem, neblina, tremedeira, tabuleiro menor (7×7), tabuleiro Sudoku, monocromático, sem desfazer, dedo espelhado, maré, peças fantasmas, desgaste, meta dupla, bandeja giratória, mão pesada, sem combo, apagão, **bomba-relógio invertida** (casa sinalizada que, ao zerar, enche as vizinhas de blocos) e **diminuição de jogadas** (tudo que demora X jogadas passa a demorar X−1; acumula, mínimo 2, vale também para habilidades futuras, bombas e cadeados).
