@@ -1,7 +1,7 @@
 <title>BLOCK SUPER GF</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="31">
+<meta name="bau-version" content="32">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -177,8 +177,9 @@ body.land .bar .scores .now { font-size: 34px; }
 @media (max-height: 660px) { .mode small { display: none; } .tag { display: none; } }
 
 /* ---------- Settings ---------- */
-.settings-card { text-align: left; gap: 14px; max-height: 100%; overflow-y: auto; }
-.settings-card h2 { text-align: center; }
+.settings-card { text-align: left; gap: 14px; max-height: calc(100% - 48px); overflow-y: auto; }
+#settings, #shop, #daily, #puzzles, #items, #super-start { padding-top: max(24px, env(safe-area-inset-top, 0px)); padding-bottom: 24px; box-sizing: border-box; }
+.settings-card h2 { text-align: center; margin-top: 10px !important; }
 .set-label { font-size: 12.5px; font-weight: 700; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; }
 .music-list { display: grid; gap: 8px; margin-top: 8px; }
 .music-opt { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,.05); text-align: left; }
@@ -526,21 +527,11 @@ body.frame-lava #board, body.frame-lava .tboard { outline: 4px solid #ff8a2a; ou
 .super-card { position: relative; display: flex; align-items: center; gap: 10px; padding: clamp(6px, 1vh, 10px) 12px; border-radius: 16px; text-align: left; color: #fff;
   background: linear-gradient(110deg, #6a1fb0, #2a0b52 60%, #8a1f5a); box-shadow: 0 0 0 2px #ff7a1a, 0 0 16px rgba(255,110,20,.8), 0 0 34px rgba(255,60,0,.45), 0 5px 0 rgba(0,0,0,.45); }
 .super-card > * { position: relative; z-index: 1; }
-/* v31: flames licking the border (transform/opacity animation only) */
-.super-card::before, .super-card::after { content: ""; position: absolute; left: -4px; right: -4px; pointer-events: none; z-index: 0; will-change: transform, opacity; transform-origin: 50% 100%; filter: blur(.4px); }
-.super-card::before { top: -30px; height: 34px;
-  background:
-    radial-gradient(ellipse 6px 26px at 50% 100%, #fffbe0 0%, #ffe066 22%, #ff9a1a 48%, rgba(255,50,0,.9) 70%, transparent 74%) 0 100% / 13px 34px repeat-x,
-    radial-gradient(ellipse 9px 20px at 50% 100%, #ffd23a 0%, #ff7a1a 45%, rgba(220,30,0,.85) 68%, transparent 72%) 6px 100% / 21px 26px repeat-x,
-    radial-gradient(ellipse 5px 15px at 50% 100%, #fff 0%, #ffe680 40%, rgba(255,120,20,.8) 66%, transparent 70%) 3px 100% / 17px 19px repeat-x;
-  animation: flame .45s ease-in-out infinite alternate; }
-.super-card::after { bottom: -10px; height: 14px; transform-origin: 50% 0;
-  background: radial-gradient(ellipse 10px 8px at 50% 0, #ffb347 0%, rgba(255,70,0,.85) 55%, transparent 72%) 0 0 / 20px 14px repeat-x;
-  animation: flame2 .6s ease-in-out infinite alternate; }
-@keyframes flame { 0% { transform: scaleY(.78) skewX(-3deg); opacity: .85; } 50% { transform: scaleY(1.08) skewX(2deg); opacity: 1; } 100% { transform: scaleY(.9) skewX(4deg); opacity: .92; } }
-@keyframes flame2 { 0% { transform: scaleY(.7); opacity: .6; } 100% { transform: scaleY(1.1); opacity: .95; } }
+/* v32: realistic fire is drawn on a canvas around the card (see superFire) */
+.super-card { overflow: visible; box-shadow: 0 0 0 2px #ffb347, 0 0 14px rgba(255,140,30,.9), 0 0 32px rgba(255,70,0,.55), 0 5px 0 rgba(0,0,0,.45); }
+.super-card .fire-fx { filter: blur(.6px) saturate(1.2); position: absolute; left: -22px; top: -46px; width: calc(100% + 44px); height: calc(100% + 66px); pointer-events: none; z-index: 0; }
 .super-card .sc-ic { animation: flicker 1.2s ease-in-out infinite alternate; } @keyframes flicker { to { filter: drop-shadow(0 0 6px #ff8a2a); } }
-.lite .super-card::before, .lite .super-card::after, .lite .super-card .sc-ic { animation: none; }
+.lite .super-card .sc-ic { animation: none; }
 .super-card .sc-ic { font-size: 24px; flex: none; }
 .super-card > span:nth-child(2) { flex: 1; min-width: 0; }
 .super-card b { display: block; font-family: var(--font-display); font-size: clamp(14px, 2.1vh, 18px); text-transform: uppercase; letter-spacing: .04em; }
@@ -909,6 +900,7 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       </button>
     </div>
     <button class="super-card" id="play-super">
+      <canvas class="fire-fx" id="fire-fx" aria-hidden="true"></canvas>
       <span class="sc-ic" aria-hidden="true">⚔️</span>
       <span><b>Super Desafio</b><small id="super-sub">Vença fases e escolha habilidades que dificultam</small></span>
       <span class="rec"><em>Recorde</em><strong id="rec-super">—</strong></span>
@@ -6259,6 +6251,78 @@ window.Scene = (() => {
     $("btn-undo-over").hidden = !(S.undoSnap && (S.undoBank || 0) > 0);
   }
   $("play-super").addEventListener("click", () => { wake(); showSuperStart(); });
+  // v32: realistic fire around the Super Desafio card — glowing particles rising from the border,
+  // drawn additively (like real flames on black), ~30 fps, only while the menu is on screen.
+  {
+    const cv = $("fire-fx"), cx = cv.getContext("2d"), PADX = 22, PADT = 46, PADB = 20;
+    const sprite = (stops, r) => { const c = document.createElement("canvas"); c.width = c.height = r * 2; const g = c.getContext("2d"), gr = g.createRadialGradient(r, r, 0, r, r, r); stops.forEach(([o, col]) => gr.addColorStop(o, col)); g.fillStyle = gr; g.fillRect(0, 0, r * 2, r * 2); return c; };
+    const SPR = [
+      sprite([[0, "rgba(255,255,235,1)"], [.25, "rgba(255,236,150,.9)"], [.6, "rgba(255,170,40,.35)"], [1, "rgba(255,120,0,0)"]], 16),
+      sprite([[0, "rgba(255,210,90,.95)"], [.35, "rgba(255,140,20,.6)"], [.75, "rgba(230,60,0,.2)"], [1, "rgba(200,30,0,0)"]], 16),
+      sprite([[0, "rgba(240,90,10,.8)"], [.5, "rgba(170,30,0,.35)"], [1, "rgba(80,10,0,0)"]], 16),
+      sprite([[0, "rgba(90,60,50,.25)"], [1, "rgba(40,30,30,0)"]], 16),
+    ];
+    let P = [], raf = 0, last = 0, W = 0, H = 0, acc = 0;
+    function size() { const r = $("play-super").getBoundingClientRect(); W = Math.round(r.width + PADX * 2); H = Math.round(r.height + PADT + PADB); if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; } }
+    // a point on the card's border; the top edge burns hardest
+    function edgePoint() {
+      const w = W - PADX * 2, h = H - PADT - PADB, x0 = PADX, y0 = PADT, t = Math.random();
+      if (t < .5) return [x0 + Math.random() * w, y0, 1.25];
+      if (t < .62) return [x0 + Math.random() * w, y0 + h + 2, .45];
+      if (t < .81) return [x0 - 3, y0 + Math.random() * h, .75];
+      return [x0 + w + 3, y0 + Math.random() * h, .75];
+    }
+    function spawn(n) {
+      for (let k = 0; k < n; k++) {
+        const [x, y, f] = edgePoint(), spark = Math.random() < .04;
+        P.push({ x: x + (Math.random() - .5) * 4, y: y + (Math.random() - .5) * 3, vx: (Math.random() - .5) * 14, vy: -(70 + Math.random() * 90) * f, life: 0,
+          max: spark ? 1 + Math.random() * .8 : (.28 + Math.random() * .42) * (.6 + f * .4), s: spark ? 1.6 : (3 + Math.random() * 4.5) * (.75 + f * .25), spark, ph: Math.random() * 6.28 });
+      }
+    }
+    function draw(dt) {
+      cx.clearRect(0, 0, W, H);
+      // glowing hot rim of the frame
+      const w = W - PADX * 2, h = H - PADT - PADB;
+      cx.save(); cx.shadowColor = "rgba(255,150,30,.95)"; cx.shadowBlur = 14; cx.strokeStyle = "rgba(255,214,120,.9)"; cx.lineWidth = 2.2;
+      cx.beginPath(); cx.roundRect ? cx.roundRect(PADX, PADT, w, h, 16) : cx.rect(PADX, PADT, w, h); cx.stroke(); cx.restore();
+      // flames live outside the card: clip away its inside (a little heat bleeds 3px in)
+      cx.save(); cx.beginPath(); cx.rect(0, 0, W, H);
+      if (cx.roundRect) cx.roundRect(PADX + 3, PADT + 3, w - 6, h - 6, 13); else cx.rect(PADX + 3, PADT + 3, w - 6, h - 6);
+      cx.clip("evenodd");
+      cx.globalCompositeOperation = "lighter";
+      for (let i = P.length - 1; i >= 0; i--) {
+        const p = P[i]; p.life += dt; const k = p.life / p.max;
+        if (k >= 1) { P.splice(i, 1); continue; }
+        p.ph += dt * 11; p.x += (p.vx + Math.sin(p.ph) * 22) * dt; p.y += p.vy * dt; p.vy -= 60 * dt;
+        if (p.spark) { cx.globalAlpha = 1 - k; cx.fillStyle = "#ffd27a"; cx.fillRect(p.x, p.y, p.s, p.s); continue; }
+        // flame tongues: thin, tall sprites stretched along their speed, hot core first, then orange, red and smoke
+        const img = k < .2 ? SPR[0] : k < .5 ? SPR[1] : k < .85 ? SPR[2] : SPR[3], wd = p.s * (1 - k * .6), ht = wd * (3.2 + Math.min(2, -p.vy / 80));
+        cx.globalAlpha = k < .12 ? k / .12 : 1 - k * .75;
+        cx.drawImage(img, p.x - wd, p.y - ht * .75, wd * 2, ht * 1.5);
+      }
+      cx.globalAlpha = 1; cx.globalCompositeOperation = "source-over"; cx.restore();
+    }
+    function frame(now) {
+      raf = 0;
+      if ($("menu").hidden || document.hidden) return;
+      const dt = Math.min(.05, (now - last) / 1000 || .016); last = now; acc += dt;
+      raf = requestAnimationFrame(frame);
+      if (acc < 1 / 32) return; // ~30 fps is plenty for fire and cheap on phones
+      const d = acc; acc = 0;
+      if (W < 50) size();
+      spawn(Math.round(620 * d)); if (P.length > 420) P.splice(0, P.length - 420);
+      draw(d);
+    }
+    function start() {
+      size();
+      if (document.body.classList.contains("lite")) { P = []; for (let k = 0; k < 40; k++) { spawn(4); for (const p of P) p.life = Math.random() * p.max * .8; } draw(.016); return; }
+      if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); }
+    }
+    window.addEventListener("resize", () => { W = 0; start(); });
+    document.addEventListener("visibilitychange", start);
+    new MutationObserver(() => { if (!$("menu").hidden) { W = 0; start(); } }).observe($("menu"), { attributes: true, attributeFilter: ["hidden"] });
+    setTimeout(start, 300);
+  }
   $("ss-fases-btn").addEventListener("click", () => { sfx.ui(); startSuper("fases"); });
   $("ss-sobrev-btn").addEventListener("click", () => { sfx.ui(); startSuper("sobrev"); });
   $("ss-close").addEventListener("click", () => { $("super-start").hidden = true; });
@@ -6866,7 +6930,7 @@ window.Scene = (() => {
     box.innerHTML = list.map(([k, t, w]) => `<button class="chip-opt" data-track="${k}" role="radio" aria-checked="${k === cur}" title="${w}">${k === "auto" ? "★ " : "♪ "}${t}</button>`).join("");
     for (const b2 of box.children) b2.addEventListener("click", () => { store.set("gameMusic", b2.dataset.track); renderGameMusic(); sfx.ui(); });
   }
-  $("btn-settings").addEventListener("click", () => { renderSettings(); renderVisualPick(); renderSkins(); $("settings").hidden = false; $("set-close").focus(); });
+  $("btn-settings").addEventListener("click", () => { renderSettings(); renderVisualPick(); renderSkins(); $("settings").hidden = false; const sc = $("settings").querySelector(".settings-card"); sc.scrollTop = 0; requestAnimationFrame(() => { sc.scrollTop = 0; }); $("set-close").focus({ preventScroll: true }); });
   $("set-close").addEventListener("click", () => { $("settings").hidden = true; });
   function showRecords(mode) {
     S = null;

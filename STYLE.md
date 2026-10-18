@@ -391,3 +391,8 @@ Regras da História pelo número real da fase (somam com as da v28; se duas caem
 - Correção: soltar uma peça nas casas de baixo à esquerda (logo acima do botão Guardar) às vezes guardava a peça em vez de colocá-la. Agora, se a peça cabe no tabuleiro, ela é colocada; o Guardar só recebe a peça quando ela não está sobre uma posição válida.
 - Super Desafio: a habilidade "Sem Guardar" virou **🚫 Sem prévia** (ao arrastar, o tabuleiro não mostra onde a peça vai cair).
 - Menu: o cartão do **Super Desafio** tem chamas animadas na borda (só transform/opacity; paradas no Modo leve). O cartão da **História** ganhou neon amarelo fluorescente.
+
+## v32
+
+- **Fogo realista no Super Desafio:** as chamas são desenhadas num canvas em volta do cartão: ~400 partículas finas e altas, com brilho somado (como fogo real no escuro), núcleo branco-amarelo → laranja → vermelho → fumaça, ondulando e subindo, mais fortes no topo, além de faíscas e da borda incandescente. O fogo fica só do lado de fora do cartão (não cobre o texto). Roda a ~30 fps e só com o menu na tela; no Modo leve vira uma imagem parada. Custo medido: ~1 fps com CPU 6× mais lenta.
+- **Configurações:** abrem sempre no topo (antes o foco no botão "Pronto" rolava a janela até o fim) e o título "Configurações" fica mais abaixo, com espaço acima. Loja, Desafio diário, Quebra-cabeça, Itens e Super Desafio ganharam a mesma margem.
