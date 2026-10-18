@@ -396,3 +396,11 @@ Regras da História pelo número real da fase (somam com as da v28; se duas caem
 
 - **Fogo realista no Super Desafio:** as chamas são desenhadas num canvas em volta do cartão: ~400 partículas finas e altas, com brilho somado (como fogo real no escuro), núcleo branco-amarelo → laranja → vermelho → fumaça, ondulando e subindo, mais fortes no topo, além de faíscas e da borda incandescente. O fogo fica só do lado de fora do cartão (não cobre o texto). Roda a ~30 fps e só com o menu na tela; no Modo leve vira uma imagem parada. Custo medido: ~1 fps com CPU 6× mais lenta.
 - **Configurações:** abrem sempre no topo (antes o foco no botão "Pronto" rolava a janela até o fim) e o título "Configurações" fica mais abaixo, com espaço acima. Loja, Desafio diário, Quebra-cabeça, Itens e Super Desafio ganharam a mesma margem.
+
+## v33
+
+- **Fogo do Super Desafio refeito por dentro do cartão:** as chamas nascem na borda de baixo e sobem pelas laterais, só dentro do cartão (fundo escuro), sem passar por cima dos outros cartões. O texto ganhou sombra para continuar legível.
+- **Título com neon forte:** "BLOCK" em rosa-choque e "SUPER GF" em ciano elétrico, letras claras com contorno neon e brilho em camadas, com uma piscada sutil de letreiro (parada no Modo leve).
+- **Blocos acima do título** não são mais cortados ao subir.
+- **Quebra-cabeça mais fácil:** tabuleiro maior (10×10 ou 11×11) com o desenho marcado em rosa no meio. As peças podem ir para qualquer lugar; as já colocadas podem ser **arrastadas** para outro lugar ou **tocadas** para voltar à bandeja. Linhas completas somem (as peças atingidas voltam inteiras para a bandeja, então o desenho nunca fica impossível). Vence quando todas as casas rosa estão cobertas. Blocos fora do desenho ficam com contorno tracejado. O modo nunca acaba sozinho.
+- **Desfazer ilimitado** só no Quebra-cabeça (o contador mostra ∞).

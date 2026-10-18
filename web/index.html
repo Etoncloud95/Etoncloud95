@@ -1,7 +1,7 @@
 <title>BLOCK SUPER GF</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="32">
+<meta name="bau-version" content="33">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -103,7 +103,7 @@ button:focus-visible, .slot:focus-visible { outline: 3px solid var(--amber); out
 #menu { max-width: 440px; display: flex; flex-direction: column; gap: clamp(6px, 1.4vh, 16px); overflow: hidden; }
 /* Centered when it fits, scrollable from the top when it does not. */
 .logo { display: grid; gap: clamp(3px, .8vh, 10px); justify-items: center; }
-.logo-blocks { display: grid; grid-template-columns: repeat(4, 22px); gap: 4px; }
+.logo-blocks { display: grid; grid-template-columns: repeat(4, 22px); gap: 4px; margin-top: 9px; }
 .logo-blocks i { width: 22px; height: 22px; border-radius: 4px; animation: bob 3.2s ease-in-out infinite; }
 .logo-blocks i:nth-child(2) { animation-delay: .2s; } .logo-blocks i:nth-child(3) { animation-delay: .4s; } .logo-blocks i:nth-child(4) { animation-delay: .6s; }
 @keyframes bob { 50% { transform: translateY(-5px); } }
@@ -116,6 +116,14 @@ h1 span { color: var(--amber); }
 h1.wordmark { letter-spacing: .04em; text-shadow: none; filter: drop-shadow(0 3px 0 #3a2414) drop-shadow(0 8px 14px rgba(0,0,0,.5)); }
 h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-position: 30% 40%;
   -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-stroke: 1.5px #3a2414; paint-order: stroke fill; }
+/* v33: the title glows like a strong neon sign — BLOCK in hot pink, SUPER GF in electric cyan */
+h1.wordmark { filter: none; }
+h1.wordmark .wm { background-image: linear-gradient(180deg, #ffffff 0%, #fff4fd 40%, #ffd2f4 100%) !important; background-size: 100% 100% !important; -webkit-text-stroke: 2px #ff3fd0;
+  filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 4px #ff4fd8) drop-shadow(0 0 10px #ff2fbf) drop-shadow(0 0 22px #c21fff); animation: neonsign 5s linear infinite; }
+h1.wordmark #wm-b, h1.wordmark #wm-c { background-image: linear-gradient(180deg, #ffffff 0%, #f0feff 40%, #b8f6ff 100%) !important; -webkit-text-stroke: 2px #22d8ff;
+  filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 4px #3fe6ff) drop-shadow(0 0 10px #12b8ff) drop-shadow(0 0 22px #1a5cff); animation-delay: -2.3s; }
+@keyframes neonsign { 0%, 18%, 22%, 62%, 64%, 100% { opacity: 1; } 20% { opacity: .55; } 63% { opacity: .75; } }
+.lite h1.wordmark .wm { animation: none; }
 
 .ver { padding: 3px 10px; border-radius: 99px; background: var(--amber); color: #2a1a0c; font-weight: 800; font-size: 12px; letter-spacing: .1em; }
 .tag { margin: 0; text-align: center; color: var(--muted); font-size: clamp(10px, 1.5vh, 14px); letter-spacing: .14em; text-transform: uppercase; }
@@ -458,7 +466,10 @@ body.hurry .mode-label { color: var(--danger) !important; animation: willpulse .
 .mode-wide.puzzle { background: linear-gradient(120deg, #c0508a, #5a1f4a); }
 body[data-mode="puzzle"] { --mode-accent: #e070aa; }
 body[data-mode="puzzle"] .lvl-part { display: none; }
-body[data-mode="puzzle"] #board .cell:not(.b) { box-shadow: inset 0 0 0 2px rgba(255,190,225,.4), inset 0 2px 3px rgba(80,45,15,.35); }
+body[data-mode="puzzle"] #board .cell.goal:not(.b) { background: rgba(255,150,210,.32) !important; box-shadow: inset 0 0 0 2px rgba(255,200,235,.75), inset 0 0 10px rgba(255,120,200,.35) !important; }
+body[data-mode="puzzle"] #board .cell:not(.goal):not(.b) { opacity: .55; }
+body[data-mode="puzzle"] #board .cell.b.off { outline: 2px dashed rgba(255,110,110,.85); outline-offset: -4px; }
+body[data-mode="puzzle"] #board .cell.mov { cursor: grab; }
 #board .cell.c16 { background: transparent !important; background-image: none !important; box-shadow: none !important; opacity: .18; }
 #board .cell.c16::after { content: ""; position: absolute; inset: 35%; border-radius: 50%; background: rgba(255,255,255,.25); }
 .pz-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; overflow-y: auto; max-height: 56vh; padding: 2px; }
@@ -528,12 +539,15 @@ body.frame-lava #board, body.frame-lava .tboard { outline: 4px solid #ff8a2a; ou
   background: linear-gradient(110deg, #6a1fb0, #2a0b52 60%, #8a1f5a); box-shadow: 0 0 0 2px #ff7a1a, 0 0 16px rgba(255,110,20,.8), 0 0 34px rgba(255,60,0,.45), 0 5px 0 rgba(0,0,0,.45); }
 .super-card > * { position: relative; z-index: 1; }
 /* v32: realistic fire is drawn on a canvas around the card (see superFire) */
-.super-card { overflow: visible; box-shadow: 0 0 0 2px #ffb347, 0 0 14px rgba(255,140,30,.9), 0 0 32px rgba(255,70,0,.55), 0 5px 0 rgba(0,0,0,.45); }
-.super-card .fire-fx { filter: blur(.6px) saturate(1.2); position: absolute; left: -22px; top: -46px; width: calc(100% + 44px); height: calc(100% + 66px); pointer-events: none; z-index: 0; }
+/* v33: the fire burns inside the card only — nothing spills over the other boxes */
+.super-card { overflow: hidden; background: linear-gradient(180deg, #2a0a1e, #12040c 70%); box-shadow: 0 0 0 2px #ff9a3a, 0 0 6px rgba(255,120,30,.7), 0 5px 0 rgba(0,0,0,.45); }
+.super-card .fire-fx { filter: blur(.5px) saturate(1.25); position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; border-radius: inherit; }
+.super-card b, .super-card small, .super-card .rec { text-shadow: 0 1px 3px #000, 0 0 8px rgba(0,0,0,.8); }
 .super-card .sc-ic { animation: flicker 1.2s ease-in-out infinite alternate; } @keyframes flicker { to { filter: drop-shadow(0 0 6px #ff8a2a); } }
 .lite .super-card .sc-ic { animation: none; }
 .super-card .sc-ic { font-size: 24px; flex: none; }
-.super-card > span:nth-child(2) { flex: 1; min-width: 0; }
+.super-card > span:nth-child(3) { flex: 1; min-width: 0; }
+.super-card .sc-ic { width: 30px; text-align: center; }
 .super-card b { display: block; font-family: var(--font-display); font-size: clamp(14px, 2.1vh, 18px); text-transform: uppercase; letter-spacing: .04em; }
 .super-card small { display: block; font-size: 11.5px; opacity: .85; }
 .super-card .rec { display: grid; text-align: right; } .super-card .rec em { font-style: normal; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; opacity: .75; } .super-card .rec strong { font-family: var(--font-display); font-size: 17px; color: var(--gold); }
@@ -1153,7 +1167,7 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
   <div class="overlay" id="puzzles" hidden>
     <div class="card settings-card" role="dialog" aria-modal="true" aria-labelledby="pz-title">
       <h2 id="pz-title">Quebra-cabeça</h2>
-      <p class="skins-note">Complete o desenho usando só as peças dadas. Não há linhas para limpar: cada peça tem seu lugar. Use Desfazer à vontade.</p>
+      <p class="skins-note">Monte o desenho marcado no tabuleiro com as peças dadas. Você pode arrastar as peças já colocadas para mudar de lugar. Linhas completas somem e as peças voltam para a bandeja. Desfazer à vontade.</p>
       <div class="pz-grid" id="pz-grid"></div>
       <button class="btn primary" id="pz-close">Voltar</button>
     </div>
@@ -4975,10 +4989,12 @@ window.Scene = (() => {
     return "cell" + (alt ? " alt" : "");
   }
   function renderBoard(preview) {
+    if (S.pzGoal && (!S.pzGoalSet || S.pzGoalSet.size !== S.pzGoal.length)) Object.defineProperty(S, "pzGoalSet", { value: new Set(S.pzGoal), configurable: true, writable: true });
     for (let i = 0; i < cellEls.length; i++) {
       const v = S.board[i];
       let cls = baseClass(i);
       if (v) cls += " b c" + v;
+      if (S.pzGoal) { if (S.pzGoalSet.has(i)) cls += " goal"; else if (v) cls += " off"; if (S.own[i] != null) cls += " mov"; }
       else if (preview && preview.ok && preview.cells.has(i)) cls += " preview c" + preview.color;
       if (preview && preview.ok && preview.will.has(i)) cls += " will";
       if (preview && !preview.ok) { if (preview.bad.has(i)) cls += " bad"; else if (preview.conflict.has(i)) cls += " conflict"; }
@@ -5079,7 +5095,7 @@ window.Scene = (() => {
       return;
     }
     if (S.mode === "puzzle") {
-      const total = S.board.filter((v) => v !== WALL).length, filled = S.board.filter((v) => v && v !== WALL).length;
+      const total = S.pzGoal.length, filled = S.pzGoal.filter((i) => S.board[i]).length;
       setScore(total - filled); $("score").classList.remove("rec");
       $("best-label").textContent = "Resolvidos"; $("best").textContent = `${Object.keys(store.get("puzzle.done", {})).length}/${PUZZLES.length}`;
       $("level").textContent = S.pz + 1; $("level-fill").style.width = Math.round(filled / total * 100) + "%";
@@ -5130,6 +5146,7 @@ window.Scene = (() => {
     // Story: remember the state before this move so it can be undone (2 per phase).
     if (S.mode === "story" || S.mode === "puzzle" || canBankUndo()) { const snap = { ...S }; delete snap.undoSnap; S.undoSnap = JSON.stringify(snap); }
     for (const [r, c] of p.cells) S.board[(r0 + r) * S.n + c0 + c] = p.color;
+    if (S.mode === "puzzle") { for (const [r, c] of p.cells) S.own[(r0 + r) * S.n + c0 + c] = p.id; S.pieces[p.id] = p; }
     S.tray[ti] = null;
     selected = -1;
     const levelBefore = levelOf(S.score), bestBefore = bestOf(S.mode);
@@ -5152,6 +5169,7 @@ window.Scene = (() => {
       const was = new Map([...idx].filter((i) => S.board[i] !== STONE).map((i) => [i, S.board[i]]));
       const cracked = [...idx].filter((i) => S.board[i] === STONE);
       idx.forEach((i) => { S.board[i] = S.board[i] === STONE ? CRACK : 0; });
+      if (S.mode === "puzzle") pzAfterClear(idx);
       renderBoard();
       if (cracked.length) { crackFx(cracked); }
       // Cells burst in a quick wave, from the placed piece outward.
@@ -5211,7 +5229,7 @@ window.Scene = (() => {
       }
     }
     if (S.mode === "super" && superAfterMove(lines, cols || 0, placed)) return true;
-    if (S.mode === "puzzle" && !S.board.includes(0)) { S.over = true; renderTray(); renderScore(); store.del("game.puzzle"); setTimeout(puzzleWin, 350); return true; }
+    if (S.mode === "puzzle" && S.pzGoal.every((i) => S.board[i])) { S.over = true; renderTray(); renderScore(); store.del("game.puzzle"); setTimeout(puzzleWin, 350); return true; }
     if (S.mode === "story") {
       checkPowerEarned();
       S.marks = S.board.filter((v) => v === MARK).length;
@@ -5360,6 +5378,8 @@ window.Scene = (() => {
   function rotatePiece(p) { const [h] = dims(p.cells); return { ...p, cells: p.cells.map(([r, c]) => [c, h - 1 - r]) }; }
   function checkStuck(delay, lines) {
     const left = S.tray.filter(Boolean);
+    // v33: in the puzzle pieces on the board can always be moved, so it never ends by itself
+    if (S.mode === "puzzle") { if (!left.some(fitsAnywhere)) setTimeout(() => S && !S.over && fx("lvl", "Mova as peças<small>Arraste uma peça do tabuleiro para mudar de lugar</small>", $("board").clientHeight / 2, 1800), 400); return; }
     if (left.some(fitsAnywhere) || (holdAllowed() && S.hold && !S.holdLock && fitsAnywhere(S.hold))) return;
     const mid = $("board").clientHeight / 2;
     // In story mode an unused power or the rotation keeps the level alive.
@@ -5731,7 +5751,7 @@ window.Scene = (() => {
     sudoku: ["Modo Sudoku", "O tabuleiro é 9×9 e dividido em 9 quadrados 3×3. Além de linhas e colunas, completar um quadrado 3×3 também limpa os blocos — use isso para fazer combos!",
       MINI([0, 1, 2, 9, 11, 18, 19, 20, 40, 50], 9, [30, 31, 32, 39, 40, 41, 48, 49, 50]).replace("</svg>", `<path d="M42 6v108M78 6v108M6 42h108M6 78h108" stroke="#3a2414" stroke-width="2.5"/></svg>`)],
     timed: ["Contra o Tempo", "Você tem 2 minutos. Faça o máximo de pontos: combos e várias linhas de uma vez valem muito. Nos últimos 10 segundos o relógio fica vermelho.", `<svg viewBox="0 0 120 120"><circle cx="60" cy="64" r="42" fill="none" stroke="#3fa9f5" stroke-width="8"/><path d="M60 64V36M60 64l18 12M48 12h24" stroke="#fff" stroke-width="6" stroke-linecap="round"/></svg>`],
-    puzzle: ["Quebra-cabeça", "Encaixe todas as peças para completar o desenho. Cada peça tem um lugar certo e não há linhas para limpar. Errou? Use Desfazer. Parado 20 segundos, aparece uma dica.", MINI([9, 10, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26, 27, 28, 29, 30, 34, 35, 36, 37, 43, 44], 8, [16, 17, 18, 25])],
+    puzzle: ["Quebra-cabeça", "Monte o desenho marcado em rosa dentro do tabuleiro. As peças já colocadas podem ser arrastadas para outro lugar (ou tocadas para voltar à bandeja). Se uma linha inteira se completar, ela some e as peças voltam. Desfazer é à vontade e, parado 20 segundos, aparece uma dica.", MINI([9, 10, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26, 27, 28, 29, 30, 34, 35, 36, 37, 43, 44], 8, [16, 17, 18, 25])],
     daily: ["Desafio diário", "Um desafio novo por dia, igual para todo mundo e sem internet. Jogue todos os dias para a sequência 🔥 crescer: 7 dias seguidos valem +3 ★. As missões da semana dão +2 ★ cada.", `<svg viewBox="0 0 120 120"><rect x="14" y="20" width="92" height="84" rx="10" fill="#3a2a1c"/><path d="M14 42h92M38 10v20M82 10v20" stroke="#ffd36b" stroke-width="6" stroke-linecap="round"/><text x="60" y="86" text-anchor="middle" font-size="36">🔥</text></svg>`],
     boss_stone: ["Chefe: pedras", "As pedras não somem com uma linha só: a 1ª linha racha a pedra e a 2ª quebra. Quebre todas para vencer.", MINI([27, 28, 29, 30, 31, 32, 33], 8, [34])],
     boss_ice: ["Chefe: gelo", "A cada 5 jogadas um bloco de gelo aparece. Derreta os gelos limpando as linhas onde eles estão.", MINI([10, 21, 42, 53], 8, [])],
@@ -6254,7 +6274,7 @@ window.Scene = (() => {
   // v32: realistic fire around the Super Desafio card — glowing particles rising from the border,
   // drawn additively (like real flames on black), ~30 fps, only while the menu is on screen.
   {
-    const cv = $("fire-fx"), cx = cv.getContext("2d"), PADX = 22, PADT = 46, PADB = 20;
+    const cv = $("fire-fx"), cx = cv.getContext("2d"), PADX = 0, PADT = 0, PADB = 0;
     const sprite = (stops, r) => { const c = document.createElement("canvas"); c.width = c.height = r * 2; const g = c.getContext("2d"), gr = g.createRadialGradient(r, r, 0, r, r, r); stops.forEach(([o, col]) => gr.addColorStop(o, col)); g.fillStyle = gr; g.fillRect(0, 0, r * 2, r * 2); return c; };
     const SPR = [
       sprite([[0, "rgba(255,255,235,1)"], [.25, "rgba(255,236,150,.9)"], [.6, "rgba(255,170,40,.35)"], [1, "rgba(255,120,0,0)"]], 16),
@@ -6264,13 +6284,12 @@ window.Scene = (() => {
     ];
     let P = [], raf = 0, last = 0, W = 0, H = 0, acc = 0;
     function size() { const r = $("play-super").getBoundingClientRect(); W = Math.round(r.width + PADX * 2); H = Math.round(r.height + PADT + PADB); if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; } }
-    // a point on the card's border; the top edge burns hardest
+    // flames rise from the bottom edge (strongest) and climb the two sides, inside the card
     function edgePoint() {
-      const w = W - PADX * 2, h = H - PADT - PADB, x0 = PADX, y0 = PADT, t = Math.random();
-      if (t < .5) return [x0 + Math.random() * w, y0, 1.25];
-      if (t < .62) return [x0 + Math.random() * w, y0 + h + 2, .45];
-      if (t < .81) return [x0 - 3, y0 + Math.random() * h, .75];
-      return [x0 + w + 3, y0 + Math.random() * h, .75];
+      const w = W, h = H, t = Math.random();
+      if (t < .64) return [Math.random() * w, h + 4, .55 + Math.random() * .25];
+      if (t < .82) return [2 + Math.random() * 6, h * (.25 + Math.random() * .75), .5];
+      return [w - 2 - Math.random() * 6, h * (.25 + Math.random() * .75), .5];
     }
     function spawn(n) {
       for (let k = 0; k < n; k++) {
@@ -6283,12 +6302,10 @@ window.Scene = (() => {
       cx.clearRect(0, 0, W, H);
       // glowing hot rim of the frame
       const w = W - PADX * 2, h = H - PADT - PADB;
-      cx.save(); cx.shadowColor = "rgba(255,150,30,.95)"; cx.shadowBlur = 14; cx.strokeStyle = "rgba(255,214,120,.9)"; cx.lineWidth = 2.2;
-      cx.beginPath(); cx.roundRect ? cx.roundRect(PADX, PADT, w, h, 16) : cx.rect(PADX, PADT, w, h); cx.stroke(); cx.restore();
-      // flames live outside the card: clip away its inside (a little heat bleeds 3px in)
-      cx.save(); cx.beginPath(); cx.rect(0, 0, W, H);
-      if (cx.roundRect) cx.roundRect(PADX + 3, PADT + 3, w - 6, h - 6, 13); else cx.rect(PADX + 3, PADT + 3, w - 6, h - 6);
-      cx.clip("evenodd");
+      // hot glow along the bottom where the fire is born
+      const gl = cx.createLinearGradient(0, H, 0, H * .35); gl.addColorStop(0, "rgba(255,120,20,.55)"); gl.addColorStop(1, "rgba(255,60,0,0)");
+      cx.fillStyle = gl; cx.fillRect(0, 0, W, H);
+      cx.save();
       cx.globalCompositeOperation = "lighter";
       for (let i = P.length - 1; i >= 0; i--) {
         const p = P[i]; p.life += dt; const k = p.life / p.max;
@@ -6390,7 +6407,7 @@ window.Scene = (() => {
     const show = !!S && (S.mode === "story" || S.mode === "puzzle" || canBankUndo()), btn = $("btn-undo");
     btn.hidden = !show;
     if (!show) return;
-    $("undo-n").textContent = undosLeft();
+    $("undo-n").textContent = S.mode === "puzzle" ? "∞" : undosLeft();
     btn.disabled = !S.undoSnap || S.over || undosLeft() <= 0 || S.powerTaps > 0;
   }
   function undo() {
@@ -6434,7 +6451,7 @@ window.Scene = (() => {
   }
   // Valid: the cells the piece will fill plus every cell that will clear. Invalid (while over the
   // board): the free cells it would cover in red and the blocks in its way outlined in red.
-  const clearsOf = (b) => (S && S.rules === "puzzle" ? { idx: new Set(), lines: 0, groups: [] } : S && S.mode === "super" ? superClears(b) : findClears(b));
+  const clearsOf = (b) => (S && S.mode === "super" ? superClears(b) : findClears(b));
   function previewFor(ti, r0, c0) {
     const p = S.tray[ti];
     if (!canPlace(S.board, S.n, p.cells, r0, c0)) {
@@ -6472,7 +6489,10 @@ window.Scene = (() => {
     if (rotAim) { e.preventDefault(); doRotate(+slot.dataset.i); return; }
     if (S.mode === "super" && +slot.dataset.i === S.coverIdx) { e.preventDefault(); S.coverIdx = -1; sfx.grab(); renderTray(); return; }
     e.preventDefault();
-    const ti = +slot.dataset.i, p = S.tray[ti];
+    beginDrag(+slot.dataset.i, slot, e);
+  });
+  function beginDrag(ti, slot, e) {
+    const p = S.tray[ti];
     const el = document.createElement("div");
     el.className = "drag";
     pieceGrid(p, el, false);
@@ -6484,6 +6504,16 @@ window.Scene = (() => {
     el.style.visibility = "hidden";
     slot.classList.add("grab"); sfx.grab();
     try { slot.setPointerCapture(e.pointerId); } catch (_) {}
+  }
+  // v33 puzzle: drag a placed piece to move it (a tap sends it back to the hand).
+  $("board").addEventListener("pointerdown", (e) => {
+    if (!S || S.mode !== "puzzle" || S.over || drag) return;
+    const t = e.target.closest("[data-i]"); if (!t) return;
+    const id = S.own[+t.dataset.i]; if (id == null) return;
+    e.preventDefault(); selected = -1;
+    const ti = liftPiece(id); S.justLifted = true;
+    const slot = $("tray").children[ti]; if (!slot) return;
+    beginDrag(ti, slot, e); drag.moved = false; drag.fromBoard = true;
   });
   window.addEventListener("pointermove", (e) => {
     if (!drag || e.pointerId !== drag.id) return;
@@ -6499,6 +6529,7 @@ window.Scene = (() => {
     if (!drag || e.pointerId !== drag.id) return;
     const d = drag; drag = null;
     d.el.remove();
+    if (!d.moved && !cancel && d.fromBoard) { d.slot && d.slot.classList.remove("grab"); renderTray(); sfx.ui(); return; }
     if (!d.moved && !cancel) {
       selected = selected === d.ti ? -1 : d.ti;
       renderTray();
@@ -6517,6 +6548,7 @@ window.Scene = (() => {
 
   // Tap a piece, then tap the board: the tapped cell becomes part of the piece.
   $("board").addEventListener("click", (e) => {
+    if (S && S.justLifted) { S.justLifted = false; return; }
     if (S && !S.over && S.itemAim) { const t = e.target.closest("[data-i]"); if (t) useItem(+t.dataset.i); return; }
     if (S && !S.over && S.powerTaps > 0) {
       const t = e.target.closest("[data-i]");
@@ -7020,14 +7052,16 @@ window.Scene = (() => {
       }
       pieces.push(cells);
     }
-    const board = [...map].map((ch) => (ch === "#" ? 0 : WALL)), sol = {};
+    // v33: the drawing sits marked in the middle of a bigger board (1 free row/column all around)
+    const N = n + 2, big = (i) => (Math.floor(i / n) + 1) * N + (i % n) + 1, sol = {};
+    const goal = [...map].map((ch, i) => (ch === "#" ? big(i) : -1)).filter((i) => i >= 0);
     const list = pieces.map((cells, id) => {
       const rs = cells.map((i) => Math.floor(i / n)), cs = cells.map((i) => i % n), r0 = Math.min(...rs), c0 = Math.min(...cs);
-      sol[id] = cells;
+      sol[id] = cells.map(big);
       return { id, color: 1 + (id % 6), cells: cells.map((i) => [Math.floor(i / n) - r0, (i % n) - c0]) };
     });
     for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
-    return { board, queue: list, sol, n };
+    return { board: new Array(N * N).fill(0), queue: list, sol, n: N, goal };
   }
   // Each theme opens 4 drawings at a time; every one solved opens the next of the same theme.
   function pzOpen(k) {
@@ -7041,11 +7075,32 @@ window.Scene = (() => {
     if (saved && saved.pz === k && !saved.over) S = saved;
     else {
       const pz = puzzleOf(k);
-      S = { mode: "puzzle", rules: "puzzle", n: pz.n, pz: k, board: pz.board, queue: pz.queue, sol: pz.sol, tray: [], score: 0, combo: 0, lines: 0, maxCombo: 0 };
+      S = { mode: "puzzle", rules: "puzzle", n: pz.n, pz: k, board: pz.board, queue: pz.queue, sol: pz.sol, pzGoal: pz.goal, own: {}, pieces: {}, tray: [], score: 0, combo: 0, lines: 0, maxCombo: 0 };
+      for (const pc of pz.queue) S.pieces[pc.id] = pc;
       dealTray();
     }
     $("puzzles").hidden = true;
     enterGame(`Desenho ${k + 1}`);
+  }
+  // Line clears also work here: any piece touched by a cleared line goes back whole to the hand.
+  function pzAfterClear(idx) {
+    const ids = new Set(); for (const i of idx) if (S.own[i] != null) ids.add(S.own[i]);
+    for (const id of ids) {
+      for (const k in S.own) if (S.own[k] === id) { S.board[+k] = 0; delete S.own[k]; }
+      S.queue.unshift(S.pieces[id]);
+    }
+    for (const i of idx) delete S.own[i];
+    if (ids.size) { S.next = S.queue.slice(0, 3); setTimeout(() => S && fx("lvl", "Linha completa!<small>As peças voltaram para a bandeja</small>", $("board").clientHeight / 2 - 20, 1600), 300); if (S.tray.every((t) => !t)) dealTray(); }
+  }
+  // Pick up a placed piece: it goes back to a free slot of the hand and starts being dragged.
+  function liftPiece(id) {
+    const snap = { ...S }; delete snap.undoSnap; S.undoSnap = JSON.stringify(snap);
+    for (const k in S.own) if (S.own[k] === id) { S.board[+k] = 0; delete S.own[k]; }
+    let ti = S.tray.findIndex((t) => !t);
+    if (ti < 0) { S.queue.unshift(S.tray[2]); ti = 2; }
+    S.tray[ti] = S.pieces[id]; S.next = S.queue.slice(0, 3);
+    renderBoard(); renderTray(); renderScore();
+    return ti;
   }
   function puzzleWin() {
     const done = store.get("puzzle.done", {}), first = !done[S.pz];
