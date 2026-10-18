@@ -410,3 +410,13 @@ Regras da História pelo número real da fase (somam com as da v28; se duas caem
 - **Quebra-cabeça — desfazer ilimitado de verdade:** cada jogada fica guardada e dá para desfazer uma atrás da outra até o começo do desenho.
 - **Casas fora do desenho jogáveis:** as casas normais ficam com aparência normal (sem escurecer nem tracejado) e aceitam peças. Se as peças acabarem com casas rosa vazias, o jogo entrega peças pequenas novas para terminar o desenho.
 - **Estrelas:** o desenho termina quando todas as casas rosa estão cobertas. **5 ★** se só as casas rosa estiverem preenchidas; **1 ★** se sobrar bloco em casa normal. Dá para voltar e melhorar de 1 para 5 (ganha a diferença). A grade de desenhos mostra 1★ ou 5★ em cada um.
+
+## v35
+
+- **Super Desafio mais difícil:**
+  - Ao começar, o jogador escolhe uma **habilidade pesada** (2 cartas vermelhas), que vale desde a fase 1.
+  - Carta leve sempre vem em **dupla** ("2 leves juntas"): ao escolher, as duas entram e os bônus somam.
+  - Vencer uma fase **não limpa** o tabuleiro: blocos, peças da mão e contagem de jogadas continuam (o muro sai; pedras/bomba não se acumulam além do normal).
+  - **Peças fantasmas:** os blocos ficam invisíveis durante as 2 jogadas seguintes e depois reaparecem.
+  - **Música:** o ritmo segue a pontuação total da corrida, então não desacelera ao vencer uma fase.
+  - **6 novas habilidades pesadas:** Chuva de blocos (bloco aleatório a cada 3), Tempestade de blocos (a cada 2), Sumiço (some um bloco a cada 3), Virada vertical, Virada horizontal e Virada diagonal (a cada 3).
