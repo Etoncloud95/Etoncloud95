@@ -1,7 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="28">
+<meta name="bau-version" content="29">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -519,6 +519,9 @@ body.frame-lava #board, body.frame-lava .tboard { outline: 4px solid #ff8a2a; ou
 .vol-row { display: grid; grid-template-columns: 96px 1fr 44px; align-items: center; gap: 10px; margin: 6px 0; font-size: 14px; }
 .vol-row input { width: 100%; accent-color: var(--gold); }
 .vol-row b { text-align: right; font-variant-numeric: tabular-nums; color: var(--gold); }
+#board .cell.c17 { background-color: #3d4150 !important; background-size: 100% 100% !important; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.07) 0 4px, transparent 4px 9px), linear-gradient(180deg, #555a6b, #2e313c) !important; box-shadow: inset 0 0 0 2px rgba(255,211,107,.45), inset 0 -4px 0 rgba(0,0,0,.4) !important; }
+#board .cell.c17::after { content: "🔒"; position: absolute; inset: 0; display: grid; place-items: center; font-size: calc(var(--cell) * .45); }
+#board .cell.unlock { animation: crackhit .5s ease-out; box-shadow: inset 0 0 0 3px #ffd36b !important; }
 #fog { position: fixed; inset: 0; z-index: 36; pointer-events: none; display: grid; place-items: center; opacity: 0;
   background: radial-gradient(ellipse 60% 40% at 30% 40%, rgba(220,215,235,.75), transparent 70%), radial-gradient(ellipse 70% 45% at 70% 60%, rgba(200,195,220,.7), transparent 70%), rgba(40,30,60,.45); }
 #fog b { font-family: var(--font-display); font-size: clamp(30px, 9vw, 52px); color: #fff; letter-spacing: .04em; text-align: center; text-shadow: 0 0 18px #b26bff, 0 0 40px #ff4f8a, 0 4px 0 rgba(0,0,0,.5); }
@@ -2388,7 +2391,7 @@ window.Skins = (() => {
     preview: (kind, i, st) => tex(kind, PALETTES[0][i == null ? 2 : i], st),
     texture: (kind, hex, st) => tex(kind, hex, st),
     material: () => now.kind,
-    colorOf: (i) => (i === 7 ? "#2e2219" : i === 12 ? "#bfe8f8" : i === 13 ? "#3a3a40" : i === 15 ? "#d9d2ff" : i >= 10 ? "#77726c" : now.colors[i] || "#c27f3c"),
+    colorOf: (i) => (i === 17 ? "#4a4d5a" : i === 7 ? "#2e2219" : i === 12 ? "#bfe8f8" : i === 13 ? "#3a3a40" : i === 15 ? "#d9d2ff" : i >= 10 ? "#77726c" : now.colors[i] || "#c27f3c"),
     texOf: (i) => tex(now.kind, i === 7 ? "#2e2219" : now.colors[i] || "#c27f3c"),
   };
 })();
@@ -4292,6 +4295,7 @@ window.Scene = (() => {
       for (const s2 of [0, 4, 7, 12, 16]) blip("triangle", hz(60 + s2), tc, fin ? 2.4 : 1.4, .08);
       if (fin) for (let k = 0; k < 6; k++) { noise(tc + .3 + k * .45, .5, .12, 400, 8000); blip("sine", hz(84 + [0, 7, 12, 16, 19, 24][k]), tc + .3 + k * .45, .6, .08); }
     },
+    unlock() { if (!this.ok()) return; const t = actx.currentTime; blip("square", 660, t, .06, .08, 660); blip("square", 990, t + .07, .12, .08, 990); },
     turn() { if (!this.ok()) return; const t = actx.currentTime; noise(t, .5, .14, 300, 2400); blip("triangle", 220, t, .45, .12, 440); },
     fog() { if (!this.ok()) return; const t = actx.currentTime; noise(t, 1.6, .16, 200, 900); for (const [s2, d] of [[0, 0], [6, .25], [12, .5]]) blip("sawtooth", hz(45 + s2), t + d, 1.2, .06, hz(44 + s2)); },
     heart() { if (!this.ok()) return; const t = actx.currentTime; blip("sine", 70, t, .14, .5, 42); blip("sine", 62, t + .2, .16, .42, 38); },
@@ -4517,7 +4521,8 @@ window.Scene = (() => {
   // Every 5th level uses the Sudoku rules on a 9×9 board. Difficulty grows with N.
   // v14: 50 worlds of 20 phases; every world has its own scene (Scene.worlds).
   const LEVELS_PER_WORLD = 20;
-  const STORY_LEVELS = 1000, MARK = 7, STONE = 10, CRACK = 11, ICE = 12, BOMB = 13, GHOST = 15, WALL = 16;
+  const STORY_LEVELS = 1000, MARK = 7, STONE = 10, CRACK = 11, ICE = 12, BOMB = 13, GHOST = 15, WALL = 16, LOCK = 17;
+  const LOCK_MOVES = 2; // locked cells open after 2 moves, so the 3rd move can use them
   // v24: the world boss changes with the world: stone, ice, bombs, ghosts (then repeats).
   const BOSS_KINDS = ["stone", "ice", "bomb", "ghost"];
   const BOSS_TXT = { stone: ["pedras", "quebre", "Cada pedra pede 2 linhas"], ice: ["gelos", "derreta", "O gelo avança a cada 5 jogadas"], bomb: ["bombas", "desarme", "Limpe a linha antes do zero"], ghost: ["fantasmas", "pegue", "Fantasmas mudam de lugar"], final: ["blocos do chefe", "destrua", "Pedras, bombas e fantasmas juntos"] };
@@ -4587,6 +4592,8 @@ window.Scene = (() => {
     // Boss blocks ignore the fill cap (they are the point of the phase).
     const putBoss = (i, v) => { if (board[i] || reserved.has(i)) return false; board[i] = v; if (findClears(board, n, boxes).lines) { board[i] = 0; return false; } return true; };
     if (boss === "ice") { let k = 0; for (let a = 0; a < 800 && k < Math.ceil(goalNeed(L) / 2); a++) if (putBoss(ri(n * n), ICE)) k++; }
+    // v29: multiples of 13 (from 13) start with 4 locked cells that open after the 2nd move.
+    if (L >= 13 && L % 13 === 0) { let k = 0; for (let a = 0; a < 800 && k < 4; a++) { const i = ri(n * n); if (!board[i] && !reserved.has(i)) { board[i] = LOCK; k++; } } }
     if (boss === "final") {
       let k = 0; const lb = board.map((v, i) => (v ? i : -1)).filter((i) => i >= 0);
       for (let a = 0; a < 40 && k < 3 && lb.length; a++) { const i = lb[ri(lb.length)]; if (board[i] !== STONE) { board[i] = STONE; k++; } }
@@ -5028,6 +5035,7 @@ window.Scene = (() => {
   }
   function place(ti, r0, c0) {
     const p = S.tray[ti];
+    if (S.turning) return false;
     if (!p || !canPlace(S.board, S.n, p.cells, r0, c0)) return false;
     // Story: remember the state before this move so it can be undone (2 per phase).
     if (S.mode === "story" || S.mode === "puzzle" || canBankUndo()) { const snap = { ...S }; delete snap.undoSnap; S.undoSnap = JSON.stringify(snap); }
@@ -5098,6 +5106,11 @@ window.Scene = (() => {
     }
 
     S.holdLock = false;
+    if (S.mode === "story" && S.moves >= LOCK_MOVES && S.board.includes(LOCK)) {
+      const opened = []; S.board.forEach((v, i) => { if (v === LOCK) { S.board[i] = 0; opened.push(i); } });
+      renderBoard(); for (const i of opened) { cellEls[i].classList.add("unlock"); setTimeout(() => cellEls[i].classList.remove("unlock"), 600); }
+      sfx.unlock(); fx("lvl", "🔓 Casas liberadas!", $("board").clientHeight / 2 - 20, 1100);
+    }
     if (canBankUndo()) {
       const m = Math.floor(S.score / UNDO_EVERY);
       if (m > (S.undoMile || 0)) {
@@ -5186,36 +5199,60 @@ window.Scene = (() => {
     const k = L % 100, sub = SUBBOSS.includes(k), r = TURN_R.includes(k) || sub, l = TURN_L.includes(k);
     return sub || r || l ? { sub, r, l, quake: l } : null;
   }
-  // Turn the board 90° (dir 1 = right/clockwise, -1 = left), with an animation, keeping bomb timers.
-  function turnBoard(dir) {
-    const n = S.n, nb = new Array(n * n).fill(0), map = {};
-    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
-      const j = dir > 0 ? c * n + (n - 1 - r) : (n - 1 - c) * n + r;
-      nb[j] = S.board[r * n + c]; map[r * n + c] = j;
-    }
+  // v29: board moves — turn right/left/180° and mirror sideways/upside down — keeping bomb timers.
+  const BOARD_OPS = {
+    cw: [(r, c, n) => [c, n - 1 - r], "rotate(90deg)"], ccw: [(r, c, n) => [n - 1 - c, r], "rotate(-90deg)"],
+    r180: [(r, c, n) => [n - 1 - r, n - 1 - c], "rotate(180deg)"], fh: [(r, c, n) => [r, n - 1 - c], "scaleX(-1)"], fv: [(r, c, n) => [n - 1 - r, c], "scaleY(-1)"],
+  };
+  function boardOp(op, done) {
+    const [f, css] = BOARD_OPS[op], n = S.n, nb = new Array(n * n).fill(0), map = {};
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) { const [rr, cc] = f(r, c, n), j = rr * n + cc; nb[j] = S.board[r * n + c]; map[r * n + c] = j; }
     if (S.bombT) { const t = {}; for (const k in S.bombT) t[map[k]] = S.bombT[k]; S.bombT = t; }
     const bd = $("board");
-    bd.style.transition = "transform .55s cubic-bezier(.5,0,.3,1)"; bd.style.transform = `rotate(${dir * 90}deg)`;
+    bd.style.transition = "transform .5s cubic-bezier(.5,0,.3,1)"; bd.style.transform = css;
     sfx.turn(); buzz(40);
+    const S0 = S;
     setTimeout(() => {
       bd.style.transition = "none"; bd.style.transform = "";
+      if (S !== S0 || !S) return;
       S.board = nb; renderBoard(); void bd.offsetWidth; bd.style.transition = "";
-      renderTray(); save(); if (!S.over) checkStuck(400, 0);
-    }, 580);
+      if (done) done();
+    }, 530);
   }
+  // Several moves can fall on the same play: they run one after the other.
+  function runOps(ops) {
+    if (!ops.length) return;
+    S.turning = true;
+    const next = () => { if (!S || S.over) return; const op = ops.shift(); if (!op) { S.turning = false; renderTray(); save(); checkStuck(400, 0); return; } boardOp(op, () => setTimeout(next, 90)); };
+    next();
+  }
+  const turnBoard = (dir) => runOps([dir > 0 ? "cw" : "ccw"]);
   function screenQuake(strong) {
     const a = $("app"); a.classList.remove("quake", "quake-big"); void a.offsetWidth; a.classList.add(strong ? "quake-big" : "quake");
     setTimeout(() => a.classList.remove("quake", "quake-big"), 650);
   }
+  // v29 rules by the real phase number (they add up with the v28 ones above):
+  //   multiples of 4 from 8: turn 90° right every 4 moves, silently · multiples of 6 from 6: turn 180° every 5
+  //   multiples of 9 from 9: mirror sideways every 5 · multiples of 7 from 17: mirror upside down every 7
+  const morphOf = (L) => ({ q4: L >= 8 && L % 4 === 0, h6: L >= 6 && L % 6 === 0, f9: L >= 9 && L % 9 === 0, v7: L >= 17 && L % 7 === 0 });
   function twistTick() {
-    if (S.mode !== "story" || S.daily || S.over) return;
-    const tw = twistOf(S.level); if (!tw || !S.moves) return;
-    if (tw.sub && S.moves % 3 === 0) { screenQuake(false); buzz(70); }
-    if (S.moves % 5 !== 0) return;
-    if (tw.quake) { shake(true); screenQuake(true); buzzPattern([160, 60, 220]); }
-    const dir = tw.r && tw.l ? ((S.moves / 5) % 2 ? 1 : -1) : tw.l ? -1 : 1;
-    setTimeout(() => S && !S.over && turnBoard(dir), tw.quake ? 450 : 150);
-    fx("lvl", dir > 0 ? "↻ O tabuleiro girou!" : "↺ O tabuleiro girou!", $("board").clientHeight / 2 - 20, 1100);
+    if (S.mode !== "story" || S.daily || S.over || !S.moves) return;
+    const tw = twistOf(S.level), mo = morphOf(S.level), m = S.moves, ops = [];
+    let delay = 150;
+    if (tw) {
+      if (tw.sub && m % 3 === 0) { screenQuake(false); buzz(70); }
+      if (m % 5 === 0) {
+        if (tw.quake) { shake(true); screenQuake(true); buzzPattern([160, 60, 220]); delay = 450; }
+        const dir = tw.r && tw.l ? ((m / 5) % 2 ? 1 : -1) : tw.l ? -1 : 1;
+        ops.push(dir > 0 ? "cw" : "ccw");
+        fx("lvl", dir > 0 ? "↻ O tabuleiro girou!" : "↺ O tabuleiro girou!", $("board").clientHeight / 2 - 20, 1100);
+      }
+    }
+    if (mo.q4 && m % 4 === 0) ops.push("cw");
+    if (mo.h6 && m % 5 === 0) { ops.push("r180"); fx("lvl", "🔄 Meia-volta!", $("board").clientHeight / 2 + 30, 1000); }
+    if (mo.f9 && m % 5 === 0) { ops.push("fh"); fx("lvl", "⇋ Espelhado!", $("board").clientHeight / 2 + 70, 1000); }
+    if (mo.v7 && m % 7 === 0) { ops.push("fv"); fx("lvl", "⇵ De cabeça para baixo!", $("board").clientHeight / 2 + 110, 1000); }
+    if (ops.length) setTimeout(() => S && !S.over && runOps(ops), delay);
   }
   function fogIntro() {
     const f = $("fog"); f.hidden = false; f.classList.remove("on"); void f.offsetWidth; f.classList.add("on");
@@ -5607,6 +5644,8 @@ window.Scene = (() => {
     boss_bomb: ["Chefe: bombas", "Cada bomba tem um número que diminui a cada jogada. Limpe a linha ou coluna da bomba antes de chegar a zero, ou ela explode!", MINI([24, 25, 26, 28, 29, 30, 31], 8, [27])],
     boss_ghost: ["Chefe: fantasmas", "Os fantasmas mudam de casa a cada 2 jogadas. Pegue-os limpando a linha em que estão.", MINI([], 8, [])],
     subboss: ["Fase desafiante!", "Uma névoa cobre a fase: a tela treme a cada 3 jogadas e, a cada 5 jogadas, o tabuleiro gira 90° para a direita. Planeje pensando no giro!", `<svg viewBox="0 0 120 120"><rect x="30" y="30" width="60" height="60" rx="8" fill="#3a2a1c" transform="rotate(15 60 60)"/><path d="M96 40a40 40 0 10 4 30" fill="none" stroke="#ffd36b" stroke-width="6" stroke-linecap="round"/><path d="M100 28v14H86" fill="none" stroke="#ffd36b" stroke-width="6" stroke-linecap="round"/></svg>`],
+    locks: ["Casas trancadas 🔒", "Esta fase começa com 4 casas trancadas: nenhuma peça entra nelas. Depois da 2ª jogada elas se abrem e você pode usá-las a partir da 3ª.", `<svg viewBox="0 0 120 120"><rect x="24" y="24" width="72" height="72" rx="10" fill="#3d4150" stroke="#ffd36b" stroke-width="3"/><text x="60" y="76" text-anchor="middle" font-size="40">🔒</text></svg>`],
+    morph: ["Tabuleiro que muda", "Nesta fase o tabuleiro se mexe sozinho de tempos em tempos: pode girar, dar meia-volta ou ficar espelhado. Os blocos vão junto — pense no próximo giro!", `<svg viewBox="0 0 120 120"><rect x="30" y="30" width="60" height="60" rx="8" fill="#3a2a1c"/><path d="M20 60h80M60 20v80" stroke="#ffd36b" stroke-width="4" stroke-dasharray="6 5"/></svg>`],
     twist: ["Tabuleiro que gira", "Nesta fase, a cada 5 jogadas o tabuleiro gira 90°. Nas fases 10, 20, 40, 60 e 80 ele também treme e gira para a esquerda; nas 30, 60 e 90 gira para a direita.", `<svg viewBox="0 0 120 120"><rect x="30" y="30" width="60" height="60" rx="8" fill="#3a2a1c"/><path d="M24 60a36 36 0 0172-12" fill="none" stroke="#ffd36b" stroke-width="6" stroke-linecap="round"/><path d="M98 34v16H82" fill="none" stroke="#ffd36b" stroke-width="6" stroke-linecap="round"/></svg>`],
     items: ["Itens especiais 🎒", "A partir do Mundo 2 você ganha itens nas fases 5, 10, 15 e 20: 💣 Bomba (explode 3×3), ⛏️ Picareta (quebra qualquer bloco, até pedra) e 🌈 Arco-íris (completa uma linha). Toque em 🎒 para usar.", `<svg viewBox="0 0 120 120"><text x="60" y="78" text-anchor="middle" font-size="56">🎒</text></svg>`],
     boss_final: ["Chefe final!", "Pedras, bombas e fantasmas juntos. Pedras precisam de 2 linhas, bombas têm contador e fantasmas andam. Destrua todos — use Guardar, Girar e o Poder com calma.", MINI([20, 43], 8, [12, 51])],
@@ -5632,6 +5671,8 @@ window.Scene = (() => {
     if (S.mode === "story" && S.goal === "boss") showTip("boss_" + (S.boss || "stone"));
     if (itemsAllowed() && itemTotal() > 0) showTip("items");
     if (S.mode === "story" && !S.daily && twistOf(S.level)) showTip(twistOf(S.level).sub ? "subboss" : "twist");
+    if (S.mode === "story" && !S.daily && S.board.includes(LOCK)) showTip("locks");
+    if (S.mode === "story" && !S.daily && (() => { const m = morphOf(S.level); return m.h6 || m.f9 || m.v7; })()) showTip("morph");
   }
   // ---------- v24: accessibility switches ----------
   const A11Y = [["cb", "cb-toggle"], ["bigtext", "big-toggle"], ["lefty", "lefty-toggle"]];
@@ -5912,7 +5953,7 @@ window.Scene = (() => {
     $("btn-hold").classList.toggle("drop", overHold(x, y));
   }
   $("tray").addEventListener("pointerdown", (e) => {
-    if (!S || S.over || S.powerTaps > 0) return;
+    if (!S || S.over || S.powerTaps > 0 || S.turning) return;
     const slot = e.target.closest(".slot");
     if (!slot || !S.tray[slot.dataset.i]) return;
     if (rotAim) { e.preventDefault(); doRotate(+slot.dataset.i); return; }

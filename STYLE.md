@@ -365,3 +365,12 @@ Cada mundo alterna duas paletas entre as fases e gira a ordem das cores, então 
   - 10, 20, 40, 60, 80: a cada 5 jogadas o tabuleiro treme (com vibração) e gira 90° para a esquerda.
   - A fase 60 está nas duas listas: treme e alterna direita/esquerda.
   - 🌀 marca essas fases no mapa. Os blocos (e os contadores das bombas) giram junto com o tabuleiro.
+
+## v29
+
+Regras da História pelo número real da fase (somam com as da v28; se duas caem na mesma jogada, acontecem em sequência e as peças esperam o tabuleiro parar):
+- **Múltiplos de 4 a partir da 8:** gira 90° no sentido horário a cada 4 jogadas, sem aviso.
+- **Múltiplos de 13 a partir da 13:** começa com 4 casas trancadas 🔒 (nenhuma peça entra); abrem depois da 2ª jogada, liberadas para a 3ª.
+- **Múltiplos de 6 a partir da 6:** meia-volta (180°) a cada 5 jogadas.
+- **Múltiplos de 9 a partir da 9:** espelha na horizontal (esquerda ↔ direita) a cada 5 jogadas.
+- **Múltiplos de 7 a partir da 17:** espelha na vertical (cima ↔ baixo) a cada 7 jogadas.
