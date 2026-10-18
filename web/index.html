@@ -1,7 +1,7 @@
 <title>BLOCK SUPER GF</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="30">
+<meta name="bau-version" content="31">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -523,8 +523,24 @@ body.frame-lava #board, body.frame-lava .tboard { outline: 4px solid #ff8a2a; ou
 #board .cell.c17::after { content: "🔒"; position: absolute; inset: 0; display: grid; place-items: center; font-size: calc(var(--cell) * .45); }
 #board .cell.unlock { animation: crackhit .5s ease-out; box-shadow: inset 0 0 0 3px #ffd36b !important; }
 /* v30 Super Desafio */
-.super-card { display: flex; align-items: center; gap: 10px; padding: clamp(6px, 1vh, 10px) 12px; border-radius: 16px; text-align: left; color: #fff;
-  background: linear-gradient(110deg, #6a1fb0, #2a0b52 60%, #8a1f5a); box-shadow: 0 0 0 2px #c77dff, 0 0 18px rgba(199,125,255,.55), 0 5px 0 rgba(0,0,0,.45); }
+.super-card { position: relative; display: flex; align-items: center; gap: 10px; padding: clamp(6px, 1vh, 10px) 12px; border-radius: 16px; text-align: left; color: #fff;
+  background: linear-gradient(110deg, #6a1fb0, #2a0b52 60%, #8a1f5a); box-shadow: 0 0 0 2px #ff7a1a, 0 0 16px rgba(255,110,20,.8), 0 0 34px rgba(255,60,0,.45), 0 5px 0 rgba(0,0,0,.45); }
+.super-card > * { position: relative; z-index: 1; }
+/* v31: flames licking the border (transform/opacity animation only) */
+.super-card::before, .super-card::after { content: ""; position: absolute; left: -4px; right: -4px; pointer-events: none; z-index: 0; will-change: transform, opacity; transform-origin: 50% 100%; filter: blur(.4px); }
+.super-card::before { top: -30px; height: 34px;
+  background:
+    radial-gradient(ellipse 6px 26px at 50% 100%, #fffbe0 0%, #ffe066 22%, #ff9a1a 48%, rgba(255,50,0,.9) 70%, transparent 74%) 0 100% / 13px 34px repeat-x,
+    radial-gradient(ellipse 9px 20px at 50% 100%, #ffd23a 0%, #ff7a1a 45%, rgba(220,30,0,.85) 68%, transparent 72%) 6px 100% / 21px 26px repeat-x,
+    radial-gradient(ellipse 5px 15px at 50% 100%, #fff 0%, #ffe680 40%, rgba(255,120,20,.8) 66%, transparent 70%) 3px 100% / 17px 19px repeat-x;
+  animation: flame .45s ease-in-out infinite alternate; }
+.super-card::after { bottom: -10px; height: 14px; transform-origin: 50% 0;
+  background: radial-gradient(ellipse 10px 8px at 50% 0, #ffb347 0%, rgba(255,70,0,.85) 55%, transparent 72%) 0 0 / 20px 14px repeat-x;
+  animation: flame2 .6s ease-in-out infinite alternate; }
+@keyframes flame { 0% { transform: scaleY(.78) skewX(-3deg); opacity: .85; } 50% { transform: scaleY(1.08) skewX(2deg); opacity: 1; } 100% { transform: scaleY(.9) skewX(4deg); opacity: .92; } }
+@keyframes flame2 { 0% { transform: scaleY(.7); opacity: .6; } 100% { transform: scaleY(1.1); opacity: .95; } }
+.super-card .sc-ic { animation: flicker 1.2s ease-in-out infinite alternate; } @keyframes flicker { to { filter: drop-shadow(0 0 6px #ff8a2a); } }
+.lite .super-card::before, .lite .super-card::after, .lite .super-card .sc-ic { animation: none; }
 .super-card .sc-ic { font-size: 24px; flex: none; }
 .super-card > span:nth-child(2) { flex: 1; min-width: 0; }
 .super-card b { display: block; font-family: var(--font-display); font-size: clamp(14px, 2.1vh, 18px); text-transform: uppercase; letter-spacing: .04em; }
@@ -765,9 +781,10 @@ body.themed[data-mode] .bar { box-shadow: inset 0 -3px 0 var(--mode-accent); }
 @keyframes strike { 0% { opacity: 0; } 82% { opacity: 1; } 86% { opacity: .15; } 89% { opacity: .9; } 93% { opacity: 0; } }
 
 /* v18: Story is the main mode: a softly glowing neon edge (opacity-only pulse). */
-#play-story { box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 6px 0 rgba(0,0,0,.4), 0 0 18px rgba(255,120,70,.55), 0 0 2px rgba(255,190,140,.9); }
-#play-story::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; border: 2px solid #ffb37a;
-  box-shadow: inset 0 0 14px rgba(255,110,60,.75), inset 0 0 3px rgba(255,240,220,.9); will-change: opacity; animation: neon 2.6s ease-in-out infinite alternate; }
+/* v31: fluorescent yellow neon */
+#play-story { box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 6px 0 rgba(0,0,0,.4), 0 0 20px rgba(230,255,40,.7), 0 0 6px rgba(240,255,120,.95); }
+#play-story::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; border: 2.5px solid #eaff3a;
+  box-shadow: inset 0 0 16px rgba(225,255,40,.75), inset 0 0 4px rgba(250,255,200,.95), 0 0 14px rgba(230,255,40,.9); will-change: opacity; animation: neon 2.2s ease-in-out infinite alternate; }
 @keyframes neon { from { opacity: .55; } to { opacity: 1; } }
 
 /* v16: the board is made of the game's material, in the game's style, tinted and patterned by the
@@ -5343,7 +5360,8 @@ window.Scene = (() => {
     setTimeout(() => { f.hidden = true; f.classList.remove("on"); }, 2900);
   }
   // ---------- v24: hold a piece, rotate once per phase, danger warning ----------
-  const holdAllowed = () => !!S && S.mode !== "tetris" && S.mode !== "puzzle" && !(S.mode === "super" && skLv("nohold")) && !(S.mode === "story" && !S.daily && S.level <= LEVELS_PER_WORLD);
+  // v31: Guardar exists only in Clássico.
+  const holdAllowed = () => !!S && S.mode === "classic";
   const ROTATES = 1;
   const rotLeft = () => (S && S.mode === "story" && !S.daily ? ROTATES - (S.rotUsed || 0) : 0);
   let rotAim = false;
@@ -5936,7 +5954,7 @@ window.Scene = (() => {
     { id: "blind", ic: "🙈", n: "Às cegas", d: () => "As próximas peças ficam escondidas.", t: 1, st: 1 },
     { id: "mystery", ic: "❓", n: "Peça surpresa", d: () => "Uma das peças vem tampada até você tocar nela.", t: 1, st: 1 },
     { id: "twisted", ic: "🌀", n: "Peça torta", d: () => "A cada mão, uma peça vem girada.", t: 1, st: 1 },
-    { id: "nohold", ic: "🚫", n: "Sem Guardar", d: () => "O botão Guardar some.", t: 1, st: 1 },
+    { id: "nohold", ic: "🚫", n: "Sem prévia", d: () => "Ao arrastar, o tabuleiro não mostra onde a peça vai cair.", t: 1, st: 1 },
     { id: "swap", ic: "🔁", n: "Bandeja trocada", d: () => "Depois de cada jogada, as outras peças trocam de lugar.", t: 1, st: 1 },
     { id: "lazy", ic: "😴", n: "Linha preguiçosa", d: () => "Limpar 1 linha só não dá pontos — só 2 ou mais de uma vez.", t: 2, st: 1 },
     { id: "rows", ic: "↔️", n: "Só linhas", d: () => "As colunas não limpam, só as linhas.", t: 3, st: 1, ex: ["cols", "wall"] },
@@ -6380,8 +6398,8 @@ window.Scene = (() => {
     drag.at = pv && pv.ok ? [r0, c0] : null;
     drag.el.classList.toggle("valid", !!(pv && pv.ok));
     drag.el.classList.toggle("invalid", !!(pv && !pv.ok));
-    renderBoard(pv);
-    $("btn-hold").classList.toggle("drop", overHold(x, y));
+    renderBoard(S.mode === "super" && skLv("nohold") ? null : pv);
+    $("btn-hold").classList.toggle("drop", !drag.at && overHold(x, y));
   }
   $("tray").addEventListener("pointerdown", (e) => {
     if (!S || S.over || S.powerTaps > 0 || S.turning) return;
@@ -6424,7 +6442,7 @@ window.Scene = (() => {
     }
     d.slot.classList.remove("grab");
     $("btn-hold").classList.remove("drop");
-    if (!cancel && overHold(e.clientX, e.clientY)) { renderBoard(); doHold(d.ti); return; }
+    if (!cancel && !d.at && overHold(e.clientX, e.clientY)) { renderBoard(); doHold(d.ti); return; }
     if (cancel || !d.at || !place(d.ti, d.at[0], d.at[1])) {
       renderBoard(); renderTray();
       if (!cancel) { sfx.nope(); buzz(20); const sl = $("tray").children[d.ti]; if (sl) { sl.classList.add("nope"); setTimeout(() => sl.classList.remove("nope"), 260); } }

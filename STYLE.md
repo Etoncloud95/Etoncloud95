@@ -384,3 +384,10 @@ Regras da História pelo número real da fase (somam com as da v28; se duas caem
   - Cartas 🟢 leves (+10% pontos), 🟡 médias (+20%), 🔴 pesadas (+35%); as pesadas só depois da fase 6. Habilidades periódicas podem vir de novo (nível 2 e 3: 1 jogada a menos). A cada 5 escolhas pode aparecer um **Alívio 🍀** que remove uma habilidade.
   - Faixa roxa acima do tabuleiro mostra as habilidades ativas (tocar abre a lista) e o multiplicador de pontos. 1 desfazer por fase (some com "Sem desfazer").
   - **50 habilidades:** giro horário, giro anti-horário, espelho lateral, de cabeça para baixo, correnteza, terremoto, bloco intruso, bloco sumido, bloco andarilho, bloco teimoso, pedreira, bomba-relógio, assombração, geada, cadeado, muro, peças grandes, sem retinhas, mão curta, às cegas, peça surpresa, peça torta, sem Guardar, bandeja trocada, linha preguiçosa, só linhas, só colunas, combo frágil, meta inflada, imposto, relógio, pressa, contagem, neblina, tremedeira, tabuleiro menor (7×7), tabuleiro Sudoku, monocromático, sem desfazer, dedo espelhado, maré, peças fantasmas, desgaste, meta dupla, bandeja giratória, mão pesada, sem combo, apagão, **bomba-relógio invertida** (casa sinalizada que, ao zerar, enche as vizinhas de blocos) e **diminuição de jogadas** (tudo que demora X jogadas passa a demorar X−1; acumula, mínimo 2, vale também para habilidades futuras, bombas e cadeados).
+
+## v31
+
+- **Guardar** só existe no modo **Clássico** (saiu da História, Desafio diário, Sudoku, Contra o Tempo e Super Desafio).
+- Correção: soltar uma peça nas casas de baixo à esquerda (logo acima do botão Guardar) às vezes guardava a peça em vez de colocá-la. Agora, se a peça cabe no tabuleiro, ela é colocada; o Guardar só recebe a peça quando ela não está sobre uma posição válida.
+- Super Desafio: a habilidade "Sem Guardar" virou **🚫 Sem prévia** (ao arrastar, o tabuleiro não mostra onde a peça vai cair).
+- Menu: o cartão do **Super Desafio** tem chamas animadas na borda (só transform/opacity; paradas no Modo leve). O cartão da **História** ganhou neon amarelo fluorescente.
