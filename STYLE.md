@@ -330,3 +330,18 @@ Cada mundo alterna duas paletas entre as fases e gira a ordem das cores, então 
 ## v25
 
 - Backup automático removido (a pedido). Continua o salvar/restaurar manual em Ajustes → Progresso.
+
+## v26
+
+- **Sem retomar partidas:** sair e voltar (ou fechar o app) sempre começa um tabuleiro novo, em todos os modos.
+- **Recomeçar:** botão ↻ no topo de toda partida (e no menu de pausa). Apaga as peças colocadas e volta o tabuleiro ao início da partida/fase, com confirmação.
+- **Pausa em todos os modos:** botão ⏸ no topo. O menu de pausa tem Continuar, Recomeçar, Sair da partida e os botões de música e efeitos sonoros (que saíram do topo).
+- **Confirmar saída:** voltar ou sair no meio de uma partida pergunta antes ("Sair da partida?").
+- **História:** os mundos 2, 5, 8, 11 … (a cada 3) usam o tabuleiro Sudoku 9×9; os outros, o clássico 8×8. Etiqueta "▦ Sudoku" no mapa.
+- **Chefe final:** a fase 20 dos mundos 10, 20, 30, 40 e 50 junta 3 pedras, 2 bombas (contador 14+) e 2 fantasmas; menos blocos soltos no tabuleiro. 🐉 no mapa.
+- **Dicas por modo (uma vez):** Sudoku (modo ou primeiro mundo Sudoku), Contra o Tempo, Quebra-cabeça, Diário e cada tipo de chefe.
+- **Quebra-cabeça:** +24 desenhos em temas — Animais, Letras e Objetos (15 em 9×9). Total 72. Cada tema libera 4 de cada vez.
+- **Música que reage:** a partir do combo ×2 entra a melodia uma oitava acima (harpa); do ×4 entra uma batida extra. Saem suavemente quando o combo acaba.
+- **Som por textura:** cada um dos 25 materiais tem impacto, detritos, escala e efeito próprios (madeira bate, gelo tilinta, lava ronca, raio estala, ouro faz moeda…), tudo sintetizado — o APK quase não cresce.
+- **Altura da peça ao arrastar:** Perto, Médio ou Longe, em Ajustes.
+- **Deitado e tablet:** o app gira com o celular. Deitado, o tabuleiro fica à esquerda e as peças à direita; o menu vira duas colunas. Tablet em pé usa coluna mais larga e casas maiores.
