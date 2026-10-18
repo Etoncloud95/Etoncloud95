@@ -404,3 +404,9 @@ Regras da História pelo número real da fase (somam com as da v28; se duas caem
 - **Blocos acima do título** não são mais cortados ao subir.
 - **Quebra-cabeça mais fácil:** tabuleiro maior (10×10 ou 11×11) com o desenho marcado em rosa no meio. As peças podem ir para qualquer lugar; as já colocadas podem ser **arrastadas** para outro lugar ou **tocadas** para voltar à bandeja. Linhas completas somem (as peças atingidas voltam inteiras para a bandeja, então o desenho nunca fica impossível). Vence quando todas as casas rosa estão cobertas. Blocos fora do desenho ficam com contorno tracejado. O modo nunca acaba sozinho.
 - **Desfazer ilimitado** só no Quebra-cabeça (o contador mostra ∞).
+
+## v34
+
+- **Quebra-cabeça — desfazer ilimitado de verdade:** cada jogada fica guardada e dá para desfazer uma atrás da outra até o começo do desenho.
+- **Casas fora do desenho jogáveis:** as casas normais ficam com aparência normal (sem escurecer nem tracejado) e aceitam peças. Se as peças acabarem com casas rosa vazias, o jogo entrega peças pequenas novas para terminar o desenho.
+- **Estrelas:** o desenho termina quando todas as casas rosa estão cobertas. **5 ★** se só as casas rosa estiverem preenchidas; **1 ★** se sobrar bloco em casa normal. Dá para voltar e melhorar de 1 para 5 (ganha a diferença). A grade de desenhos mostra 1★ ou 5★ em cada um.
