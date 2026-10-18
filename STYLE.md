@@ -325,4 +325,8 @@ Cada mundo alterna duas paletas entre as fases e gira a ordem das cores, então 
 - **Abertura de mundo:** cartão grande com número, nome, textura e música do mundo.
 - **Placar:** os números sobem contando; ao bater o recorde, o placar brilha e solta confete.
 - **Acessibilidade:** modo daltônico (símbolos ●▲■◆★✚ nas cores), texto grande e modo canhoto (peça à direita do dedo, botões invertidos).
-- **Backup automático:** depois de cada fase vencida, o progresso é gravado em Downloads/BLOCK-ALT-UNO-backup.json (Android 10+) ou na pasta do app (Android 8–9). Dá para desligar em Ajustes.
+
+
+## v25
+
+- Backup automático removido (a pedido). Continua o salvar/restaurar manual em Ajustes → Progresso.

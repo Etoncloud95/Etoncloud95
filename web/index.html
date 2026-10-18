@@ -1,7 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="24">
+<meta name="bau-version" content="25">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -958,7 +958,6 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
           <button class="btn ghost" id="btn-import">Restaurar</button>
         </div>
         <p class="skins-note">Guarde o arquivo para levar fases, estrelas, recordes e compras para outro celular. Nada vai para a internet.</p>
-        <div class="set-row"><span>Backup automático<small class="set-hint" id="backup-info">Salvo a cada fase vencida</small></span><button class="switch" id="backup-toggle" role="switch" aria-checked="true" aria-label="Backup automático"><i></i></button></div>
         <input type="file" id="import-file" accept=".json,application/json,text/plain" hidden>
       </div>
       <div class="set-row"><span>Música</span>
@@ -5115,7 +5114,6 @@ window.Scene = (() => {
     store.set("story.best", best);
     { const f = store.get("story.fails", {}); if (f[S.level]) { delete f[S.level]; store.set("story.fails", f); } }
     mission("story", 1); if (S.goal === "boss") mission("boss", 1);
-    setTimeout(autoBackup, 1200);
     if (S.level + 1 > store.get("story.unlocked", 1)) store.set("story.unlocked", Math.min(S.level + 1, STORY_LEVELS));
     store.set("maxcombo.story", Math.max(store.get("maxcombo.story", 0), S.maxCombo || 0));
     // ---- stars, challenge, rewards (merged with what was already earned; never duplicated) ----
@@ -5206,19 +5204,7 @@ window.Scene = (() => {
   function applyA11y() { for (const [k, id] of A11Y) { const on = !!store.get("a11y." + k, false); document.body.classList.toggle(k, on); $(id).setAttribute("aria-checked", String(on)); } }
   for (const [k, id] of A11Y) $(id).addEventListener("click", () => { store.set("a11y." + k, !store.get("a11y." + k, false)); applyA11y(); sfx.ui(); if (S) renderTray(); });
   applyA11y();
-  // ---------- v24: automatic backup after every phase won ----------
-  function renderBackupInfo() {
-    const on = store.get("autoBackup", true), at = store.get("autoBackupAt", null);
-    $("backup-toggle").setAttribute("aria-checked", String(on));
-    $("backup-info").textContent = !on ? "Desligado" : at ? `Último: ${new Date(at.d).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })} · ${at.where}` : "Salvo a cada fase vencida";
-  }
-  function autoBackup() {
-    if (!store.get("autoBackup", true)) return;
-    const json = exportData();
-    try { if (window.BAUNative && BAUNative.autoBackup) { const where = BAUNative.autoBackup(json); if (where) store.set("autoBackupAt", { d: Date.now(), where }); return; } } catch (e) {}
-    try { localStorage.setItem("bauBackup", json); store.set("autoBackupAt", { d: Date.now(), where: "neste aparelho" }); } catch (e) {}
-  }
-  $("backup-toggle").addEventListener("click", () => { store.set("autoBackup", !store.get("autoBackup", true)); renderBackupInfo(); sfx.ui(); if (store.get("autoBackup", true)) autoBackup(), renderBackupInfo(); });
+  try { localStorage.removeItem("bauBackup"); localStorage.removeItem("bau.autoBackup"); localStorage.removeItem("bau.autoBackupAt"); } catch (e) {}
   // ---------- v23: save / restore progress in a file (works offline) ----------
   const SAVE_APP = "BLOCK ALT UNO";
   function exportData() {
@@ -5938,7 +5924,7 @@ window.Scene = (() => {
     box.innerHTML = list.map(([k, t, w]) => `<button class="chip-opt" data-track="${k}" role="radio" aria-checked="${k === cur}" title="${w}">${k === "auto" ? "★ " : "♪ "}${t}</button>`).join("");
     for (const b2 of box.children) b2.addEventListener("click", () => { store.set("gameMusic", b2.dataset.track); renderGameMusic(); sfx.ui(); });
   }
-  $("btn-settings").addEventListener("click", () => { renderBackupInfo(); renderSettings(); renderVisualPick(); renderSkins(); $("settings").hidden = false; $("set-close").focus(); });
+  $("btn-settings").addEventListener("click", () => { renderSettings(); renderVisualPick(); renderSkins(); $("settings").hidden = false; $("set-close").focus(); });
   $("set-close").addEventListener("click", () => { $("settings").hidden = true; });
   function showRecords(mode) {
     S = null;
@@ -6035,7 +6021,6 @@ window.Scene = (() => {
     $("btn-next").hidden = S.pz + 1 >= PUZZLES.length; $("btn-levels").hidden = false; $("btn-levels").textContent = "Desenhos";
     $("btn-again").textContent = "Montar de novo";
     const br = $("board").getBoundingClientRect(); Scene.celebrate(br.left + br.width / 2, br.top + br.height * .35);
-    autoBackup();
   }
   function showPuzzles() {
     const g = $("pz-grid"), done = store.get("puzzle.done", {}), un = pzUnlocked();
@@ -6075,7 +6060,6 @@ window.Scene = (() => {
     mission("daily", first ? 1 : 0);
     const sr = store.get("streak.rewarded", {});
     if (first && streak > 0 && streak % 7 === 0 && !sr[S.daily]) { sr[S.daily] = 1; store.set("streak.rewarded", sr); store.set("bonusStars", store.get("bonusStars", 0) + STREAK_STARS); setTimeout(() => toast(`<b>🔥 ${streak} dias seguidos!</b><small>+${STREAK_STARS} ★ de presente</small>`), 900); }
-    autoBackup();
     overlay("win", "Desafio do dia concluído!", `Você fez ${fmt(S.score)} pontos. Amanhã tem um desafio novo.`);
     $("btn-next").hidden = true; $("btn-levels").hidden = true; $("over-badge").hidden = !first;
     $("over-badge").textContent = "Primeira vez hoje";
