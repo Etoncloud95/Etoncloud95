@@ -345,3 +345,11 @@ Cada mundo alterna duas paletas entre as fases e gira a ordem das cores, então 
 - **Som por textura:** cada um dos 25 materiais tem impacto, detritos, escala e efeito próprios (madeira bate, gelo tilinta, lava ronca, raio estala, ouro faz moeda…), tudo sintetizado — o APK quase não cresce.
 - **Altura da peça ao arrastar:** Perto, Médio ou Longe, em Ajustes.
 - **Deitado e tablet:** o app gira com o celular. Deitado, o tabuleiro fica à esquerda e as peças à direita; o menu vira duas colunas. Tablet em pé usa coluna mais larga e casas maiores.
+
+## v27
+
+- **Itens especiais (História, a partir do Mundo 2):** 💣 Bomba (explode 3×3, até pedras e blocos de chefe), ⛏️ Picareta (quebra qualquer bloco de uma vez) e 🌈 Arco-íris (completa a linha tocada). Ganhos na 1ª vitória das fases 5, 10, 15 e 20 de cada mundo (a fase 20 do Mundo 1 dá 1 de cada). Máximo 9 de cada. Botão 🎒 ao lado de Girar. Se travar com itens na mochila, o jogo avisa em vez de acabar.
+- **Clima nos cenários:** 18 partículas só com transform/opacity (GPU), conforme o material: chuva, neve, folhas, brasas, bolhas, poeira, brilhos, faíscas, cinzas e pétalas. Desliga no Modo leve e tem chave em Ajustes. Custo medido: ~5 fps com CPU 6× mais lenta.
+- **Chefe derrotado:** a explosão final em câmera lenta (0,28×), zoom e brilho no tabuleiro, fanfarra própria. **Chefe final:** além disso, show de luzes com feixes coloridos girando, 7 fogos de artifício e confete.
+- **Desfazer no Clássico e no Sudoku:** ganha 1 a cada 500 pontos, acumula até 3.
+- **Volume:** controles separados de Música, Efeitos e Vibração (0–100%) em Ajustes.

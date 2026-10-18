@@ -1,7 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="26">
+<meta name="bau-version" content="27">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -40,6 +40,24 @@ body {
 }
 #bg, #fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 #bg { z-index: 0; }
+/* v27 weather: ~18 tiny elements animated with transform/opacity only (GPU), off in Modo leve */
+#weather { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; display: none; }
+body.wx-on:not(.lite) #weather { display: block; }
+#weather i { position: absolute; top: -6vh; left: var(--x); width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,.8); opacity: .75; will-change: transform;
+  animation: wxfall var(--d) linear var(--dl) infinite; --dx: 6vw; --rot: 0deg; }
+@keyframes wxfall { from { transform: translate3d(0, 0, 0) rotate(0); } to { transform: translate3d(var(--dx), 112vh, 0) rotate(var(--rot)); } }
+@keyframes wxrise { from { transform: translate3d(0, 112vh, 0) scale(.6); opacity: 0; } 15% { opacity: .9; } to { transform: translate3d(var(--dx), 0, 0) scale(1.1); opacity: 0; } }
+@keyframes wxdrift { from { transform: translate3d(-10vw, 30vh, 0); } to { transform: translate3d(110vw, 60vh, 0); } }
+body[data-wx="rain"] #weather i { width: 1.5px; height: 20px; border-radius: 1px; background: linear-gradient(transparent, rgba(190,220,255,.75)); animation-duration: calc(var(--d) * .32); --dx: -5vw; }
+body[data-wx="snow"] #weather i { width: var(--s); height: var(--s); background: rgba(255,255,255,.9); --dx: 9vw; animation-duration: calc(var(--d) * 1.3); }
+body[data-wx="leaves"] #weather i { width: 9px; height: 5px; border-radius: 50% 0; background: var(--wxc, #8fbf4a); --dx: 18vw; --rot: 540deg; }
+body[data-wx="embers"] #weather i { width: 4px; height: 4px; background: #ffb347; box-shadow: 0 0 6px #ff7a2a; animation-name: wxrise; --dx: 6vw; }
+body[data-wx="bubbles"] #weather i { width: var(--s); height: var(--s); background: transparent; border: 1.5px solid rgba(220,245,255,.7); animation-name: wxrise; --dx: 3vw; }
+body[data-wx="dust"] #weather i { width: 3px; height: 3px; background: rgba(240,215,170,.7); animation-name: wxdrift; animation-duration: calc(var(--d) * 1.6); top: var(--y); }
+body[data-wx="sparkles"] #weather i { width: 3px; height: 3px; background: #fff; box-shadow: 0 0 6px 1px rgba(255,240,180,.9); animation-duration: calc(var(--d) * 1.5); --dx: 2vw; }
+body[data-wx="sparks"] #weather i { width: 2px; height: 9px; border-radius: 1px; background: #fff3a0; box-shadow: 0 0 5px #ffd36b; animation-duration: calc(var(--d) * .45); --dx: -3vw; }
+body[data-wx="ash"] #weather i { width: 5px; height: 4px; border-radius: 40%; background: rgba(170,165,160,.7); --dx: 12vw; --rot: 200deg; animation-duration: calc(var(--d) * 1.4); }
+body[data-wx="petals"] #weather i { width: 8px; height: 6px; border-radius: 60% 0 60% 0; background: #ffb3d1; --dx: 14vw; --rot: 400deg; animation-duration: calc(var(--d) * 1.2); }
 #bg.fade-in { animation: scene-in .9s ease-out; }
 .vs-pixel #bg { image-rendering: pixelated; }
 @keyframes scene-in { from { opacity: 0; } }
@@ -494,6 +512,24 @@ body.frame-lava #board, body.frame-lava .tboard { outline: 4px solid #ff8a2a; ou
 @keyframes wcfade { 0% { opacity: 0; } 12% { opacity: 1; } 78% { opacity: 1; } 100% { opacity: 0; } }
 @keyframes wcpop { 0% { transform: scale(.6) rotate(-4deg); } 14% { transform: scale(1.05); } 22% { transform: none; } 80% { transform: none; } 100% { transform: translateY(-30px) scale(.95); } }
 .save-row { display: flex; gap: 8px; }
+.vol-row { display: grid; grid-template-columns: 96px 1fr 44px; align-items: center; gap: 10px; margin: 6px 0; font-size: 14px; }
+.vol-row input { width: 100%; accent-color: var(--gold); }
+.vol-row b { text-align: right; font-variant-numeric: tabular-nums; color: var(--gold); }
+#board-wrap.ko { animation: bossko 1.6s ease-out; }
+@keyframes bossko { 0% { transform: scale(1); filter: brightness(1); } 12% { transform: scale(1.07); filter: brightness(1.9) saturate(1.4); } 60% { transform: scale(1.04); filter: brightness(1.2); } 100% { transform: none; filter: none; } }
+#lightshow { position: fixed; inset: 0; z-index: 34; pointer-events: none; overflow: hidden; }
+#lightshow i { position: absolute; left: 50%; top: 50%; width: 240vmax; height: 240vmax; margin: -120vmax 0 0 -120vmax; mix-blend-mode: screen; opacity: 0;
+  background: conic-gradient(from 0deg, transparent 0 4%, rgba(255,80,160,.55) 5% 8%, transparent 9% 20%, rgba(80,200,255,.55) 21% 24%, transparent 25% 37%, rgba(255,220,80,.55) 38% 41%, transparent 42% 54%, rgba(120,255,140,.5) 55% 58%, transparent 59% 71%, rgba(190,110,255,.55) 72% 75%, transparent 76% 88%, rgba(255,140,60,.55) 89% 92%, transparent 93%); }
+#lightshow i:nth-child(2) { animation-direction: reverse !important; filter: hue-rotate(90deg); }
+#lightshow.on i { animation: beams 3.6s ease-in-out forwards; }
+@keyframes beams { 0% { opacity: 0; transform: rotate(0); } 15% { opacity: .9; } 80% { opacity: .75; } 100% { opacity: 0; transform: rotate(140deg); } }
+.item-btn { position: relative; display: grid; place-items: center; width: 40px; height: 32px; border-radius: 10px; background: rgba(0,0,0,.28); font-size: 17px; flex: none; }
+.item-btn i { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; border-radius: 9px; background: var(--gold); color: #3a2410; font-style: normal; font-size: 11px; font-weight: 800; display: grid; place-items: center; }
+.item-btn.aim { box-shadow: 0 0 0 2px var(--gold); animation: willpulse .6s ease-in-out infinite alternate; }
+.item-btn:disabled { opacity: .45; }
+body[data-mode="story"] .hold-k { display: none; }
+body.item-aim #board .cell { cursor: crosshair; }
+body.item-aim #board { box-shadow: 0 0 0 3px var(--gold), 0 0 24px rgba(255,211,107,.6); }
 .pause-sound { display: flex; justify-content: center; gap: 14px; margin-bottom: 4px; }
 .seg { display: flex; gap: 4px; padding: 3px; border-radius: 12px; background: rgba(0,0,0,.25); flex: none; }
 .seg button { padding: 7px 9px; border-radius: 9px; font-size: 12.5px; font-weight: 700; color: var(--muted); }
@@ -763,6 +799,7 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="bau-toon" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="1.35"/><feComponentTransfer><feFuncR type="discrete" tableValues="0 .07 .15 .25 .37 .52 .68 .84 1"/><feFuncG type="discrete" tableValues="0 .07 .15 .25 .37 .52 .68 .84 1"/><feFuncB type="discrete" tableValues="0 .07 .15 .25 .37 .52 .68 .84 1"/></feComponentTransfer></filter><filter id="bau-pix" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="1.2"/><feComponentTransfer><feFuncR type="discrete" tableValues="0 .06 .13 .21 .3 .4 .51 .63 .75 .87 1"/><feFuncG type="discrete" tableValues="0 .06 .13 .21 .3 .4 .51 .63 .75 .87 1"/><feFuncB type="discrete" tableValues="0 .06 .13 .21 .3 .4 .51 .63 .75 .87 1"/></feComponentTransfer></filter></svg>
 <canvas id="bg" aria-hidden="true"></canvas>
+<div id="weather" aria-hidden="true"></div>
 <div id="light" aria-hidden="true"></div>
 <canvas id="fx" aria-hidden="true"></canvas>
 <div id="app">
@@ -900,6 +937,7 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
     <div class="tools-row">
       <button class="hold" id="btn-hold" aria-label="Guardar peça" hidden><span class="hold-k">Guardar</span><span class="hold-box" id="hold-box"></span></button>
       <button class="rot-btn" id="btn-rot" aria-label="Girar uma peça" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 11-2.3-5.6"/><path d="M20 4v5h-5"/></svg><span>Girar</span><i id="rot-n">1</i></button>
+      <button class="item-btn" id="btn-items" aria-label="Itens especiais" hidden><span aria-hidden="true">🎒</span><i id="items-n">0</i></button>
       <div class="next-row" aria-label="Próximas peças"><span>Próximas</span><div id="next-tray"></div></div>
     </div>
     <div id="tray" aria-label="Peças disponíveis"></div>
@@ -962,6 +1000,15 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       <div>
         <span class="set-label">Música do jogo</span>
         <div class="chip-list" id="game-music" role="radiogroup" aria-label="Música do jogo"></div>
+      </div>
+      <div>
+        <span class="set-label">Volume</span>
+        <label class="vol-row"><span>🎵 Música</span><input type="range" min="0" max="100" step="5" id="vol-music"><b id="vol-music-v"></b></label>
+        <label class="vol-row"><span>🔊 Efeitos</span><input type="range" min="0" max="100" step="5" id="vol-sfx"><b id="vol-sfx-v"></b></label>
+        <label class="vol-row"><span>📳 Vibração</span><input type="range" min="0" max="100" step="5" id="vol-vib"><b id="vol-vib-v"></b></label>
+      </div>
+      <div class="set-row"><span>Clima nos cenários<small class="set-hint">Chuva, neve, folhas e brasas caindo de leve</small></span>
+        <button class="switch" id="wx-toggle" role="switch" aria-checked="true" aria-label="Clima nos cenários"><i></i></button>
       </div>
       <div class="set-row"><span>Altura da peça<small class="set-hint">Distância entre o dedo e a peça ao arrastar</small></span>
         <div class="seg" id="lift-pick" role="radiogroup" aria-label="Altura da peça"><button data-v="near" role="radio">Perto</button><button data-v="mid" role="radio">Médio</button><button data-v="far" role="radio">Longe</button></div>
@@ -1048,6 +1095,8 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
     </div>
   </div>
 
+  <div id="lightshow" aria-hidden="true" hidden><i></i><i></i></div>
+
   <div id="world-card" aria-hidden="true" hidden>
     <div class="wc"><span class="wc-k" id="wc-k">Mundo 1</span><i class="wc-tile" id="wc-tile"></i><b class="wc-name" id="wc-name"></b><small class="wc-music" id="wc-music"></small></div>
   </div>
@@ -1069,6 +1118,15 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       <div class="tut-dots" id="tut-dots"><i></i><i></i><i></i></div>
       <button class="btn primary" id="tut-next">Próximo</button>
       <button class="btn ghost" id="tut-skip">Pular</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="items" hidden>
+    <div class="card settings-card" role="dialog" aria-modal="true" aria-labelledby="it-title">
+      <h2 id="it-title">Itens especiais</h2>
+      <p class="skins-note">Ganhe itens vencendo as fases 5, 10, 15 e 20 de cada mundo (a partir do Mundo 2). Escolha um e toque no tabuleiro.</p>
+      <ul class="shop-list" id="items-list"></ul>
+      <button class="btn ghost" id="items-close">Fechar</button>
     </div>
   </div>
 
@@ -2373,7 +2431,7 @@ window.Scene = (() => {
   // ---- particle kinds used by explosions ----
   let lite = false, bgDirty = true;
   function spawn(p) { if (parts.length < (lite ? 320 : 1400)) parts.push(p); }
-  let bursts = [], sweeps = [], freezeUntil = 0, vstyle = "real";
+  let bursts = [], sweeps = [], freezeUntil = 0, slowUntil = 0, slowF = 1, vstyle = "real";
   const imgCache = new Map();
   function texImg(url) {
     if (!url) return null;
@@ -3526,7 +3584,7 @@ window.Scene = (() => {
   let bgT = 1, fxClean = false;
   function frame(now) {
     raf = requestAnimationFrame(frame);
-    let dt = Math.min(.05, (now - last) / 1000 || 0); last = now; clock += dt;
+    let dt = Math.min(.05, (now - last) / 1000 || 0); last = now; if (now < slowUntil) dt *= slowF; clock += dt;
     if (!theme) return;
     const frozen = now < freezeUntil; // hitstop: effects hold still for a beat on big impacts
     // background: repainted at ~30 fps (it moves slowly; halves the cost of the biggest layer)
@@ -3607,6 +3665,7 @@ window.Scene = (() => {
   return {
     names: WORLDS.map((w) => w.name),
     hitstop(ms) { freezeUntil = performance.now() + ms; },
+    slowmo(f, ms) { slowF = f; slowUntil = performance.now() + ms; },
     setLite(on) { lite = !!on; bgDirty = true; },
     setStyle(st) { const prev = vstyle; vstyle = st === "anim" || st === "pixel" ? st : "real"; if (theme && (prev === "pixel") !== (vstyle === "pixel")) resize(); bgFilter(); },
     // rect: {x, y, w, h} of one cleared row/column in screen space.
@@ -3762,7 +3821,9 @@ window.Scene = (() => {
   // ======================================================================
   //  AUDIO — everything is synthesized live with Web Audio (no files, no network).
   // ======================================================================
-  let actx = null, master = null, musicBus = null, sfxBus = null, wet = null;
+  let actx = null, master = null, musicBus = null, sfxBus = null, wet = null, mVol = null, sVol = null;
+  const vol = (k) => Math.max(0, Math.min(100, +store.get("vol." + k, 100))) / 100;
+  function applyVolume() { if (!mVol) return; const v1 = vol("music"), v2 = vol("sfx"); mVol.gain.value = v1 * v1; sVol.gain.value = v2 * v2; }
   let musicOn = store.get("music", true), sfxOn = store.get("sound", true);
 
   function audio() {
@@ -3772,13 +3833,16 @@ window.Scene = (() => {
       master = actx.createDynamicsCompressor();
       master.threshold.value = -10; master.ratio.value = 4;
       master.connect(actx.destination);
-      musicBus = actx.createGain(); musicBus.gain.value = 0; musicBus.connect(master);
-      sfxBus = actx.createGain(); sfxBus.gain.value = .9; sfxBus.connect(master);
+      // v27: separate volume knobs for music and effects (Ajustes → Volume).
+      mVol = actx.createGain(); sVol = actx.createGain(); mVol.connect(master); sVol.connect(master);
+      musicBus = actx.createGain(); musicBus.gain.value = 0; musicBus.connect(mVol);
+      sfxBus = actx.createGain(); sfxBus.gain.value = .9; sfxBus.connect(sVol);
+      applyVolume();
       // Small echo "room" so the music sounds soft and warm.
       const dl = actx.createDelay(1), fb = actx.createGain(), lp = actx.createBiquadFilter();
       dl.delayTime.value = .27; fb.gain.value = .32; lp.type = "lowpass"; lp.frequency.value = 2200;
       wet = actx.createGain(); wet.gain.value = .25;
-      musicBus.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(wet); wet.connect(master);
+      mVol.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(wet); wet.connect(master);
     } catch (e) { actx = null; }
     return actx;
   }
@@ -4204,6 +4268,15 @@ window.Scene = (() => {
     },
     ui() { if (!this.ok()) return; const t = actx.currentTime; blip("triangle", 880, t, .035, .12, 760); },
     grab() { if (!this.ok()) return; const t = actx.currentTime; blip("sine", 520, t, .05, .14, 700); },
+    bossWin(fin) {
+      if (!this.ok()) return; const t = actx.currentTime;
+      blip("sine", 60, t, 1.2, .6, 28); noise(t, .9, .2, 200, 6000);
+      const seq = fin ? [0, 4, 7, 12, 16, 19, 24, 28, 31, 36] : [0, 4, 7, 12, 16, 19, 24];
+      seq.forEach((s2, i) => { blip("triangle", hz(60 + s2), t + .25 + i * .09, .5, .09); blip("sine", hz(72 + s2), t + .25 + i * .09, .35, .05); });
+      const tc = t + .3 + seq.length * .09;
+      for (const s2 of [0, 4, 7, 12, 16]) blip("triangle", hz(60 + s2), tc, fin ? 2.4 : 1.4, .08);
+      if (fin) for (let k = 0; k < 6; k++) { noise(tc + .3 + k * .45, .5, .12, 400, 8000); blip("sine", hz(84 + [0, 7, 12, 16, 19, 24][k]), tc + .3 + k * .45, .6, .08); }
+    },
     heart() { if (!this.ok()) return; const t = actx.currentTime; blip("sine", 70, t, .14, .5, 42); blip("sine", 62, t + .2, .16, .42, 38); },
     nope() { if (!this.ok()) return; const t = actx.currentTime; blip("square", 150, t, .09, .08, 110); blip("square", 120, t + .09, .12, .08, 90); },
     // power grows with lines cleared at once and with the combo streak.
@@ -4274,12 +4347,14 @@ window.Scene = (() => {
   };
   // Vibration through the Android app shell when available.
   function buzz(ms) {
-    if (!sfxOn) return;
+    if (!sfxOn || vol("vib") <= 0) return;
+    ms = Math.max(5, Math.round(ms * vol("vib")));
     try { if (window.BAUNative && BAUNative.vibrate) BAUNative.vibrate(ms); else if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {}
   }
   // v23: strong patterns for big moments [on, off, on, …] in ms, at full strength on Android.
   function buzzPattern(pat) {
-    if (!sfxOn) return;
+    if (!sfxOn || vol("vib") <= 0) return;
+    pat = pat.map((v, i) => (i % 2 ? v : Math.max(5, Math.round(v * vol("vib")))));
     try { if (window.BAUNative && BAUNative.vibratePattern) BAUNative.vibratePattern(pat.join(",")); else if (navigator.vibrate) navigator.vibrate(pat); else buzz(pat[0]); } catch (e) {}
   }
   const BUZZ_COMBO = { 2: [70, 50, 110], 3: [90, 40, 90, 40, 180] }, BUZZ_WIN = [120, 70, 120, 70, 320];
@@ -4938,7 +5013,7 @@ window.Scene = (() => {
     const p = S.tray[ti];
     if (!p || !canPlace(S.board, S.n, p.cells, r0, c0)) return false;
     // Story: remember the state before this move so it can be undone (2 per phase).
-    if (S.mode === "story" || S.mode === "puzzle") { const snap = { ...S }; delete snap.undoSnap; S.undoSnap = JSON.stringify(snap); }
+    if (S.mode === "story" || S.mode === "puzzle" || canBankUndo()) { const snap = { ...S }; delete snap.undoSnap; S.undoSnap = JSON.stringify(snap); }
     for (const [r, c] of p.cells) S.board[(r0 + r) * S.n + c0 + c] = p.color;
     S.tray[ti] = null;
     selected = -1;
@@ -5006,6 +5081,14 @@ window.Scene = (() => {
     }
 
     S.holdLock = false;
+    if (canBankUndo()) {
+      const m = Math.floor(S.score / UNDO_EVERY);
+      if (m > (S.undoMile || 0)) {
+        const before = S.undoBank || 0; S.undoBank = Math.min(UNDO_MAX, before + m - (S.undoMile || 0)); S.undoMile = m;
+        if (S.undoBank > before) setTimeout(() => fx("lvl", `↶ +1 desfazer<small>${S.undoBank} de ${UNDO_MAX} · ganhe 1 a cada ${UNDO_EVERY} pontos</small>`, midTop + 60, 1600), lines ? 700 : 200);
+        renderUndo();
+      }
+    }
     if (S.mode === "puzzle" && !S.board.includes(0)) { S.over = true; renderTray(); renderScore(); store.del("game.puzzle"); setTimeout(puzzleWin, 350); return true; }
     if (S.mode === "story") {
       checkPowerEarned();
@@ -5013,7 +5096,7 @@ window.Scene = (() => {
       if (storyDone()) {
         S.over = true;
         renderTray(); renderScore();
-        setTimeout(storyWin, lines ? 800 : 300);
+        winSoon(lines ? 800 : 300);
         return true;
       }
       if (bossTick()) {
@@ -5030,6 +5113,51 @@ window.Scene = (() => {
     checkStuck(lines ? 800 : 400, lines);
     return true;
   }
+  // ---------- v27: special items (story, from world 2) ----------
+  const ITEMS = { bomb: ["💣", "Bomba", "Explode um quadrado 3×3, até pedras e bombas"], pick: ["⛏️", "Picareta", "Quebra qualquer bloco de uma vez, até pedra"], rainbow: ["🌈", "Arco-íris", "Completa a linha que você tocar e ela some"] };
+  const ITEM_MAX = 9;
+  const itemInv = () => store.get("items", { bomb: 0, pick: 0, rainbow: 0 });
+  const itemTotal = () => { const v = itemInv(); return (v.bomb || 0) + (v.pick || 0) + (v.rainbow || 0); };
+  const itemsAllowed = () => !!S && S.mode === "story" && !S.daily && S.level > LEVELS_PER_WORLD;
+  function giveItem(k, n) { const v = itemInv(); v[k] = Math.min(ITEM_MAX, (v[k] || 0) + (n || 1)); store.set("items", v); }
+  function renderItems() {
+    const v = itemInv();
+    $("items-list").innerHTML = Object.entries(ITEMS).map(([k, [ico, name, desc]]) => `<li><span class="ico">${ico}</span><span class="txt"><b>${name}</b><small>${desc}</small></span><button class="buy${v[k] ? "" : " poor"}" data-k="${k}" ${v[k] ? "" : "disabled"}>Usar · ${v[k] || 0}</button></li>`).join("");
+  }
+  $("btn-items").addEventListener("click", () => { if (!S || S.over) return; if (S.itemAim) { S.itemAim = null; document.body.classList.remove("item-aim"); renderHold(); return; } sfx.ui(); renderItems(); $("items").hidden = false; });
+  $("items-close").addEventListener("click", () => { $("items").hidden = true; });
+  $("items-list").addEventListener("click", (e) => {
+    const b = e.target.closest(".buy"); if (!b || b.disabled) return;
+    $("items").hidden = true; S.itemAim = b.dataset.k; selected = -1; document.body.classList.add("item-aim"); renderHold(); sfx.grab();
+    fx("lvl", `${ITEMS[S.itemAim][0]} ${ITEMS[S.itemAim][1]}<small>Toque no tabuleiro</small>`, $("board").clientHeight / 2 - 20, 1400);
+  });
+  function useItem(i) {
+    const k = S.itemAim, n = S.n, r = Math.floor(i / n), c = i % n, inv = itemInv();
+    if (!k || !inv[k]) return;
+    let cells = [];
+    if (k === "bomb") { for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) { const rr = r + dr, cc = c + dc; if (rr >= 0 && cc >= 0 && rr < n && cc < n) cells.push(rr * n + cc); } }
+    else if (k === "pick") { if (!S.board[i]) { sfx.nope(); return; } cells = [i]; }
+    else for (let cc = 0; cc < n; cc++) { const j = r * n + cc; if (!S.board[j]) S.board[j] = S.rules === "sudoku" ? 3 : 1 + (cc % 6); cells.push(j); }
+    inv[k]--; store.set("items", inv);
+    S.itemAim = null; document.body.classList.remove("item-aim");
+    const pts = [], cracked = [];
+    for (const j of cells) {
+      const v = S.board[j]; if (!v) continue;
+      if (k === "rainbow" && v === STONE) { S.board[j] = CRACK; cracked.push(j); continue; }
+      bossHit(j);
+      const rc = cellEls[j].getBoundingClientRect();
+      pts.push({ x: rc.left + rc.width / 2, y: rc.top + rc.height / 2, size: rc.width, color: Skins.colorOf(v), tex: Skins.texOf(v) });
+      S.board[j] = 0;
+    }
+    S.score += pts.length * 10;
+    renderBoard(); if (cracked.length) crackFx(cracked);
+    if (pts.length) Scene.explode(pts, k === "bomb" ? 6 : 3, Skins.material());
+    if (k === "bomb") { Scene.hitstop(90); shake(true); sfx.clear(4, 1); buzzPattern([120, 50, 160]); } else { sfx.clear(2, 1); shake(false); buzz(60); }
+    S.marks = S.board.filter((x) => x === MARK).length;
+    renderScore(); renderTray();
+    if (storyDone()) { S.over = true; renderTray(); winSoon(700); return; }
+    checkStuck(500, 0);
+  }
   // ---------- v24: hold a piece, rotate once per phase, danger warning ----------
   const holdAllowed = () => !!S && S.mode !== "tetris" && S.mode !== "puzzle" && !(S.mode === "story" && !S.daily && S.level <= LEVELS_PER_WORLD);
   const ROTATES = 1;
@@ -5041,7 +5169,8 @@ window.Scene = (() => {
     if (left.some(fitsAnywhere) || (holdAllowed() && S.hold && !S.holdLock && fitsAnywhere(S.hold))) return;
     const mid = $("board").clientHeight / 2;
     // In story mode an unused power or the rotation keeps the level alive.
-    if (rotLeft() > 0 && left.some((p) => fitsAnywhere(rotatePiece(p)))) setTimeout(() => fx("lvl", "Sem espaço!<small>Gire uma peça</small>", mid, 2000), lines ? 800 : 300);
+    if (itemsAllowed() && itemTotal() > 0) setTimeout(() => fx("lvl", "Sem espaço!<small>Use um item 🎒</small>", mid, 2000), lines ? 800 : 300);
+    else if (rotLeft() > 0 && left.some((p) => fitsAnywhere(rotatePiece(p)))) setTimeout(() => fx("lvl", "Sem espaço!<small>Gire uma peça</small>", mid, 2000), lines ? 800 : 300);
     else if (S.mode === "story" && S.power > 0) setTimeout(() => fx("lvl", "Sem espaço!<small>Use o poder</small>", mid, 2000), lines ? 800 : 300);
     else overTimer = setTimeout(gameOver, delay);
   }
@@ -5058,6 +5187,9 @@ window.Scene = (() => {
     r.hidden = !rs;
     if (rs) { $("rot-n").textContent = Math.max(0, rotLeft()); r.disabled = rotLeft() <= 0 || !!S.over; r.classList.toggle("aim", rotAim); }
     document.body.classList.toggle("rot-aim", rotAim);
+    const ib = $("btn-items"), ia = itemsAllowed();
+    ib.hidden = !ia;
+    if (ia) { $("items-n").textContent = itemTotal(); ib.disabled = !!S.over || (itemTotal() === 0 && !S.itemAim); ib.classList.toggle("aim", !!S.itemAim); }
   }
   function doHold(ti) {
     if (!holdAllowed() || S.over || S.powerTaps > 0) return;
@@ -5205,7 +5337,7 @@ window.Scene = (() => {
     renderScore();
     if ((S.goal === "clear" && S.marks === 0) || (S.goal === "boss" && storyDone())) {
       S.powerTaps = 0; S.over = true; renderPower();
-      setTimeout(storyWin, 700);
+      winSoon(700);
       return;
     }
     if (S.powerTaps === 0) afterPower(); else { renderPower(); save(); }
@@ -5231,17 +5363,44 @@ window.Scene = (() => {
     $("win-story").hidden = true;
     $("btn-continue").hidden = !(story && kind === "lose" && !S.continued);
     $("btn-help").hidden = !(story && !S.daily && kind === "lose" && (store.get("story.fails", {})[S.level] || 0) >= 3);
-    $("btn-undo-over").hidden = !(story && kind === "lose" && S.undoSnap && undosLeft() > 0);
+    $("btn-undo-over").hidden = !((story || canBankUndo()) && kind === "lose" && S.undoSnap && undosLeft() > 0);
     if (!$("btn-undo-over").hidden) $("btn-undo-over").textContent = `Desfazer última jogada (${undosLeft()})`;
     $("over").hidden = false;
     (!$("btn-continue").hidden ? $("btn-continue") : $("btn-next").hidden ? $("btn-again") : $("btn-next")).focus();
+  }
+  // v27: beating a boss plays its last explosion in slow motion; the final boss gets a light show.
+  function winSoon(delay) {
+    if (S.mode !== "story" || S.daily || S.goal !== "boss") return setTimeout(storyWin, delay);
+    const fin = S.boss === "final";
+    setTimeout(() => {
+      if (!S) return;
+      const pts = [];
+      S.board.forEach((v, i) => { if (!v) return; const rc = cellEls[i].getBoundingClientRect(); pts.push({ x: rc.left + rc.width / 2, y: rc.top + rc.height / 2, size: rc.width, color: Skins.colorOf(v), tex: Skins.texOf(v) }); });
+      S.board.fill(0);
+      const wrap = $("board-wrap"); wrap.classList.add("ko");
+      Scene.slowmo(.28, fin ? 2200 : 1500);
+      renderBoard(); if (pts.length) Scene.explode(pts, 8, Skins.material());
+      const br = $("board").getBoundingClientRect(); Scene.celebrate(br.left + br.width / 2, br.top + br.height * .4);
+      sfx.bossWin(fin); buzzPattern(fin ? [200, 80, 200, 80, 400] : [150, 60, 300]);
+      fx("lvl", fin ? "🐉 Chefe final derrotado!" : "👑 Chefe derrotado!", $("board").clientHeight / 2 - 20, fin ? 3200 : 2000);
+      if (fin) lightShow(br);
+      setTimeout(() => wrap.classList.remove("ko"), fin ? 3400 : 1900);
+      setTimeout(storyWin, fin ? 3900 : 2300);
+    }, delay);
+  }
+  function lightShow(br) {
+    const ls = $("lightshow"); ls.hidden = false; ls.classList.remove("on"); void ls.offsetWidth; ls.classList.add("on");
+    const rc = { x: br.left, y: br.top - 40, w: br.width, h: br.height };
+    for (let k = 0; k < 7; k++) setTimeout(() => Scene.special("fx-fireworks", rc, 8), 250 + k * 420);
+    for (let k = 0; k < 3; k++) setTimeout(() => Scene.confetti(br.left + br.width * (k + .5) / 3, br.top, 50), 600 + k * 700);
+    setTimeout(() => { ls.hidden = true; ls.classList.remove("on"); }, 3800);
   }
   function storyWin() {
     if (S.daily) return dailyWin();
     store.del("game.story");
     music.stop(); music.want = null;
     sfx.record(); buzzPattern(BUZZ_WIN);
-    const best = storyBest();
+    const best = storyBest(), firstWin = best[S.level] == null;
     best[S.level] = Math.max(best[S.level] || 0, S.score);
     store.set("story.best", best);
     { const f = store.get("story.fails", {}); if (f[S.level]) { delete f[S.level]; store.set("story.fails", f); } }
@@ -5260,6 +5419,11 @@ window.Scene = (() => {
     const w = worldOf(S.level), medals = store.get("story.medals", {}), medal = worldMedal(w, st);
     if (medal && (MEDAL_RANK[medal] || 0) > (MEDAL_RANK[medals[w]] || 0)) { medals[w] = medal; store.set("story.medals", medals); rewards.push(`Medalha de ${MEDAL_NAME[medal]} · Mundo ${w + 1}`); }
     for (const [, name, need] of Skins.KINDS) if (need && starsBefore < need && starsAfter >= need) rewards.push(`Nova textura: ${name}`);
+    // v27: special items for phases 5, 10, 15 and 20 (the first time), from the end of world 1 on.
+    if (firstWin && S.level % 5 === 0 && S.level >= LEVELS_PER_WORLD) {
+      if (S.level === LEVELS_PER_WORLD) { for (const k in ITEMS) giveItem(k); rewards.push("Itens especiais: 💣 ⛏️ 🌈 (+1 de cada)"); }
+      else { const k = ["bomb", "pick", "rainbow"][(S.level / 5) % 3]; giveItem(k); rewards.push(`Item: ${ITEMS[k][0]} ${ITEMS[k][1]}`); }
+    }
 
     const why = S.goal === "boss" ? "Você derrotou o chefe do mundo!" : S.goal === "clear" ? "Você destruiu todos os blocos marcados." : S.goal === "multi" ? `Você destruiu ${S.need} linhas de uma vez!` : S.goal === "blocks" ? `Você colocou ${S.need} blocos.` : S.goal === "moves" ? `Você fez ${S.need} jogadas sem perder.` : `Você bateu a meta de ${fmt(S.target)} pontos.`;
     overlay("win", `Fase ${S.level} concluída!`, why);
@@ -5332,6 +5496,36 @@ window.Scene = (() => {
     $("over-rank").textContent = rank ? `${rank}º lugar no ranking do modo ${MODES[S.mode].label}` : `Recorde: ${fmt(prev)}`;
   }
 
+  // ---------- v27: weather that follows the block material ----------
+  const WX = { wood: "leaves", grass: "leaves", moss: "leaves", rain: "rain", bolt: "rain", electric: "sparks", future: "sparks", metal: "sparks",
+    water: "bubbles", coral: "bubbles", ice: "snow", snow: "snow", cloud: "snow", lava: "embers", smoke: "ash", brick: "ash",
+    sand: "dust", cement: "dust", leather: "dust", marble: "sparkles", crystal: "sparkles", gold: "sparkles", galaxy: "sparkles", stained: "sparkles", candy: "petals" };
+  const WX_LEAF = { wood: "#d9823a", grass: "#8fbf4a", moss: "#6f9a3a" };
+  {
+    const box = $("weather");
+    for (let i = 0; i < 18; i++) {
+      const d = document.createElement("i");
+      d.style.cssText = `--x:${(i * 37 + 11) % 100}vw;--y:${(i * 53) % 70}vh;--d:${(6 + (i * 7) % 6).toFixed(1)}s;--dl:-${((i * 1.9) % 9).toFixed(1)}s;--s:${4 + (i % 4)}px`;
+      box.appendChild(d);
+    }
+  }
+  function setWeather(mat) {
+    const on = store.get("weather", true);
+    document.body.classList.toggle("wx-on", !!on && !!WX[mat]);
+    document.body.dataset.wx = WX[mat] || "";
+    if (WX_LEAF[mat]) $("weather").style.setProperty("--wxc", WX_LEAF[mat]);
+  }
+  function renderWx() { $("wx-toggle").setAttribute("aria-checked", String(!!store.get("weather", true))); }
+  $("wx-toggle").addEventListener("click", () => { store.set("weather", !store.get("weather", true)); renderWx(); setWeather(Skins.material()); sfx.ui(); });
+  renderWx();
+  setTimeout(() => { if (!$("menu").hidden) setWeather(menuScene ? sceneMat(menuScene) : "galaxy"); }, 0);
+  // ---------- v27: volume sliders ----------
+  function renderVolume() { for (const k of ["music", "sfx", "vib"]) { const v = Math.round(vol(k) * 100); $("vol-" + k).value = v; $("vol-" + k + "-v").textContent = v + "%"; } }
+  for (const k of ["music", "sfx", "vib"]) {
+    $("vol-" + k).addEventListener("input", (e) => { store.set("vol." + k, +e.target.value); $("vol-" + k + "-v").textContent = e.target.value + "%"; applyVolume(); });
+    $("vol-" + k).addEventListener("change", () => { if (k === "sfx") sfx.place(); if (k === "vib") buzz(80); });
+  }
+  renderVolume();
   // ---------- v26: how high the piece floats above the finger ----------
   function renderLift() { const v = store.get("dragLift", "mid"); document.querySelectorAll("#lift-pick button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.v === v))); }
   $("lift-pick").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; store.set("dragLift", b.dataset.v); renderLift(); sfx.ui(); });
@@ -5348,6 +5542,7 @@ window.Scene = (() => {
     boss_ice: ["Chefe: gelo", "A cada 5 jogadas um bloco de gelo aparece. Derreta os gelos limpando as linhas onde eles estão.", MINI([10, 21, 42, 53], 8, [])],
     boss_bomb: ["Chefe: bombas", "Cada bomba tem um número que diminui a cada jogada. Limpe a linha ou coluna da bomba antes de chegar a zero, ou ela explode!", MINI([24, 25, 26, 28, 29, 30, 31], 8, [27])],
     boss_ghost: ["Chefe: fantasmas", "Os fantasmas mudam de casa a cada 2 jogadas. Pegue-os limpando a linha em que estão.", MINI([], 8, [])],
+    items: ["Itens especiais 🎒", "A partir do Mundo 2 você ganha itens nas fases 5, 10, 15 e 20: 💣 Bomba (explode 3×3), ⛏️ Picareta (quebra qualquer bloco, até pedra) e 🌈 Arco-íris (completa uma linha). Toque em 🎒 para usar.", `<svg viewBox="0 0 120 120"><text x="60" y="78" text-anchor="middle" font-size="56">🎒</text></svg>`],
     boss_final: ["Chefe final!", "Pedras, bombas e fantasmas juntos. Pedras precisam de 2 linhas, bombas têm contador e fantasmas andam. Destrua todos — use Guardar, Girar e o Poder com calma.", MINI([20, 43], 8, [12, 51])],
   };
   const tipQ = [];
@@ -5369,6 +5564,7 @@ window.Scene = (() => {
     if (S.mode === "timed") showTip("timed");
     if (S.mode === "puzzle") showTip("puzzle");
     if (S.mode === "story" && S.goal === "boss") showTip("boss_" + (S.boss || "stone"));
+    if (itemsAllowed() && itemTotal() > 0) showTip("items");
   }
   // ---------- v24: accessibility switches ----------
   const A11Y = [["cb", "cb-toggle"], ["bigtext", "big-toggle"], ["lefty", "lefty-toggle"]];
@@ -5515,7 +5711,7 @@ window.Scene = (() => {
     if (k === "fx-fireworks" && combo < 2 && lines < 2) return;
     Scene.special(k, { x: br.left, y: br.top, w: br.width, h: br.height }, lines + (combo || 0));
   }
-  const overlayOpen = () => ["over", "tut", "tip", "settings", "t-paused", "confirm"].some((id) => !$(id).hidden);
+  const overlayOpen = () => ["over", "tut", "tip", "settings", "t-paused", "confirm", "items"].some((id) => !$(id).hidden);
   // ---------- v23: Contra o Tempo timer ----------
   const TIMED_SECONDS = 120;
   function renderTimer() {
@@ -5566,21 +5762,25 @@ window.Scene = (() => {
   // ---------- v21: undo and continue (story) ----------
   let overTimer = 0;
   const UNDOS = 2;
-  const undosLeft = () => (S.mode === "puzzle" ? 99 : UNDOS - (S.undoUsed || 0));
+  // v27: Clássico and Sudoku earn one undo every 500 points, holding at most 3.
+  const canBankUndo = () => !!S && (S.mode === "classic" || S.mode === "sudoku");
+  const UNDO_EVERY = 500, UNDO_MAX = 3;
+  const undosLeft = () => (S.mode === "puzzle" ? 99 : canBankUndo() ? S.undoBank || 0 : UNDOS - (S.undoUsed || 0));
   function renderUndo() {
-    const show = !!S && (S.mode === "story" || S.mode === "puzzle"), btn = $("btn-undo");
+    const show = !!S && (S.mode === "story" || S.mode === "puzzle" || canBankUndo()), btn = $("btn-undo");
     btn.hidden = !show;
     if (!show) return;
     $("undo-n").textContent = undosLeft();
     btn.disabled = !S.undoSnap || S.over || undosLeft() <= 0 || S.powerTaps > 0;
   }
   function undo() {
-    if (!S || (S.mode !== "story" && S.mode !== "puzzle") || !S.undoSnap || undosLeft() <= 0) return;
+    if (!S || (S.mode !== "story" && S.mode !== "puzzle" && !canBankUndo()) || !S.undoSnap || undosLeft() <= 0) return;
     clearTimeout(overTimer);
-    const used = (S.undoUsed || 0) + 1;
+    const used = (S.undoUsed || 0) + 1, bank = (S.undoBank || 0) - 1, mile = S.undoMile || 0;
     S = Object.assign(JSON.parse(S.undoSnap), { undoUsed: used, undoSnap: null, over: false });
+    if (canBankUndo()) { S.undoBank = Math.max(0, bank); S.undoMile = mile; }
     $("over").hidden = true; $("board").classList.remove("dead");
-    if (!music.track) music.play(S.mode === "puzzle" ? gameTrack("menu_satie") : storyTrack(S.level));
+    if (!music.track) music.play(S.mode === "puzzle" ? gameTrack("menu_satie") : S.mode === "story" ? storyTrack(S.level) : gameTrack(S.rules));
     selected = -1; renderBoard(); renderTray(); renderScore(); save(); sfx.ui();
     if (S.mode === "puzzle") return;
     fx("lvl", `Jogada desfeita<small>${undosLeft()} ${undosLeft() === 1 ? "restante" : "restantes"} nesta fase</small>`, $("board").clientHeight / 2 - 20, 1400);
@@ -5695,6 +5895,7 @@ window.Scene = (() => {
 
   // Tap a piece, then tap the board: the tapped cell becomes part of the piece.
   $("board").addEventListener("click", (e) => {
+    if (S && !S.over && S.itemAim) { const t = e.target.closest("[data-i]"); if (t) useItem(+t.dataset.i); return; }
     if (S && !S.over && S.powerTaps > 0) {
       const t = e.target.closest("[data-i]");
       if (t) destroyCell(+t.dataset.i);
@@ -6015,7 +6216,7 @@ window.Scene = (() => {
   // ---------- screens ----------
   let menuScene = null; // the start screen shows the chosen material's scene once one is picked
   function show(id) {
-    if (id !== "game") { document.body.classList.remove("danger", "rot-aim"); rotAim = false; }
+    if (id !== "game") { document.body.classList.remove("danger", "rot-aim", "item-aim"); rotAim = false; }
     if (id !== "tetris") tStop();
     if (id !== "game" && id !== "tetris") setModeAccent(null);
     for (const s of ["menu", "records", "levels", "game", "tetris"]) $(s).hidden = s !== id;
@@ -6023,7 +6224,7 @@ window.Scene = (() => {
     $("board").classList.remove("dead"); $("t-board").classList.remove("dead");
     $("t-paused").hidden = true; $("settings").hidden = true;
     // The start screen floats through space; records and levels keep the wood room.
-    if (id === "menu") Scene.set(menuScene || "deepspace");
+    if (id === "menu") { Scene.set(menuScene || "deepspace"); try { setWeather(menuScene ? sceneMat(menuScene) : "galaxy"); } catch (e) {} }
     else if (id !== "game" && id !== "tetris") Scene.set(null);
     $("over").hidden = true;
   }
@@ -6327,7 +6528,7 @@ window.Scene = (() => {
     bs.setProperty("--tray-img", `url(${Skins.texture(k, mixHex(base, acc, .3, .7), st)})`);
     document.body.classList.add("boarded");
   }
-  const applySkin = () => { applySkinOnly(); applyBoard(); };
+  const applySkin = () => { applySkinOnly(); applyBoard(); applySkinWx(); };
   const applySkinOnly = () => {
     if (S && S.mode === "story") {
       const wo = Scene.worlds[worldOf(S.level)], [k, a, b] = WORLD_SKIN[wo.id], i = (S.level - 1) % LEVELS_PER_WORLD, sh = wo.v * 5;
@@ -6335,6 +6536,7 @@ window.Scene = (() => {
     }
     Skins.apply(S ? S.mat || chosenSkin() : chosenSkin(), S ? paletteFor() : 0);
   };
+  const applySkinWx = () => { try { setWeather(Skins.material()); } catch (e) {} };
   // ---------- v21: first-time tutorial (also in Settings → Como jogar) ----------
   const TUT = [
     ["Arraste as peças", "Toque numa peça embaixo e arraste até o tabuleiro. Se a peça ficar colorida, ela cabe ali; se ficar vermelha, não cabe.",
@@ -6454,7 +6656,7 @@ window.Scene = (() => {
 
   // Hooks used by the Android app shell.
   window.blockAltUnoBack = () => {
-    for (const id of ["confirm", "shop", "settings", "puzzles", "daily", "levels-x"].filter((x) => $(x))) if (!$(id).hidden) { $(id).hidden = true; if (id === "shop") music.play(menuTrack()); return true; }
+    for (const id of ["confirm", "items", "shop", "settings", "puzzles", "daily", "levels-x"].filter((x) => $(x))) if (!$(id).hidden) { $(id).hidden = true; if (id === "shop") music.play(menuTrack()); return true; }
     if (!$("tip").hidden) { $("tip-ok").click(); return true; }
     if (!$("t-paused").hidden) { if (S && S.mode === "tetris") tResume(); else $("t-paused").hidden = true; return true; }
     if (!$("menu").hidden) return false;
