@@ -2,12 +2,16 @@ package com.blockaltuno.game;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.os.VibratorManager;
@@ -16,6 +20,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -173,6 +179,49 @@ public class MainActivity extends Activity {
                 ed.commit();
             } catch (Exception ignored) {
                 // Leave the old progress untouched.
+            }
+        }
+
+        /**
+         * Writes the progress file after every phase won: Downloads/BLOCK-ALT-UNO-backup.json on Android 10+
+         * (no permission needed), the app's own external folder on older phones. Returns where it went, or "".
+         */
+        @JavascriptInterface
+        public String autoBackup(String json) {
+            final String name = "BLOCK-ALT-UNO-backup.json";
+            byte[] data = json.getBytes(StandardCharsets.UTF_8);
+            SharedPreferences sys = getSharedPreferences("bau_sys", MODE_PRIVATE);
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    ContentResolver cr = getContentResolver();
+                    String saved = sys.getString("backupUri", null);
+                    if (saved != null) {
+                        try (OutputStream out = cr.openOutputStream(Uri.parse(saved), "wt")) {
+                            if (out != null) { out.write(data); return "Downloads/" + name; }
+                        } catch (Exception ignored) {
+                            // The file was deleted or moved: create a new one below.
+                        }
+                    }
+                    ContentValues v = new ContentValues();
+                    v.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
+                    v.put(MediaStore.MediaColumns.MIME_TYPE, "application/json");
+                    v.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+                    Uri uri = cr.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, v);
+                    if (uri == null) return "";
+                    try (OutputStream out = cr.openOutputStream(uri, "wt")) {
+                        if (out == null) return "";
+                        out.write(data);
+                    }
+                    sys.edit().putString("backupUri", uri.toString()).apply();
+                    return "Downloads/" + name;
+                }
+                File dir = getExternalFilesDir(null);
+                if (dir == null) return "";
+                File f = new File(dir, name);
+                try (FileOutputStream out = new FileOutputStream(f)) { out.write(data); }
+                return f.getAbsolutePath();
+            } catch (Exception e) {
+                return "";
             }
         }
 

@@ -311,3 +311,18 @@ Cada mundo alterna duas paletas entre as fases e gira a ordem das cores, então 
 - **Vibração:** padrões mais fortes nos combos ×2/×3 e na vitória (amplitude máxima no Android).
 - **Textos:** tamanhos de 9–11,5 px subiram para 10,5–13 px.
 - **Identidade:** ícone com tabuleiro escuro, borda neon cobre da História e um bloco de cada material; tela de abertura com a mesma moldura neon e blocos texturizados.
+
+## v24
+
+- **Guardar peça:** espaço "Guardar" ao lado das próximas peças. Arraste uma peça até ele, ou toque na peça e depois em Guardar. Depois de guardar, é preciso colocar uma peça antes de guardar de novo. Na História vale a partir do Mundo 2. Não existe no Tetris nem no Quebra-cabeça.
+- **Girar:** uma vez por fase da História, gira uma peça 90° (toque em Girar e depois na peça).
+- **Perigo:** com 3 ou menos encaixes possíveis, o tabuleiro brilha em vermelho, a música acelera um pouco e toca um batimento.
+- **Mão amigável:** depois de perder 3 vezes na mesma fase, aparece "Tentar com ajuda 🍀" (peças mais fáceis nessa tentativa).
+- **Chefes variados** (a fase 20 de cada mundo, em ciclo): pedra (2 linhas para quebrar), gelo (aparece um novo a cada 5 jogadas), bombas (contador; limpe a linha antes do zero) e fantasmas (mudam de casa a cada 2 jogadas).
+- **Quebra-cabeça:** 24 desenhos × 2 cortes = 48. As peças cobrem o desenho exatamente; não há linhas. Desfazer ilimitado; a dica mostra o lugar certo. Cada desenho novo vale +1 ★.
+- **Diário:** sequência de dias 🔥 (7 dias seguidos = +3 ★) e 3 missões por semana (+2 ★ cada), sorteadas pela semana do calendário.
+- **Loja:** novas abas Formatos (quadradão, cantos suaves, bolinhas, gemas), Sons (sino, piano, tambor), Placar (clássico, digital, desenhado) e Fundos (pôr do sol, noite estrelada, aurora).
+- **Abertura de mundo:** cartão grande com número, nome, textura e música do mundo.
+- **Placar:** os números sobem contando; ao bater o recorde, o placar brilha e solta confete.
+- **Acessibilidade:** modo daltônico (símbolos ●▲■◆★✚ nas cores), texto grande e modo canhoto (peça à direita do dedo, botões invertidos).
+- **Backup automático:** depois de cada fase vencida, o progresso é gravado em Downloads/BLOCK-ALT-UNO-backup.json (Android 10+) ou na pasta do app (Android 8–9). Dá para desligar em Ajustes.

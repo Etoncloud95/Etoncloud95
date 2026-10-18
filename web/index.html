@@ -1,7 +1,7 @@
 <title>BLOCK ALT UNO</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="23">
+<meta name="bau-version" content="24">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -237,6 +237,10 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
 .scores .best b { color: var(--amber); }
 .scores .now { font-family: var(--font-display); font-weight: 800; font-size: 44px; line-height: 1; transition: color .3s; }
 .scores .now.rec { color: var(--gold); }
+.scores .now.bump { animation: scorebump .28s ease-out; }
+@keyframes scorebump { 40% { transform: scale(1.12); } }
+.scores .now.recfx { animation: recglow 1.6s ease-out; }
+@keyframes recglow { 0% { transform: scale(1); } 15% { transform: scale(1.35); text-shadow: 0 0 18px #ffd36b, 0 0 36px #ff9a3a; } 60% { text-shadow: 0 0 12px #ffd36b; } 100% { transform: none; } }
 .mode-label { font-size: 12.5px; color: var(--muted); letter-spacing: .2em; text-transform: uppercase; }
 .mode-label b { color: var(--ink); }
 .level-bar { width: 100%; height: 6px; border-radius: 6px; background: rgba(255,255,255,.07); overflow: hidden; }
@@ -333,6 +337,33 @@ h1.wordmark .wm { display: inline-block; background-size: 140% auto; background-
 .wpath { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(4, auto); gap: 10px 6px; padding: 6px 4px 10px; }
 .wpath svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .wpath .lv { justify-self: center; width: min(58px, 100%); border-radius: 50%; z-index: 1; }
+.tools-row { width: 100%; display: flex; align-items: center; gap: 8px; height: 34px; }
+.tools-row .next-row { flex: 1; width: auto; }
+.hold, .rot-btn { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 8px; border-radius: 10px; background: rgba(0,0,0,.28); color: var(--muted); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; }
+.hold-box { min-width: 34px; height: 26px; display: grid; place-items: center; border: 1.5px dashed rgba(255,255,255,.28); border-radius: 7px; }
+.hold-box .piece.mini { gap: 1px; } .hold-box .piece.mini i { width: 6px; height: 6px; border-radius: 1.5px; }
+.hold.ready { box-shadow: 0 0 0 2px var(--gold); color: var(--gold); }
+.hold.locked { opacity: .5; }
+.hold.drop { box-shadow: 0 0 0 3px var(--gold), 0 0 14px rgba(255,211,107,.6); }
+.rot-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
+.rot-btn i { font-style: normal; min-width: 18px; height: 18px; border-radius: 9px; background: var(--gold); color: #3a2410; display: grid; place-items: center; font-size: 11px; }
+.rot-btn.aim { box-shadow: 0 0 0 2px var(--gold); color: var(--gold); animation: willpulse .6s ease-in-out infinite alternate; }
+.rot-btn:disabled { opacity: .4; }
+body.rot-aim #tray .slot .piece { animation: hintbob .5s ease-in-out infinite alternate; }
+/* v24 danger: few moves left */
+#board-wrap::after { content: ""; position: absolute; inset: -6px; border-radius: 20px; pointer-events: none; opacity: 0; box-shadow: inset 0 0 30px rgba(255,40,40,.6), 0 0 22px rgba(255,40,40,.5); }
+body.danger #board-wrap::after { animation: dangerpulse .9s ease-in-out infinite alternate; }
+@keyframes dangerpulse { from { opacity: .3; } to { opacity: 1; } }
+.lite.danger #board-wrap::after { animation: none; opacity: .8; }
+/* v24 bosses: ice, bombs, ghosts */
+#board .cell.c12 { background-color: #bfe8f8 !important; background-image: linear-gradient(135deg, rgba(255,255,255,.85) 0 18%, transparent 19% 45%, rgba(255,255,255,.35) 46% 52%, transparent 53%), linear-gradient(180deg, #e6f8ff, #8fcbe6) !important; background-size: 100% 100% !important; box-shadow: inset 0 0 0 2px rgba(255,255,255,.7), inset 0 -4px 0 rgba(40,110,150,.35) !important; }
+#board .cell.c13 { background-color: #2b2b30 !important; background-image: radial-gradient(circle at 50% 56%, #3b3b42 0 42%, #17171a 43% 47%, transparent 48%), radial-gradient(circle at 70% 18%, #ffb347 0 7%, #ff5a1a 8% 12%, transparent 13%) !important; background-size: 100% 100% !important; box-shadow: inset 0 3px 0 rgba(255,255,255,.18), inset 0 -4px 0 rgba(0,0,0,.4) !important; }
+#board .cell.c13::after { content: attr(data-n); position: absolute; inset: 0; display: grid; place-items: center; padding-top: 12%; font-family: var(--font-display); font-weight: 900; font-size: calc(var(--cell) * .42); color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,.6); }
+#board .cell.c13.hot::after { color: #ff5a4a; animation: willpulse .4s ease-in-out infinite alternate; }
+#board .cell.c15 { background-color: #d9d2ff !important; background-image: radial-gradient(circle at 36% 42%, #2a1d40 0 9%, transparent 10%), radial-gradient(circle at 64% 42%, #2a1d40 0 9%, transparent 10%), radial-gradient(ellipse at 50% 70%, #2a1d40 0 7%, transparent 8%), linear-gradient(180deg, #f4f0ff, #b9aef0) !important; background-size: 100% 100% !important; box-shadow: inset 0 0 0 2px rgba(255,255,255,.6), 0 0 10px rgba(190,170,255,.6) !important; animation: ghostbob 1.6s ease-in-out infinite alternate; }
+@keyframes ghostbob { to { transform: translateY(-2px); } }
+.lite #board .cell.c15 { animation: none; }
+#board .cell.frost { animation: crackhit .45s ease-out; }
 .next-row { width: 100%; display: flex; align-items: center; justify-content: flex-end; gap: 8px; height: 18px; color: var(--muted); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; }
 #next-tray { display: flex; gap: 10px; align-items: center; opacity: .8; }
 #next-tray .piece.mini { gap: 1px; }
@@ -359,6 +390,39 @@ body[data-mode="classic"] { --mode-accent: #eaa53c; }
 body[data-mode="sudoku"] { --mode-accent: #3fb59a; }
 body[data-mode="timed"] { --mode-accent: #3fa9f5; --tray-over: repeating-radial-gradient(circle at 50% 50%, rgba(63,169,245,.14) 0 3px, transparent 3px 16px), linear-gradient(rgba(0,14,30,.32), rgba(0,14,30,.42)); }
 body.hurry .mode-label { color: var(--danger) !important; animation: willpulse .5s ease-in-out infinite alternate; }
+.wide-row { display: flex; gap: 10px; }
+.streak { display: flex; align-items: baseline; justify-content: center; gap: 8px; }
+.streak .fire { font-size: 28px; } .streak b { font-family: var(--font-display); font-size: 40px; color: var(--gold); line-height: 1; } .streak span:last-child { font-size: 14px; opacity: .85; }
+.streak-dots { display: flex; justify-content: center; gap: 8px; }
+.streak-dots i { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 13px; font-weight: 800; background: rgba(255,255,255,.08); color: rgba(255,255,255,.5); }
+.streak-dots i.on { background: linear-gradient(180deg, #ffb347, #e0602a); color: #fff; box-shadow: 0 0 10px rgba(255,140,60,.6); }
+.streak-dots i.gift { font-size: 15px; }
+.missions { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.missions li { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; padding: 9px 10px; border-radius: 12px; background: rgba(0,0,0,.22); }
+.missions b { font-size: 14px; } .missions small { font-size: 12px; opacity: .75; }
+.missions .bar { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: rgba(255,255,255,.1); overflow: hidden; }
+.missions li { text-align: left; }
+.missions .bar .fill { display: block; height: 100%; background: linear-gradient(90deg, #ffd36b, #eaa53c); }
+.missions .claim { padding: 7px 10px; border-radius: 10px; font-weight: 800; font-size: 13px; background: var(--gold); color: #3a2410; }
+.missions .claim:disabled { background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); }
+#btn-daily.reward { position: relative; } #btn-daily.reward::after { content: ""; position: absolute; top: 6px; right: 10px; width: 9px; height: 9px; border-radius: 50%; background: #ff5a4a; box-shadow: 0 0 6px #ff5a4a; }
+.wide-row .mode-wide { flex: 1; min-width: 0; gap: 7px; padding-inline: 9px; }
+.wide-row .mode-wide b { font-size: clamp(12.5px, 1.75vh, 15px); line-height: 1.05; }
+.wide-row .mode-wide small { font-size: 11.5px; }
+.wide-row .mode-wide .rec em { display: none; }
+.wide-row .mode-wide svg { width: 22px; height: 22px; }
+.wide-row .mode-wide .rec strong { font-size: 16px; }
+.mode-wide.puzzle { background: linear-gradient(120deg, #c0508a, #5a1f4a); }
+body[data-mode="puzzle"] { --mode-accent: #e070aa; }
+body[data-mode="puzzle"] .lvl-part { display: none; }
+body[data-mode="puzzle"] #board .cell:not(.b) { box-shadow: inset 0 0 0 2px rgba(255,190,225,.4), inset 0 2px 3px rgba(80,45,15,.35); }
+#board .cell.c16 { background: transparent !important; background-image: none !important; box-shadow: none !important; opacity: .18; }
+#board .cell.c16::after { content: ""; position: absolute; inset: 35%; border-radius: 50%; background: rgba(255,255,255,.25); }
+.pz-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; overflow-y: auto; max-height: 56vh; padding: 2px; }
+.pz { position: relative; display: grid; justify-items: center; gap: 4px; padding: 8px 4px 6px; border-radius: 12px; background: rgba(0,0,0,.25); color: inherit; font-size: 11.5px; line-height: 1.15; }
+.pz canvas { width: 40px; height: 40px; image-rendering: pixelated; }
+.pz.done { box-shadow: inset 0 0 0 2px var(--gold); } .pz.done::after { content: "✓"; position: absolute; top: 4px; right: 7px; color: var(--gold); font-weight: 900; }
+.pz:disabled { opacity: .35; }
 .mode-wide { display: flex; align-items: center; gap: 10px; padding: clamp(6px, 1vh, 10px) 12px; border-radius: 16px; text-align: left;
   background: linear-gradient(120deg, #2f7fc8, #173a66); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 5px 0 rgba(0,0,0,.4); }
 .mode-wide svg { width: 28px; height: 28px; flex: none; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; }
@@ -371,8 +435,8 @@ body.hurry .mode-label { color: var(--danger) !important; animation: willpulse .
 .menu-row.four { gap: 7px; }
 .menu-row.four .btn { flex-direction: column; gap: 3px; padding: clamp(6px, 1vh, 10px) 4px; font-size: 12.5px; min-width: 0; }
 .shop-bal { text-align: center; margin: 0; } .shop-bal b { color: var(--gold); font-size: 20px; } .shop-bal small { display: block; font-size: 12px; opacity: .75; margin-top: 2px; }
-.shop-tabs { display: flex; gap: 6px; }
-.shop-tab { flex: 1; padding: 8px 4px; border-radius: 10px; font-weight: 700; font-size: 13px; color: inherit; background: rgba(255,255,255,.07); }
+.shop-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.shop-tab { flex: 1 0 22%; padding: 8px 4px; border-radius: 10px; font-weight: 700; font-size: 13px; color: inherit; background: rgba(255,255,255,.07); }
 .shop-tab[aria-selected="true"] { background: var(--gold); color: #3a2410; }
 .shop-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .shop-list li { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 12px; background: rgba(0,0,0,.22); }
@@ -399,6 +463,14 @@ body.frame-lava #board, body.frame-lava .tboard { outline: 4px solid #ff8a2a; ou
 #board .cell.cracking { animation: crackhit .45s ease-out; }
 @keyframes crackhit { 0% { transform: scale(1); filter: brightness(1.8); } 40% { transform: scale(.88) rotate(-4deg); } 100% { transform: none; filter: none; } }
 .lv.boss { box-shadow: 0 0 0 2px #ffd36b, 0 0 14px rgba(255,211,107,.55) !important; }
+#world-card { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; pointer-events: none; background: radial-gradient(circle, rgba(0,0,0,.55), rgba(0,0,0,.2) 70%); animation: wcfade 2.8s ease forwards; }
+#world-card .wc { display: grid; justify-items: center; gap: 10px; padding: 26px 34px; border-radius: 24px; background: rgba(20,12,8,.88); box-shadow: 0 0 0 2px #ff9d4a, 0 0 26px rgba(255,140,60,.6); animation: wcpop 2.8s var(--ease-pop, ease-out) forwards; }
+.wc-k { font-size: 13px; letter-spacing: .3em; text-transform: uppercase; color: #ffb766; }
+.wc-tile { width: 76px; height: 76px; border-radius: 16px; background-size: cover; box-shadow: inset 0 3px 0 rgba(255,255,255,.3), 0 6px 0 rgba(0,0,0,.45); }
+.wc-name { font-family: var(--font-display); font-size: 30px; color: #f4e7d4; text-transform: uppercase; text-align: center; }
+.wc-music { font-size: 13px; opacity: .8; }
+@keyframes wcfade { 0% { opacity: 0; } 12% { opacity: 1; } 78% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes wcpop { 0% { transform: scale(.6) rotate(-4deg); } 14% { transform: scale(1.05); } 22% { transform: none; } 80% { transform: none; } 100% { transform: translateY(-30px) scale(.95); } }
 .save-row { display: flex; gap: 8px; } .save-row .btn { flex: 1; font-size: 13px; padding-inline: 6px; }
 /* v23 opening screen: neon frame of the story card + material tiles; never blocks touches */
 #splash { position: fixed; inset: 0; z-index: 99; display: grid; place-items: center; pointer-events: none;
@@ -413,6 +485,32 @@ body.frame-lava #board, body.frame-lava .tboard { outline: 4px solid #ff8a2a; ou
 .sp-logo { margin: 0; text-align: center; font-family: var(--font-display); font-size: 40px; line-height: .95; color: #f4e7d4; letter-spacing: .04em; text-shadow: 0 4px 0 rgba(0,0,0,.5); }
 .sp-logo span { display: block; font-size: 26px; color: #ffb766; text-shadow: 0 0 12px rgba(255,140,60,.8), 0 3px 0 rgba(0,0,0,.5); }
 .sp-credit { margin: 0; font-size: 13px; letter-spacing: .08em; color: rgba(244,231,212,.75); }
+/* v24 shop: block shapes, score fonts, background overlays */
+body.shape-square #board .cell.b, body.shape-square .blk, body.shape-square .tboard .cell.b { border-radius: 1px !important; }
+body.shape-soft #board .cell.b, body.shape-soft .blk, body.shape-soft .tboard .cell.b { border-radius: 32% !important; }
+body.shape-round #board .cell.b, body.shape-round .blk, body.shape-round .tboard .cell.b { border-radius: 50% !important; }
+body.shape-gem #board .cell.b, body.shape-gem .blk, body.shape-gem .tboard .cell.b { clip-path: polygon(22% 0, 78% 0, 100% 22%, 100% 78%, 78% 100%, 22% 100%, 0 78%, 0 22%); }
+body.font-serif .scores .now, body.font-serif .scores b { font-family: Georgia, "Times New Roman", serif !important; }
+body.font-mono .scores .now, body.font-mono .scores b { font-family: "Courier New", "Roboto Mono", monospace !important; letter-spacing: .04em; }
+body.font-hand .scores .now, body.font-hand .scores b { font-family: "Comic Sans MS", "Chalkboard SE", cursive !important; }
+body.bg-sunset::after, body.bg-night::after, body.bg-aurora::after { content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+body.bg-sunset::after { background: linear-gradient(180deg, rgba(255,120,60,.32), rgba(255,70,120,.14) 45%, transparent 75%); mix-blend-mode: screen; }
+body.bg-night::after { background-image: radial-gradient(1.6px 1.6px at 12% 18%, #fff, transparent), radial-gradient(1.2px 1.2px at 64% 9%, #fff, transparent), radial-gradient(1.8px 1.8px at 83% 31%, #fff, transparent), radial-gradient(1.2px 1.2px at 38% 42%, #fff, transparent), radial-gradient(1.5px 1.5px at 22% 70%, #fff, transparent), radial-gradient(1.3px 1.3px at 71% 63%, #fff, transparent), radial-gradient(1.6px 1.6px at 52% 88%, #fff, transparent), linear-gradient(rgba(10,10,40,.3), rgba(10,10,40,.3)); background-size: 220px 220px, 220px 220px, 220px 220px, 220px 220px, 220px 220px, 220px 220px, 220px 220px, 100% 100%; animation: twinkle 2.4s ease-in-out infinite alternate; }
+@keyframes twinkle { from { opacity: .6; } to { opacity: 1; } }
+body.bg-aurora::after { background: radial-gradient(ellipse 80% 40% at 30% 0%, rgba(80,255,170,.3), transparent 70%), radial-gradient(ellipse 70% 35% at 75% 8%, rgba(140,90,255,.32), transparent 70%); mix-blend-mode: screen; animation: aurora 6s ease-in-out infinite alternate; }
+@keyframes aurora { from { opacity: .55; transform: translateX(-4%); } to { opacity: 1; transform: translateX(4%); } }
+.lite body::after, body.lite::after { animation: none !important; }
+/* v24 accessibility */
+body.cb #board .cell.b::after, body.cb .blk::after, body.cb .tboard .cell.b::after { position: absolute; inset: 0; display: grid; place-items: center; color: rgba(255,255,255,.85); text-shadow: 0 1px 2px rgba(0,0,0,.7); font-weight: 900; pointer-events: none; }
+body.cb #board .cell.b::after { font-size: calc(var(--cell) * .42); } body.cb .tboard .cell.b::after { font-size: calc(var(--tcell) * .5); }
+body.cb .blk { position: relative; } body.cb .blk::after { font-size: calc(var(--m, var(--cell)) * .5); } body.cb .drag .blk::after { font-size: calc(var(--cell) * .42); }
+body.cb .c1::after { content: "●"; } body.cb .c2::after { content: "▲"; } body.cb .c3::after { content: "■"; } body.cb .c4::after { content: "◆"; } body.cb .c5::after { content: "★"; } body.cb .c6::after { content: "✚"; } body.cb .c8::after { content: "♥"; } body.cb .c9::after { content: "✱"; }
+.tboard .cell { position: relative; }
+body.bigtext small, body.bigtext .meta, body.bigtext .skins-note, body.bigtext .set-hint, body.bigtext .chal-p, body.bigtext .shop-list small, body.bigtext .missions small { font-size: 14px !important; }
+body.bigtext .chal-k, body.bigtext .next-row, body.bigtext .hold, body.bigtext .rot-btn, body.bigtext .tab, body.bigtext .pz { font-size: 13px !important; }
+body.bigtext .chal b, body.bigtext .set-label, body.bigtext .rank .sc, body.bigtext .shop-list .txt b, body.bigtext .missions b, body.bigtext p { font-size: 16px !important; }
+body.lefty .tools-row { flex-direction: row-reverse; }
+body.lefty .tools-row .next-row { justify-content: flex-start; }
 .cell.hint { animation: hintpulse 1.3s ease-in-out infinite; }
 @keyframes hintpulse { 0%, 100% { box-shadow: inset 0 0 0 2px rgba(255,211,107,.3); } 50% { box-shadow: inset 0 0 0 3px rgba(255,225,130,1), 0 0 14px rgba(255,211,107,.85); background-color: rgba(255,211,107,.32); } }
 .slot.hint .piece { animation: hintbob .9s ease-in-out infinite alternate; }
@@ -671,11 +769,18 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
         <span class="rec"><em>Fase</em><strong id="rec-story">1</strong></span>
       </button>
     </div>
+    <div class="wide-row">
     <button class="mode-wide" id="play-timed" data-mode="timed">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>
-      <span><b>Contra o Tempo</b><small>2 minutos · faça o máximo de pontos</small></span>
+      <span><b>Contra o Tempo</b><small>2 minutos</small></span>
       <span class="rec"><em>Recorde</em><strong id="rec-timed">0</strong></span>
     </button>
+    <button class="mode-wide puzzle" id="play-puzzle">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v2a2 2 0 004 0V4h6v6h-2a2 2 0 000 4h2v6h-6v-2a2 2 0 00-4 0v2H4v-6h2a2 2 0 000-4H4z"/></svg>
+      <span><b>Quebra-cabeça</b><small id="puzzle-sub">48 desenhos</small></span>
+      <span class="rec"><em>Feitos</em><strong id="rec-puzzle">0</strong></span>
+    </button>
+    </div>
     <div class="menu-row four">
       <button class="btn ghost" id="btn-records">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0zM7 6H4v1a3 3 0 003 3M17 6h3v1a3 3 0 01-3 3"/></svg>
@@ -742,7 +847,7 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
         <svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg><i id="undo-n">2</i>
       </button></div>
       <div class="scores">
-        <div class="mode-label"><span id="mode-label">Clássico</span> · Nível <b id="level">1</b></div>
+        <div class="mode-label"><span id="mode-label">Clássico</span><span class="lvl-part"> · Nível <b id="level">1</b></span></div>
         <div class="now" id="score" aria-live="polite">0</div>
         <div class="best"><span id="best-label">Recorde</span> <b id="best">0</b></div>
       </div>
@@ -768,7 +873,11 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
         <span class="pw-count" id="pw-count">0</span>
       </button>
     </div>
-    <div class="next-row" aria-label="Próximas peças"><span>Próximas</span><div id="next-tray"></div></div>
+    <div class="tools-row">
+      <button class="hold" id="btn-hold" aria-label="Guardar peça" hidden><span class="hold-k">Guardar</span><span class="hold-box" id="hold-box"></span></button>
+      <button class="rot-btn" id="btn-rot" aria-label="Girar uma peça" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 11-2.3-5.6"/><path d="M20 4v5h-5"/></svg><span>Girar</span><i id="rot-n">1</i></button>
+      <div class="next-row" aria-label="Próximas peças"><span>Próximas</span><div id="next-tray"></div></div>
+    </div>
     <div id="tray" aria-label="Peças disponíveis"></div>
   </section>
 
@@ -835,6 +944,12 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       <div class="set-row"><span>Modo leve<small class="set-hint">Fundo parado e menos efeitos, para celulares mais simples</small></span>
         <button class="switch" id="lite-toggle" role="switch" aria-checked="false" aria-label="Modo leve"><i></i></button>
       </div>
+      <div>
+        <span class="set-label">Acessibilidade</span>
+        <div class="set-row"><span>Modo daltônico<small class="set-hint">Cada cor ganha um símbolo (●▲■◆★✚)</small></span><button class="switch" id="cb-toggle" role="switch" aria-checked="false" aria-label="Modo daltônico"><i></i></button></div>
+        <div class="set-row"><span>Texto grande<small class="set-hint">Letras maiores em dicas e painéis</small></span><button class="switch" id="big-toggle" role="switch" aria-checked="false" aria-label="Texto grande"><i></i></button></div>
+        <div class="set-row"><span>Modo canhoto<small class="set-hint">A peça fica à direita do dedo e os botões trocam de lado</small></span><button class="switch" id="lefty-toggle" role="switch" aria-checked="false" aria-label="Modo canhoto"><i></i></button></div>
+      </div>
       <button class="btn ghost" id="btn-tutorial">Como jogar</button>
       <div>
         <span class="set-label">Progresso</span>
@@ -843,6 +958,7 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
           <button class="btn ghost" id="btn-import">Restaurar</button>
         </div>
         <p class="skins-note">Guarde o arquivo para levar fases, estrelas, recordes e compras para outro celular. Nada vai para a internet.</p>
+        <div class="set-row"><span>Backup automático<small class="set-hint" id="backup-info">Salvo a cada fase vencida</small></span><button class="switch" id="backup-toggle" role="switch" aria-checked="true" aria-label="Backup automático"><i></i></button></div>
         <input type="file" id="import-file" accept=".json,application/json,text/plain" hidden>
       </div>
       <div class="set-row"><span>Música</span>
@@ -867,9 +983,36 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
         <button class="shop-tab" data-cat="music" aria-selected="true">Músicas</button>
         <button class="shop-tab" data-cat="frame" aria-selected="false">Molduras</button>
         <button class="shop-tab" data-cat="effect" aria-selected="false">Efeitos</button>
+        <button class="shop-tab" data-cat="shape" aria-selected="false">Formatos</button>
+        <button class="shop-tab" data-cat="snd" aria-selected="false">Sons</button>
+        <button class="shop-tab" data-cat="font" aria-selected="false">Placar</button>
+        <button class="shop-tab" data-cat="bg" aria-selected="false">Fundos</button>
       </div>
       <ul class="shop-list" id="shop-list"></ul>
       <button class="btn primary" id="shop-close">Pronto</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="daily" hidden>
+    <div class="card settings-card daily-card" role="dialog" aria-modal="true" aria-labelledby="dl-title">
+      <h2 id="dl-title">Diário</h2>
+      <div class="streak"><span class="fire">🔥</span><b id="streak-n">0</b><span id="streak-t">dias seguidos</span></div>
+      <div class="streak-dots" id="streak-dots" aria-label="Sequência da semana"></div>
+      <p class="skins-note" id="streak-note">Complete o desafio 7 dias seguidos e ganhe +3 ★</p>
+      <button class="btn primary" id="daily-play">Desafio de hoje</button>
+      <span class="set-label">Missões da semana</span>
+      <ul class="missions" id="missions"></ul>
+      <p class="skins-note" id="missions-note"></p>
+      <button class="btn ghost" id="daily-close">Fechar</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="puzzles" hidden>
+    <div class="card settings-card" role="dialog" aria-modal="true" aria-labelledby="pz-title">
+      <h2 id="pz-title">Quebra-cabeça</h2>
+      <p class="skins-note">Complete o desenho usando só as peças dadas. Não há linhas para limpar: cada peça tem seu lugar. Use Desfazer à vontade.</p>
+      <div class="pz-grid" id="pz-grid"></div>
+      <button class="btn primary" id="pz-close">Voltar</button>
     </div>
   </div>
 
@@ -879,6 +1022,10 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       <p id="confirm-text"></p>
       <div class="save-row"><button class="btn ghost" id="confirm-no">Cancelar</button><button class="btn primary" id="confirm-yes">Restaurar</button></div>
     </div>
+  </div>
+
+  <div id="world-card" aria-hidden="true" hidden>
+    <div class="wc"><span class="wc-k" id="wc-k">Mundo 1</span><i class="wc-tile" id="wc-tile"></i><b class="wc-name" id="wc-name"></b><small class="wc-music" id="wc-music"></small></div>
   </div>
 
   <div id="splash" aria-hidden="true">
@@ -923,6 +1070,7 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       <div class="badge" id="over-badge" hidden>Novo recorde!</div>
       <p id="over-rank"></p>
       <div class="line"><span>Linhas <b id="over-lines">0</b></span><span>Maior combo <b id="over-combo">0</b></span><span>Nível <b id="over-level">1</b></span></div>
+      <button class="btn primary" id="btn-help" hidden>Tentar com ajuda 🍀</button>
       <button class="btn primary" id="btn-continue" hidden>Continuar · limpar 3 linhas</button>
       <button class="btn ghost" id="btn-undo-over" hidden>Desfazer última jogada</button>
       <button class="btn primary" id="btn-next" hidden>Próxima fase</button>
@@ -2129,7 +2277,7 @@ window.Skins = (() => {
     preview: (kind, i, st) => tex(kind, PALETTES[0][i == null ? 2 : i], st),
     texture: (kind, hex, st) => tex(kind, hex, st),
     material: () => now.kind,
-    colorOf: (i) => (i === 7 ? "#2e2219" : i >= 10 ? "#77726c" : now.colors[i] || "#c27f3c"),
+    colorOf: (i) => (i === 7 ? "#2e2219" : i === 12 ? "#bfe8f8" : i === 13 ? "#3a3a40" : i === 15 ? "#d9d2ff" : i >= 10 ? "#77726c" : now.colors[i] || "#c27f3c"),
     texOf: (i) => tex(now.kind, i === 7 ? "#2e2219" : now.colors[i] || "#c27f3c"),
   };
 })();
@@ -3933,11 +4081,17 @@ window.Scene = (() => {
   const sfx = {
     ok() { return sfxOn && audio() && actx.state === "running"; },
     place() {
-      if (!this.ok()) return; const t = actx.currentTime;
+      if (!this.ok()) return; const t = actx.currentTime, snd = store.get("snd", "");
+      if (snd && owned(snd)) {
+        if (snd === "snd-bell") { blip("sine", 1320, t, .5, .14, 1318); blip("sine", 1980, t, .35, .06, 1976); return; }
+        if (snd === "snd-piano") { const f = 262 * Math.pow(2, PENTA[Math.floor(Math.random() * 8)] / 12); blip("triangle", f, t, .4, .22, f * .998); blip("sine", f * 2, t, .25, .05, f * 2); return; }
+        if (snd === "snd-drum") { blip("sine", 120, t, .2, .6, 45); noise(t, .05, .14, 1600, 500); return; }
+      }
       blip("sine", 170, t, .12, .38, 70); blip("triangle", 340, t, .05, .1, 300); noise(t, .06, .12, 2500, 900);
     },
     ui() { if (!this.ok()) return; const t = actx.currentTime; blip("triangle", 880, t, .035, .12, 760); },
     grab() { if (!this.ok()) return; const t = actx.currentTime; blip("sine", 520, t, .05, .14, 700); },
+    heart() { if (!this.ok()) return; const t = actx.currentTime; blip("sine", 70, t, .14, .5, 42); blip("sine", 62, t + .2, .16, .42, 38); },
     nope() { if (!this.ok()) return; const t = actx.currentTime; blip("square", 150, t, .09, .08, 110); blip("square", 120, t + .09, .12, .08, 90); },
     // power grows with lines cleared at once and with the combo streak.
     clear(lines, combo) {
@@ -4064,7 +4218,7 @@ window.Scene = (() => {
   // story follows the level's own difficulty.
   function difficulty() {
     if (!S) return 0;
-    if (S.mode === "story") return storyDiff(S.level);
+    if (S.mode === "story") return storyDiff(S.level) * (S.helped ? .35 : 1);
     const lv = levelOf(S.score);
     return Math.min(.8, (lv - 1) / 14) * (lv % 3 === 0 ? .55 : 1);
   }
@@ -4081,7 +4235,7 @@ window.Scene = (() => {
     classic: { n: 8, label: "Clássico", sub: "Tabuleiro 8×8 · limpe linhas e colunas" },
     sudoku: { n: 9, label: "Sudoku", sub: "Tabuleiro 9×9 · linhas, colunas e quadrados 3×3" },
     tetris: { label: "Tetris", sub: "Arcade · fica mais rápido a cada 100 pontos" },
-    timed: { n: 8, label: "Contra o Tempo", sub: "2 minutos · faça o máximo de pontos" },
+    timed: { n: 8, label: "Contra o Tempo", sub: "2 minutos" },
     story: { label: "História" },
   };
   const LEVEL_POINTS = 100;
@@ -4156,7 +4310,12 @@ window.Scene = (() => {
   // Every 5th level uses the Sudoku rules on a 9×9 board. Difficulty grows with N.
   // v14: 50 worlds of 20 phases; every world has its own scene (Scene.worlds).
   const LEVELS_PER_WORLD = 20;
-  const STORY_LEVELS = 1000, MARK = 7, STONE = 10, CRACK = 11;
+  const STORY_LEVELS = 1000, MARK = 7, STONE = 10, CRACK = 11, ICE = 12, BOMB = 13, GHOST = 15, WALL = 16;
+  // v24: the world boss changes with the world: stone, ice, bombs, ghosts (then repeats).
+  const BOSS_KINDS = ["stone", "ice", "bomb", "ghost"];
+  const BOSS_TXT = { stone: ["pedras", "quebre", "Cada pedra pede 2 linhas"], ice: ["gelos", "derreta", "O gelo avança a cada 5 jogadas"], bomb: ["bombas", "desarme", "Limpe a linha antes do zero"], ghost: ["fantasmas", "pegue", "Fantasmas mudam de lugar"] };
+  const bossKind = (L) => BOSS_KINDS[Math.floor((L - 1) / 20) % 4];
+  const isBossBlock = (v) => v === ICE || v === BOMB || v === GHOST;
   const isStone = (v) => v === STONE || v === CRACK;
   const stonesLeft = (b) => b.filter(isStone).length;
   // v20: phases ending in 8 and 9 (the climax before the music changes) ask to clear 2 or 3 lines
@@ -4164,9 +4323,9 @@ window.Scene = (() => {
   // v22: …4 asks to place N blocks and …6 to make N moves without losing (neither needs lines).
   // v23: phase 20 of every world is the world boss: stone blocks that only break after two lines.
   const storyGoal = (L) => (L % LEVELS_PER_WORLD === 0 ? "boss" : L % 10 === 8 || L % 10 === 9 ? "multi" : L % 10 === 4 ? "blocks" : L % 10 === 6 ? "moves" : "score");
-  const goalNeed = (L) => { const g = storyGoal(L), d = storyDiff(L); return g === "boss" ? 3 + Math.round(storyDiff(L) * 7) : g === "multi" ? multiNeed(L) : g === "blocks" ? 24 + Math.round(d * 40 / 4) * 4 : g === "moves" ? 14 + Math.round(d * 20) : 0; };
-  const goalBadge = (L) => { const g = storyGoal(L); return g === "boss" ? `${goalNeed(L)} pedras` : g === "multi" ? `×${multiNeed(L)} linhas` : g === "blocks" ? `${goalNeed(L)} blocos` : g === "moves" ? `${goalNeed(L)} jogadas` : null; };
-  const goalLabel = (L) => { const g = storyGoal(L); return g === "boss" ? `chefe do mundo · quebrar ${goalNeed(L)} pedras` : g === "multi" ? `${multiNeed(L)} linhas de uma vez` : g === "blocks" ? `colocar ${goalNeed(L)} blocos` : g === "moves" ? `${goalNeed(L)} jogadas sem perder` : `meta de ${fmt(storyTarget(L))} pontos`; };
+  const goalNeed = (L) => { const g = storyGoal(L), d = storyDiff(L); return g === "boss" ? ({ stone: 3 + Math.round(d * 7), ice: 6 + Math.round(d * 8), bomb: 3 + Math.round(d * 4), ghost: 4 + Math.round(d * 5) })[bossKind(L)] : g === "multi" ? multiNeed(L) : g === "blocks" ? 24 + Math.round(d * 40 / 4) * 4 : g === "moves" ? 14 + Math.round(d * 20) : 0; };
+  const goalBadge = (L) => { const g = storyGoal(L); return g === "boss" ? `${goalNeed(L)} ${BOSS_TXT[bossKind(L)][0]}` : g === "multi" ? `×${multiNeed(L)} linhas` : g === "blocks" ? `${goalNeed(L)} blocos` : g === "moves" ? `${goalNeed(L)} jogadas` : null; };
+  const goalLabel = (L) => { const g = storyGoal(L); return g === "boss" ? `chefe do mundo · ${BOSS_TXT[bossKind(L)][1]} ${goalNeed(L)} ${BOSS_TXT[bossKind(L)][0]}` : g === "multi" ? `${multiNeed(L)} linhas de uma vez` : g === "blocks" ? `colocar ${goalNeed(L)} blocos` : g === "moves" ? `${goalNeed(L)} jogadas sem perder` : `meta de ${fmt(storyTarget(L))} pontos`; };
   const multiNeed = (L) => (L % 10 === 8 ? 2 : 3);
   // Difficulty 0..~0.65, in waves: inside every block of 10 phases it goes easy, a bit harder, easy
   // again…, with 8 and 9 as the peak; the whole curve rises slowly over the 1000 phases.
@@ -4213,7 +4372,12 @@ window.Scene = (() => {
       for (const i of cells) put(i, color());
     }
     // 1b) Boss: stone blocks, preferably inside the almost-complete lines so the first crack comes quickly.
-    if (goal === "boss") {
+    const boss = goal === "boss" ? bossKind(L) : null, bombT = {}, bombFuse = 12 - Math.round(t * 4);
+    // Boss blocks ignore the fill cap (they are the point of the phase).
+    const putBoss = (i, v) => { if (board[i] || reserved.has(i)) return false; board[i] = v; if (findClears(board, n, boxes).lines) { board[i] = 0; return false; } return true; };
+    if (boss === "ice") { let k = 0; for (let a = 0; a < 800 && k < Math.ceil(goalNeed(L) / 2); a++) if (putBoss(ri(n * n), ICE)) k++; }
+    if (boss === "bomb" || boss === "ghost") { let k = 0; for (let a = 0; a < 800 && k < 2; a++) { const i = ri(n * n); if (putBoss(i, boss === "bomb" ? BOMB : GHOST)) { k++; if (boss === "bomb") bombT[i] = bombFuse; } } }
+    if (boss === "stone") {
       const want = goalNeed(L); let k = 0;
       const lineBlocks = board.map((v, i) => (v ? i : -1)).filter((i) => i >= 0);
       for (let a = 0; a < 40 && k < Math.ceil(want / 2) && lineBlocks.length; a++) { const i = lineBlocks[ri(lineBlocks.length)]; if (board[i] !== STONE) { board[i] = STONE; k++; } }
@@ -4234,7 +4398,7 @@ window.Scene = (() => {
     // 3) Scattered clutter that gets in the way, up to the fill cap.
     for (let a = 0; a < 1500 && filled < cap; a++) put(ri(n * n), color());
     const marks = board.filter((v) => v === MARK).length;
-    return { L, rules, n, goal, board, target: goal === "score" ? storyTarget(L) : 0, marks, need: goal === "score" ? 0 : goal === "boss" ? stonesLeft(board) : goalNeed(L), key };
+    return { L, rules, n, goal, board, target: goal === "score" ? storyTarget(L) : 0, marks, need: goal === "score" ? 0 : boss === "stone" ? stonesLeft(board) : goalNeed(L), key, boss, bombT, bombFuse };
   }
 
   const worldOf = (L) => Math.min(Math.floor((L - 1) / LEVELS_PER_WORLD), 49);
@@ -4269,7 +4433,7 @@ window.Scene = (() => {
     return st;
   }
   const starCount = (arr) => (arr ? arr.reduce((a, v) => a + (v ? 1 : 0), 0) : 0);
-  function totalStars() { const st = storyStars(); let n = 0; for (const L in st) n += starCount(st[L]); return n + Object.keys(store.get("ach", {})).length; }
+  function totalStars() { const st = storyStars(); let n = 0; for (const L in st) n += starCount(st[L]); return n + Object.keys(store.get("ach", {})).length + store.get("bonusStars", 0); }
   // ---------- v22: lifetime stats and achievements (each one is worth +1 star) ----------
   function stat(update) { const s2 = store.get("stats", { lines: 0, maxCombo: 0, bestMulti: 0, tex: [], time: 0, mats: {} }); if (update) { update(s2); store.set("stats", s2); } return s2; }
   const ACH = [
@@ -4310,6 +4474,58 @@ window.Scene = (() => {
   setInterval(() => { if (document.hidden || !S || S.over || ($("game").hidden && $("tetris").hidden)) return; stat((x) => { x.time = (x.time || 0) + 10; }); }, 10000);
   const fmtTime = (sec) => { const h = Math.floor(sec / 3600), m = Math.floor(sec / 60) % 60; return h ? `${h}h ${m}min` : `${m}min`; };
   function favMaterial() { const m = stat().mats || {}; let best = null; for (const k in m) if (!best || m[k] > m[best]) best = k; return best ? (Skins.KINDS.find(([x]) => x === best) || [0, best])[1] : "—"; }
+  // ---------- v24: daily streak and weekly missions (offline, from the phone's date) ----------
+  const MISSIONS = [
+    ["lines", "Limpe 150 linhas", 150], ["story", "Vença 8 fases da História", 8], ["boss", "Derrote 1 chefe de mundo", 1],
+    ["combo", "Faça 5 combos ×3", 5], ["timed", "Faça 1.500 pontos no Contra o Tempo", 1500, "max"], ["daily", "Complete 3 desafios do dia", 3],
+    ["blocks", "Coloque 400 blocos", 400], ["puzzle", "Monte 3 desenhos no Quebra-cabeça", 3], ["classic", "Faça 2.000 pontos no Clássico", 2000, "max"],
+  ];
+  const MISSION_STARS = 2, STREAK_STARS = 3;
+  const weekIdx = () => Math.floor(dayIdx() / 7);
+  function weekMissions() {
+    const rng = seeded(weekIdx() * 7919 + 3), pool = MISSIONS.map((m) => m[0]), out = [];
+    while (out.length < 3) { const k = pool.splice(Math.floor(rng() * pool.length), 1)[0]; out.push(k); }
+    return out;
+  }
+  const missionState = () => store.get("missions." + weekIdx(), {});
+  function mission(kind, v) {
+    if (!weekMissions().includes(kind)) return;
+    const st = missionState(), m = MISSIONS.find((x) => x[0] === kind), before = st[kind] || 0;
+    st[kind] = m[3] === "max" ? Math.max(before, v) : before + v;
+    store.set("missions." + weekIdx(), st);
+    if (before < m[2] && st[kind] >= m[2]) toast(`<b>✅ Missão cumprida</b><small>${m[1]} · resgate +${MISSION_STARS} ★ no Diário</small>`);
+  }
+  function claimMission(kind) {
+    const st = missionState(), m = MISSIONS.find((x) => x[0] === kind);
+    if (!m || st["got_" + kind] || (st[kind] || 0) < m[2]) return;
+    st["got_" + kind] = 1; store.set("missions." + weekIdx(), st);
+    store.set("bonusStars", store.get("bonusStars", 0) + MISSION_STARS);
+    sfx.record(); toast(`<b>+${MISSION_STARS} ★</b><small>${m[1]}</small>`); renderDailyPanel(); showMenuBadges();
+  }
+  const missionReady = () => { const st = missionState(); return weekMissions().some((k) => { const m = MISSIONS.find((x) => x[0] === k); return (st[k] || 0) >= m[2] && !st["got_" + k]; }); };
+  function dayKeyOf(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
+  // Days in a row with the daily challenge done, ending today (or yesterday, if today is still open).
+  function dailyStreak() {
+    const done = store.get("daily.done", {}), d = new Date();
+    if (done[dayKeyOf(d)] == null) d.setDate(d.getDate() - 1);
+    let n = 0; for (; done[dayKeyOf(d)] != null; d.setDate(d.getDate() - 1)) n++;
+    return n;
+  }
+  function renderDailyPanel() {
+    const n = dailyStreak(), today = store.get("daily.done", {})[dayKey()] != null, inCycle = n === 0 ? 0 : ((n - 1) % 7) + 1;
+    $("streak-n").textContent = n; $("streak-t").textContent = n === 1 ? "dia seguido" : "dias seguidos";
+    $("streak-dots").innerHTML = Array.from({ length: 7 }, (_, i) => `<i class="${i < inCycle ? "on" : ""}${i === 6 ? " gift" : ""}">${i === 6 ? "🎁" : i + 1}</i>`).join("");
+    $("streak-note").textContent = today ? `Desafio de hoje feito ✓ · volte amanhã para manter a sequência` : `Faça o desafio de hoje${n ? " para chegar a " + (n + 1) + " dias" : ""} · 7 dias seguidos valem +${STREAK_STARS} ★`;
+    $("daily-play").textContent = today ? "Jogar o desafio de novo" : "Desafio de hoje";
+    const st = missionState();
+    $("missions").innerHTML = weekMissions().map((k) => {
+      const m = MISSIONS.find((x) => x[0] === k), v = Math.min(st[k] || 0, m[2]), done = v >= m[2], got = !!st["got_" + k];
+      return `<li><span><b>${m[1]}</b><br><small>${fmt(v)} / ${fmt(m[2])}</small></span><button class="claim" data-k="${k}" ${done && !got ? "" : "disabled"}>${got ? "✓ Feito" : `+${MISSION_STARS} ★`}</button><span class="bar"><span class="fill" style="width:${Math.round(v / m[2] * 100)}%"></span></span></li>`;
+    }).join("");
+    const left = 7 - (dayIdx() % 7);
+    $("missions-note").textContent = `Novas missões em ${left} ${left === 1 ? "dia" : "dias"}`;
+  }
+  function showMenuBadges() { $("btn-daily").classList.toggle("reward", missionReady()); }
   // ---------- v22: daily challenge (offline, generated from the date) ----------
   const dayKey = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
   const dayIdx = () => { const d = new Date(); return Math.floor((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(2024, 0, 1)) / 864e5); };
@@ -4410,7 +4626,7 @@ window.Scene = (() => {
     if (S.mode === "tetris") return tSize();
     const app = $("app"), cs = getComputedStyle(app);
     const w = Math.min(app.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), 480);
-    const h = app.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 96 - 20 - 130 - 44 - 20 - (S.mode === "story" ? 66 : 0);
+    const h = app.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 96 - 20 - 130 - 60 - 20 - (S.mode === "story" ? 66 : 0);
     const gap = 3, pad = 14;
     const avail = Math.max(160, Math.min(w, h));
     const cell = Math.floor((avail - pad - gap * (S.n - 1)) / S.n);
@@ -4461,6 +4677,8 @@ window.Scene = (() => {
       else if (preview && preview.ok && preview.cells.has(i)) cls += " preview c" + preview.color;
       if (preview && preview.ok && preview.will.has(i)) cls += " will";
       if (preview && !preview.ok) { if (preview.bad.has(i)) cls += " bad"; else if (preview.conflict.has(i)) cls += " conflict"; }
+      if (v === BOMB && S.bombT && S.bombT[i] != null) { cellEls[i].dataset.n = S.bombT[i]; if (S.bombT[i] <= 3) cls += " hot"; }
+      else if (cellEls[i].dataset.n) delete cellEls[i].dataset.n;
       cellEls[i].className = cls;
       cellEls[i].style.removeProperty("--d");
     }
@@ -4479,6 +4697,7 @@ window.Scene = (() => {
   let selected = -1;
   // v22: the next hand is dealt in advance and shown small, so the player can plan.
   function dealTray() {
+    if (S.mode === "puzzle") { S.tray = [0, 1, 2].map(() => S.queue.shift() || null); S.next = S.queue.slice(0, 3); return; }
     const nx = S.next;
     S.tray = nx && nx.some(fitsAnywhere) ? nx : newTray();
     S.next = newTray();
@@ -4514,12 +4733,27 @@ window.Scene = (() => {
       }
       tray.appendChild(slot);
     });
+    renderHold(); updateDanger();
+  }
+  // v24: the score counts up to its new value and pops when it lands.
+  let shownScore = 0, scoreRaf = 0;
+  function setScore(v) {
+    const el = $("score");
+    cancelAnimationFrame(scoreRaf);
+    if (v <= shownScore || v - shownScore < 2 || document.body.classList.contains("lite") || document.hidden) { shownScore = v; el.textContent = fmt(v); return; }
+    const from = shownScore, t0 = performance.now(), dur = Math.min(650, 220 + (v - from) * 3);
+    const tick = (t) => {
+      const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      shownScore = Math.round(from + (v - from) * e); el.textContent = fmt(shownScore);
+      if (k < 1) scoreRaf = requestAnimationFrame(tick); else { el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
+    };
+    scoreRaf = requestAnimationFrame(tick);
   }
   function renderScore() {
     renderPower(); renderChallenge(); renderUndo(); renderTimer();
     if (S.mode === "story") {
       renderGoal();
-      $("score").textContent = fmt(S.score);
+      setScore(S.score);
       $("score").classList.remove("rec");
       $("best-label").textContent = "Mundo";
       $("best").textContent = worldOf(S.level) + 1;
@@ -4528,9 +4762,16 @@ window.Scene = (() => {
       $("level-fill").style.width = Math.min(100, Math.round(pct * 100)) + "%";
       return;
     }
+    if (S.mode === "puzzle") {
+      const total = S.board.filter((v) => v !== WALL).length, filled = S.board.filter((v) => v && v !== WALL).length;
+      setScore(total - filled); $("score").classList.remove("rec");
+      $("best-label").textContent = "Resolvidos"; $("best").textContent = `${Object.keys(store.get("puzzle.done", {})).length}/${PUZZLES.length}`;
+      $("level").textContent = S.pz + 1; $("level-fill").style.width = Math.round(filled / total * 100) + "%";
+      return;
+    }
     $("best-label").textContent = "Recorde";
     const best = bestOf(S.mode);
-    $("score").textContent = fmt(S.score);
+    setScore(S.score);
     $("score").classList.toggle("rec", best > 0 && S.score > best);
     $("best").textContent = fmt(Math.max(S.score, best));
     $("level").textContent = levelOf(S.score);
@@ -4570,15 +4811,16 @@ window.Scene = (() => {
     const p = S.tray[ti];
     if (!p || !canPlace(S.board, S.n, p.cells, r0, c0)) return false;
     // Story: remember the state before this move so it can be undone (2 per phase).
-    if (S.mode === "story") { const snap = { ...S }; delete snap.undoSnap; S.undoSnap = JSON.stringify(snap); }
+    if (S.mode === "story" || S.mode === "puzzle") { const snap = { ...S }; delete snap.undoSnap; S.undoSnap = JSON.stringify(snap); }
     for (const [r, c] of p.cells) S.board[(r0 + r) * S.n + c0 + c] = p.color;
     S.tray[ti] = null;
     selected = -1;
     const levelBefore = levelOf(S.score), bestBefore = bestOf(S.mode);
     let gained = p.cells.length;
-    const { idx, lines, groups } = findClears(S.board);
+    const { idx, lines, groups } = clearsOf(S.board);
     const midTop = $("board").clientHeight / 2;
     S.moves = (S.moves || 0) + 1; S.placed = (S.placed || 0) + p.cells.length;
+    mission("blocks", p.cells.length); if (lines) { mission("lines", lines); if ((S.combo || 0) + 1 === 3) mission("combo", 1); }
     { const mt = Skins.material(); stat((x) => { x.mats = x.mats || {}; x.mats[mt] = (x.mats[mt] || 0) + 1; }); }
     if (lines) {
       S.bestMulti = Math.max(S.bestMulti || 0, lines);
@@ -4589,6 +4831,7 @@ window.Scene = (() => {
       S.maxCombo = Math.max(S.maxCombo || 0, S.combo);
       gained += 10 * lines * lines * S.combo;
       // v23 boss stones: a cleared line cracks a stone; a cracked stone breaks on the next line.
+      for (const i of idx) bossHit(i);
       const was = new Map([...idx].filter((i) => S.board[i] !== STONE).map((i) => [i, S.board[i]]));
       const cracked = [...idx].filter((i) => S.board[i] === STONE);
       idx.forEach((i) => { S.board[i] = S.board[i] === STONE ? CRACK : 0; });
@@ -4623,7 +4866,7 @@ window.Scene = (() => {
     if (lines) fx("gain", "+" + fmt(gained), midTop - 10, 1000);
 
     const lv = levelOf(S.score);
-    if (lv > levelBefore) {
+    if (lv > levelBefore && S.mode !== "puzzle") {
       music.setRate(rateFor(S.score));
       setTimeout(() => { sfx.levelUp(); fx("lvl", `Nível ${lv}<small>Mais rápido!</small>`, midTop + 40, 1700); }, lines ? 450 : 0);
       if (S.mode === "classic") setTimeout(() => { applySkin(); fx("lvl", "Novas cores!", midTop - 60, 1600); }, lines ? 600 : 200);
@@ -4631,9 +4874,11 @@ window.Scene = (() => {
     }
     if (S.mode !== "story" && !S.recShown && bestBefore > 0 && S.score > bestBefore) {
       S.recShown = true;
-      setTimeout(() => { sfx.record(); buzzPattern(BUZZ_WIN); fx("newrec", "Novo recorde!", 70, 1900); }, 700);
+      setTimeout(() => { sfx.record(); buzzPattern(BUZZ_WIN); fx("newrec", "Novo recorde!", 70, 1900); const sc = $("score"); sc.classList.remove("recfx"); void sc.offsetWidth; sc.classList.add("recfx"); Scene.confetti(sc.getBoundingClientRect().left + sc.offsetWidth / 2, sc.getBoundingClientRect().bottom, 30); }, 700);
     }
 
+    S.holdLock = false;
+    if (S.mode === "puzzle" && !S.board.includes(0)) { S.over = true; renderTray(); renderScore(); store.del("game.puzzle"); setTimeout(puzzleWin, 350); return true; }
     if (S.mode === "story") {
       checkPowerEarned();
       S.marks = S.board.filter((v) => v === MARK).length;
@@ -4643,17 +4888,87 @@ window.Scene = (() => {
         setTimeout(storyWin, lines ? 800 : 300);
         return true;
       }
+      if (bossTick()) {
+        S.over = true; renderTray(); renderScore(); save();
+        const rc = cellEls[S.boomed].getBoundingClientRect();
+        setTimeout(() => { Scene.explode([{ x: rc.left + rc.width / 2, y: rc.top + rc.height / 2, size: rc.width * 2, color: "#ff6a2a" }], 6, "lava"); shake(true); sfx.lose(); buzzPattern([200, 60, 300]); }, 250);
+        overTimer = setTimeout(() => { if (!S || !$("over").hidden) return; S.over = false; gameOver(); }, 1100);
+        return true;
+      }
     }
     if (lines) checkAch();
     if (S.tray.every((t) => !t)) dealTray();
     renderTray(); renderScore(); save();
-    const left = S.tray.filter(Boolean);
-    if (!left.some(fitsAnywhere)) {
-      // In story mode an unused power keeps the level alive.
-      if (S.mode === "story" && S.power > 0) setTimeout(() => fx("lvl", "Sem espaço!<small>Use o poder</small>", $("board").clientHeight / 2, 2000), lines ? 800 : 300);
-      else overTimer = setTimeout(gameOver, lines ? 800 : 400);
-    }
+    checkStuck(lines ? 800 : 400, lines);
     return true;
+  }
+  // ---------- v24: hold a piece, rotate once per phase, danger warning ----------
+  const holdAllowed = () => !!S && S.mode !== "tetris" && S.mode !== "puzzle" && !(S.mode === "story" && !S.daily && S.level <= LEVELS_PER_WORLD);
+  const ROTATES = 1;
+  const rotLeft = () => (S && S.mode === "story" && !S.daily ? ROTATES - (S.rotUsed || 0) : 0);
+  let rotAim = false;
+  function rotatePiece(p) { const [h] = dims(p.cells); return { ...p, cells: p.cells.map(([r, c]) => [c, h - 1 - r]) }; }
+  function checkStuck(delay, lines) {
+    const left = S.tray.filter(Boolean);
+    if (left.some(fitsAnywhere) || (holdAllowed() && S.hold && !S.holdLock && fitsAnywhere(S.hold))) return;
+    const mid = $("board").clientHeight / 2;
+    // In story mode an unused power or the rotation keeps the level alive.
+    if (rotLeft() > 0 && left.some((p) => fitsAnywhere(rotatePiece(p)))) setTimeout(() => fx("lvl", "Sem espaço!<small>Gire uma peça</small>", mid, 2000), lines ? 800 : 300);
+    else if (S.mode === "story" && S.power > 0) setTimeout(() => fx("lvl", "Sem espaço!<small>Use o poder</small>", mid, 2000), lines ? 800 : 300);
+    else overTimer = setTimeout(gameOver, delay);
+  }
+  function renderHold() {
+    const b = $("btn-hold"), ok = holdAllowed();
+    b.hidden = !ok;
+    if (ok) {
+      const box = $("hold-box"); box.innerHTML = "";
+      if (S.hold) { const d = document.createElement("div"); d.className = "piece mini"; pieceGrid(S.hold, d, true); box.appendChild(d); }
+      b.classList.toggle("locked", !!S.holdLock);
+      b.classList.toggle("ready", selected >= 0 && !S.holdLock);
+    }
+    const r = $("btn-rot"), rs = rotLeft() > 0 || (S && S.mode === "story" && !S.daily);
+    r.hidden = !rs;
+    if (rs) { $("rot-n").textContent = Math.max(0, rotLeft()); r.disabled = rotLeft() <= 0 || !!S.over; r.classList.toggle("aim", rotAim); }
+    document.body.classList.toggle("rot-aim", rotAim);
+  }
+  function doHold(ti) {
+    if (!holdAllowed() || S.over || S.powerTaps > 0) return;
+    if (S.holdLock) { sfx.nope(); fx("lvl", "Coloque uma peça<small>antes de guardar de novo</small>", $("board").clientHeight / 2, 1300); return; }
+    if (ti == null || ti < 0 || !S.tray[ti]) {
+      const e = S.tray.findIndex((t) => !t);
+      if (!S.hold || e < 0) { sfx.ui(); fx("lvl", "Arraste uma peça<small>para Guardar</small>", $("board").clientHeight / 2, 1300); return; }
+      S.tray[e] = S.hold; S.hold = null;
+    } else { const p = S.tray[ti]; S.tray[ti] = S.hold || null; S.hold = p; }
+    S.holdLock = true; selected = -1; sfx.grab(); buzz(15);
+    if (S.tray.every((t) => !t)) dealTray();
+    renderTray(); save(); checkStuck(400, 0);
+  }
+  function doRotate(ti) {
+    if (rotLeft() <= 0 || !S.tray[ti] || S.over) return;
+    S.tray[ti] = rotatePiece(S.tray[ti]); S.rotUsed = (S.rotUsed || 0) + 1;
+    rotAim = false; selected = -1; sfx.place(); buzz(20);
+    renderTray(); save();
+  }
+  $("btn-hold").addEventListener("click", () => doHold(selected));
+  $("btn-rot").addEventListener("click", () => {
+    if (rotLeft() <= 0) return;
+    if (selected >= 0 && S.tray[selected]) return doRotate(selected);
+    rotAim = !rotAim; sfx.ui(); renderHold();
+    if (rotAim) fx("lvl", "Toque na peça<small>que quer girar</small>", $("board").clientHeight / 2, 1300);
+  });
+  function placementsCount(limit) {
+    let n = 0; const ps = S.tray.filter(Boolean);
+    if (holdAllowed() && S.hold && !S.holdLock) ps.push(S.hold);
+    for (const p of ps) for (let r = 0; r < S.n; r++) for (let c = 0; c < S.n; c++) if (canPlace(S.board, S.n, p.cells, r, c) && ++n > limit) return n;
+    return n;
+  }
+  function updateDanger() {
+    let on = false;
+    if (S && !S.over && S.mode !== "tetris" && S.mode !== "puzzle" && !$("game").hidden) { const k = placementsCount(3); on = k > 0 && k <= 3; }
+    if (on === document.body.classList.contains("danger")) return;
+    document.body.classList.toggle("danger", on);
+    if (S) music.setRate(rateFor(S.score) * (on ? 1.08 : 1));
+    if (on) { sfx.heart(); buzzPattern([40, 110, 60]); }
   }
   function save() { store.set("game." + (S.daily ? "daily" : S.mode), S); }
 
@@ -4661,9 +4976,9 @@ window.Scene = (() => {
   // No power at the start of a level; every 300 points in the level earns one use.
   const POWER_POINTS = 300, POWER_TAPS = 4;
   // Has the phase's goal been met? (score, N lines at once, or — old saves — the marked blocks)
-  const goalVal = () => (S.goal === "boss" ? S.need - stonesLeft(S.board) : S.goal === "multi" ? S.bestMulti || 0 : S.goal === "blocks" ? S.placed || 0 : S.goal === "moves" ? S.moves || 0 : S.score);
+  const goalVal = () => (S.goal === "boss" ? ((S.boss || "stone") === "stone" ? S.need - stonesLeft(S.board) : S.broken || 0) : S.goal === "multi" ? S.bestMulti || 0 : S.goal === "blocks" ? S.placed || 0 : S.goal === "moves" ? S.moves || 0 : S.score);
   const storyDone = () => (S.goal === "clear" ? S.marks === 0 : S.goal === "score" ? S.score >= S.target : goalVal() >= S.need);
-  const goalText = (st) => (st.goal === "boss" ? `Chefe: quebre ${st.need} pedras` : st.goal === "clear" ? "Destrua os blocos marcados" : st.goal === "multi" ? `Destrua ${st.need} linhas de uma vez` : st.goal === "blocks" ? `Coloque ${st.need} blocos` : st.goal === "moves" ? `Faça ${st.need} jogadas sem perder` : `Faça ${fmt(st.target)} pontos`);
+  const goalText = (st) => (st.goal === "boss" ? `Chefe: ${BOSS_TXT[st.boss || "stone"][1]} ${st.need} ${BOSS_TXT[st.boss || "stone"][0]}` : st.goal === "clear" ? "Destrua os blocos marcados" : st.goal === "multi" ? `Destrua ${st.need} linhas de uma vez` : st.goal === "blocks" ? `Coloque ${st.need} blocos` : st.goal === "moves" ? `Faça ${st.need} jogadas sem perder` : `Faça ${fmt(st.target)} pontos`);
   function renderGoal() {
     const done = storyDone();
     $("goal-text").textContent = goalText(S);
@@ -4708,6 +5023,35 @@ window.Scene = (() => {
       renderTray(); renderPower(); save();
     }
   });
+  // Ice, bombs and ghosts count for the boss goal when they are destroyed.
+  function bossHit(i) {
+    const v = S.board[i]; if (!isBossBlock(v)) return;
+    S.broken = (S.broken || 0) + 1;
+    if (v === BOMB && S.bombT) delete S.bombT[i];
+  }
+  // After every move on ice/bomb/ghost boss phases. Returns true when a bomb went off.
+  function bossTick() {
+    if (S.mode !== "story" || S.daily || S.goal !== "boss" || !S.boss || S.boss === "stone") return false;
+    const empty = () => S.board.map((v, i) => (v ? -1 : i)).filter((i) => i >= 0), any = (a) => a[Math.floor(Math.random() * a.length)];
+    const count = (v) => S.board.filter((x) => x === v).length, left = () => S.need - (S.broken || 0);
+    const pop = (i) => { cellEls[i].classList.add("frost"); setTimeout(() => cellEls[i].classList.remove("frost"), 500); };
+    if (S.boss === "ice" && S.moves % 5 === 0 && count(ICE) < left()) { const e = empty(); if (e.length) { const i = any(e); S.board[i] = ICE; renderBoard(); pop(i); sfx.ui(); } }
+    if (S.boss === "bomb") {
+      for (const k in S.bombT) if (--S.bombT[k] <= 0) { S.boomed = +k; renderBoard(); return true; }
+      while (count(BOMB) < 2 && count(BOMB) < left()) { const e = empty(); if (!e.length) break; const i = any(e); S.board[i] = BOMB; S.bombT[i] = S.bombFuse || 10; renderBoard(); pop(i); }
+    }
+    if (S.boss === "ghost") {
+      const moved = new Set();
+      if (S.moves % 2 === 0) S.board.forEach((v, i) => {
+        if (v !== GHOST || moved.has(i)) return;
+        const r = Math.floor(i / S.n), c = i % S.n, nb = [[r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]].filter(([a, b]) => a >= 0 && b >= 0 && a < S.n && b < S.n && !S.board[a * S.n + b]).map(([a, b]) => a * S.n + b);
+        if (nb.length) { const j = any(nb); S.board[j] = GHOST; S.board[i] = 0; moved.add(j); }
+      });
+      while (count(GHOST) < 2 && count(GHOST) < left()) { const e = empty(); if (!e.length) break; const i = any(e); S.board[i] = GHOST; }
+      renderBoard();
+    }
+    return false;
+  }
   function crackFx(list) {
     sfx.ui(); buzz(40);
     for (const i of list) { const el = cellEls[i]; el.classList.add("cracking"); setTimeout(() => el.classList.remove("cracking"), 500); }
@@ -4716,6 +5060,7 @@ window.Scene = (() => {
   function destroyCell(i) {
     const v = S.board[i];
     if (!v) return;
+    bossHit(i);
     if (v === STONE) { S.board[i] = CRACK; renderBoard(); crackFx([i]); S.powerTaps--; renderScore(); if (S.powerTaps === 0) afterPower(); else { renderPower(); save(); } return; }
     S.board[i] = 0;
     renderBoard();
@@ -4749,11 +5094,12 @@ window.Scene = (() => {
     $("over-level").textContent = levelOf(S.score);
     const story = S.mode === "story";
     $("btn-next").hidden = !(story && kind === "win" && S.level < STORY_LEVELS);
-    $("btn-levels").hidden = !story;
+    $("btn-levels").hidden = !story; $("btn-levels").textContent = "Fases";
     $("btn-again").textContent = story && kind === "lose" ? "Tentar de novo" : "Jogar de novo";
     if (story && kind === "win") $("btn-again").textContent = "Repetir fase";
     $("win-story").hidden = true;
     $("btn-continue").hidden = !(story && kind === "lose" && !S.continued);
+    $("btn-help").hidden = !(story && !S.daily && kind === "lose" && (store.get("story.fails", {})[S.level] || 0) >= 3);
     $("btn-undo-over").hidden = !(story && kind === "lose" && S.undoSnap && undosLeft() > 0);
     if (!$("btn-undo-over").hidden) $("btn-undo-over").textContent = `Desfazer última jogada (${undosLeft()})`;
     $("over").hidden = false;
@@ -4767,6 +5113,9 @@ window.Scene = (() => {
     const best = storyBest();
     best[S.level] = Math.max(best[S.level] || 0, S.score);
     store.set("story.best", best);
+    { const f = store.get("story.fails", {}); if (f[S.level]) { delete f[S.level]; store.set("story.fails", f); } }
+    mission("story", 1); if (S.goal === "boss") mission("boss", 1);
+    setTimeout(autoBackup, 1200);
     if (S.level + 1 > store.get("story.unlocked", 1)) store.set("story.unlocked", Math.min(S.level + 1, STORY_LEVELS));
     store.set("maxcombo.story", Math.max(store.get("maxcombo.story", 0), S.maxCombo || 0));
     // ---- stars, challenge, rewards (merged with what was already earned; never duplicated) ----
@@ -4806,24 +5155,36 @@ window.Scene = (() => {
   }
   function gameOver(reason) {
     if (!S || S.over) return;
+    if (S.mode === "puzzle") {
+      S.over = true; sfx.lose(); buzz(200);
+      overlay("lose", "Sem encaixe", "Nenhuma das peças cabe no que sobrou. Desfaça algumas jogadas ou recomece o desenho.");
+      $("over-badge").hidden = true; $("over-rank").textContent = PUZZLES[S.pz][0];
+      $("btn-again").textContent = "Recomeçar"; $("btn-levels").hidden = false; $("btn-levels").textContent = "Desenhos";
+      $("btn-undo-over").hidden = !S.undoSnap; $("btn-undo-over").textContent = "Desfazer última jogada";
+      return;
+    }
     if (S.mode === "story") {
       S.over = true;
       store.del(S.daily ? "game.daily" : "game.story");
       music.stop(); music.want = null;
       sfx.lose(); buzz(400); $("board").classList.add("dead");
       store.set("maxcombo.story", Math.max(store.get("maxcombo.story", 0), S.maxCombo || 0));
-      const left = S.goal === "boss" ? `Faltaram ${stonesLeft(S.board)} pedras. Cada pedra racha na 1ª linha e quebra na 2ª.` : S.goal === "clear"
+      const left = S.boomed != null ? "Limpe a linha ou coluna da bomba antes de o contador chegar a zero."
+        : S.goal === "boss" && (S.boss || "stone") !== "stone" ? `Faltaram ${S.need - (S.broken || 0)} ${BOSS_TXT[S.boss][0]}.`
+        : S.goal === "boss" ? `Faltaram ${stonesLeft(S.board)} pedras. Cada pedra racha na 1ª linha e quebra na 2ª.` : S.goal === "clear"
         ? `Faltaram ${S.marks} ${S.marks === 1 ? "bloco marcado" : "blocos marcados"}.`
         : S.goal === "multi" ? `Faltou destruir ${S.need} linhas de uma vez. Dica: guarde a peça reta para a coluna vazia.`
         : S.goal === "blocks" ? `Faltaram ${S.need - (S.placed || 0)} blocos para a meta de ${S.need}.`
         : S.goal === "moves" ? `Faltaram ${S.need - (S.moves || 0)} jogadas para a meta de ${S.need}.`
         : `Faltaram ${fmt(S.target - S.score)} pontos para a meta de ${fmt(S.target)}.`;
-      overlay("lose", "Você perdeu", "Nenhuma peça cabe no tabuleiro. " + left);
+      if (!S.daily) { const f = store.get("story.fails", {}); f[S.level] = (f[S.level] || 0) + 1; store.set("story.fails", f); }
+      overlay("lose", S.boomed != null ? "A bomba explodiu!" : "Você perdeu", (S.boomed != null ? "" : "Nenhuma peça cabe no tabuleiro. ") + left);
       $("over-badge").hidden = true;
       $("over-rank").textContent = S.daily ? "Desafio do dia · tente de novo quantas vezes quiser" : `Fase ${S.level}`;
       if (S.daily) $("btn-levels").hidden = true;
       return;
     }
+    if (S.mode === "timed" || S.mode === "classic") mission(S.mode, S.score);
     const prev = bestOf(S.mode), isRec = S.score > prev && S.score > 0;
     if (isRec) store.set("best." + S.mode, S.score);
     setTimeout(checkAch, 900);
@@ -4840,6 +5201,24 @@ window.Scene = (() => {
     $("over-rank").textContent = rank ? `${rank}º lugar no ranking do modo ${MODES[S.mode].label}` : `Recorde: ${fmt(prev)}`;
   }
 
+  // ---------- v24: accessibility switches ----------
+  const A11Y = [["cb", "cb-toggle"], ["bigtext", "big-toggle"], ["lefty", "lefty-toggle"]];
+  function applyA11y() { for (const [k, id] of A11Y) { const on = !!store.get("a11y." + k, false); document.body.classList.toggle(k, on); $(id).setAttribute("aria-checked", String(on)); } }
+  for (const [k, id] of A11Y) $(id).addEventListener("click", () => { store.set("a11y." + k, !store.get("a11y." + k, false)); applyA11y(); sfx.ui(); if (S) renderTray(); });
+  applyA11y();
+  // ---------- v24: automatic backup after every phase won ----------
+  function renderBackupInfo() {
+    const on = store.get("autoBackup", true), at = store.get("autoBackupAt", null);
+    $("backup-toggle").setAttribute("aria-checked", String(on));
+    $("backup-info").textContent = !on ? "Desligado" : at ? `Último: ${new Date(at.d).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })} · ${at.where}` : "Salvo a cada fase vencida";
+  }
+  function autoBackup() {
+    if (!store.get("autoBackup", true)) return;
+    const json = exportData();
+    try { if (window.BAUNative && BAUNative.autoBackup) { const where = BAUNative.autoBackup(json); if (where) store.set("autoBackupAt", { d: Date.now(), where }); return; } } catch (e) {}
+    try { localStorage.setItem("bauBackup", json); store.set("autoBackupAt", { d: Date.now(), where: "neste aparelho" }); } catch (e) {}
+  }
+  $("backup-toggle").addEventListener("click", () => { store.set("autoBackup", !store.get("autoBackup", true)); renderBackupInfo(); sfx.ui(); if (store.get("autoBackup", true)) autoBackup(), renderBackupInfo(); });
   // ---------- v23: save / restore progress in a file (works offline) ----------
   const SAVE_APP = "BLOCK ALT UNO";
   function exportData() {
@@ -4912,20 +5291,34 @@ window.Scene = (() => {
     ["fx-stars", "effect", "Chuva de estrelas", "Estrelas caem ao destruir linhas", 10, "✦"],
     ["fx-rainbow", "effect", "Arco-íris", "As linhas somem num brilho colorido", 16, "🌈"],
     ["fx-fireworks", "effect", "Fogos de artifício", "Fogos estouram nos combos", 24, "🎆"],
+    ["shape-square", "shape", "Quadradão", "Blocos retos e firmes", 4, "■"],
+    ["shape-soft", "shape", "Cantos suaves", "Blocos bem arredondados", 6, "▢"],
+    ["shape-round", "shape", "Bolinhas", "Blocos redondos", 10, "●"],
+    ["shape-gem", "shape", "Gemas", "Blocos lapidados", 14, "◆"],
+    ["snd-bell", "snd", "Sino", "Encaixe com som de sino", 6, "🔔"],
+    ["snd-piano", "snd", "Piano", "Cada peça toca uma nota", 8, "🎹"],
+    ["snd-drum", "snd", "Tambor", "Batida grave de tambor", 6, "🥁"],
+    ["font-serif", "font", "Placar clássico", "Números com serifa", 5, "Aa"],
+    ["font-mono", "font", "Placar digital", "Números de relógio", 5, "00"],
+    ["font-hand", "font", "Placar desenhado", "Letra arredondada", 7, "✎"],
+    ["bg-sunset", "bg", "Pôr do sol", "Céu alaranjado sobre o cenário", 10, "🌅"],
+    ["bg-night", "bg", "Noite estrelada", "Estrelas piscando", 10, "✨"],
+    ["bg-aurora", "bg", "Aurora", "Luzes do norte dançando", 12, "🌌"],
   ];
+  const EQUIP_CATS = ["frame", "effect", "shape", "snd", "font", "bg"];
   const shopOwned = () => store.get("shop", {});
   function owned(k) { return !!shopOwned()[k]; }
   const starsSpent = () => store.get("starsSpent", 0);
   const starBalance = () => Math.max(0, totalStars() - starsSpent());
   let shopCat = "music";
   function applyFrame() {
-    const fr = store.get("frame", ""), ok = fr && owned(fr);
-    for (const [k, cat] of SHOP) if (cat === "frame") document.body.classList.toggle(k, ok && k === fr);
+    for (const [k, cat] of SHOP) if (cat !== "music" && cat !== "effect" && cat !== "snd") document.body.classList.toggle(k, owned(k) && store.get(cat, "") === k);
   }
   function renderShop() {
     $("shop-stars").textContent = starBalance();
     document.querySelectorAll(".shop-tab").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.cat === shopCat)));
-    const eq = { music: null, frame: store.get("frame", ""), effect: store.get("effect", "") }, bal = starBalance();
+    const eq = { music: null }, bal = starBalance();
+    for (const c of EQUIP_CATS) eq[c] = store.get(c, "");
     $("shop-list").innerHTML = SHOP.filter(([, cat]) => cat === shopCat).map(([k, cat, name, desc, price, ico]) => {
       const own = owned(k), on = own && (cat === "music" ? store.get("gameMusic", "") === k || store.get("menuMusic", "") === k : eq[cat] === k);
       const icon = cat === "frame" ? `<span class="fr" style="outline:3px solid ${ico};outline-offset:2px"></span>` : ico;
@@ -4942,8 +5335,7 @@ window.Scene = (() => {
       sfx.record(); toast(`Desbloqueado: ${name}!`);
     } else sfx.ui();
     if (cat === "music") { store.set("gameMusic", k); music.play(k); }
-    else if (cat === "frame") { store.set("frame", had && store.get("frame", "") === k ? "" : k); applyFrame(); }
-    else store.set("effect", had && store.get("effect", "") === k ? "" : k);
+    else { store.set(cat, had && store.get(cat, "") === k ? "" : k); applyFrame(); if (cat === "snd") sfx.place(); }
     renderShop();
   }
   $("shop-list").addEventListener("click", (e) => { const b = e.target.closest(".buy"); if (b) shopAction(b.dataset.k); });
@@ -4978,6 +5370,13 @@ window.Scene = (() => {
   const clearHint = () => { if (!hintOn) return; hintOn = false; document.querySelectorAll(".hint").forEach((e) => e.classList.remove("hint")); };
   document.addEventListener("pointerdown", () => { lastAct = Date.now(); clearHint(); }, true);
   function showHint() {
+    if (S.mode === "puzzle") {
+      const ti = S.tray.findIndex((p) => p && S.sol[p.id] && S.sol[p.id].every((i) => !S.board[i]));
+      if (ti < 0) return;
+      hintOn = true; for (const i of S.sol[S.tray[ti].id]) cellEls[i].classList.add("hint");
+      const sl = $("tray").children[ti]; if (sl) sl.classList.add("hint");
+      return;
+    }
     let best = null;
     S.tray.forEach((p, ti) => {
       if (!p) return;
@@ -5001,22 +5400,23 @@ window.Scene = (() => {
   // ---------- v21: undo and continue (story) ----------
   let overTimer = 0;
   const UNDOS = 2;
-  const undosLeft = () => UNDOS - (S.undoUsed || 0);
+  const undosLeft = () => (S.mode === "puzzle" ? 99 : UNDOS - (S.undoUsed || 0));
   function renderUndo() {
-    const show = !!S && S.mode === "story", btn = $("btn-undo");
+    const show = !!S && (S.mode === "story" || S.mode === "puzzle"), btn = $("btn-undo");
     btn.hidden = !show;
     if (!show) return;
     $("undo-n").textContent = undosLeft();
     btn.disabled = !S.undoSnap || S.over || undosLeft() <= 0 || S.powerTaps > 0;
   }
   function undo() {
-    if (!S || S.mode !== "story" || !S.undoSnap || undosLeft() <= 0) return;
+    if (!S || (S.mode !== "story" && S.mode !== "puzzle") || !S.undoSnap || undosLeft() <= 0) return;
     clearTimeout(overTimer);
     const used = (S.undoUsed || 0) + 1;
     S = Object.assign(JSON.parse(S.undoSnap), { undoUsed: used, undoSnap: null, over: false });
     $("over").hidden = true; $("board").classList.remove("dead");
-    if (!music.track) music.play(storyTrack(S.level));
+    if (!music.track) music.play(S.mode === "puzzle" ? gameTrack("menu_satie") : storyTrack(S.level));
     selected = -1; renderBoard(); renderTray(); renderScore(); save(); sfx.ui();
+    if (S.mode === "puzzle") return;
     fx("lvl", `Jogada desfeita<small>${undosLeft()} ${undosLeft() === 1 ? "restante" : "restantes"} nesta fase</small>`, $("board").clientHeight / 2 - 20, 1400);
   }
   // Once per phase after losing: the three fullest rows are cleared (no points) and a fresh hand dealt.
@@ -5026,14 +5426,17 @@ window.Scene = (() => {
     $("over").hidden = true; $("board").classList.remove("dead");
     const n = S.n, rows = [...Array(n).keys()].map((r) => [r, S.board.slice(r * n, r * n + n).filter(Boolean).length]).sort((a, b) => b[1] - a[1]).slice(0, 3);
     const pts = [];
-    for (const [r] of rows) for (let c = 0; c < n; c++) { const i = r * n + c, v = S.board[i]; if (!v) continue; const rc = cellEls[i].getBoundingClientRect(); if (v === STONE) { S.board[i] = CRACK; continue; } pts.push({ x: rc.left + rc.width / 2, y: rc.top + rc.height / 2, size: rc.width, color: Skins.colorOf(v), tex: Skins.texOf(v) }); S.board[i] = 0; }
+    for (const [r] of rows) for (let c = 0; c < n; c++) { const i = r * n + c, v = S.board[i]; if (!v) continue; const rc = cellEls[i].getBoundingClientRect(); if (v === STONE) { S.board[i] = CRACK; continue; } bossHit(i); pts.push({ x: rc.left + rc.width / 2, y: rc.top + rc.height / 2, size: rc.width, color: Skins.colorOf(v), tex: Skins.texOf(v) }); S.board[i] = 0; }
     if (pts.length) Scene.explode(pts, 2, Skins.material());
+    if (S.bombT) for (const k in S.bombT) S.bombT[k] = Math.max(S.bombT[k], 6);
+    S.boomed = null;
     S.marks = S.board.filter((v) => v === MARK).length;
     S.tray = newTray(); S.next = newTray(); S.undoSnap = null;
     music.play(storyTrack(S.level)); sfx.levelUp();
     renderBoard(); renderTray(); renderScore(); save();
   }
   $("btn-undo").addEventListener("click", undo);
+  $("btn-help").addEventListener("click", () => { const L = S.level; $("over").hidden = true; startStory(L, true, null, true); setTimeout(() => fx("lvl", "Mão amigável 🍀<small>Peças mais fáceis nesta tentativa</small>", $("board").clientHeight / 2 - 20, 2200), 2000); });
   $("btn-undo-over").addEventListener("click", undo);
   $("btn-continue").addEventListener("click", continueStory);
 
@@ -5045,6 +5448,7 @@ window.Scene = (() => {
   }
   // Valid: the cells the piece will fill plus every cell that will clear. Invalid (while over the
   // board): the free cells it would cover in red and the blocks in its way outlined in red.
+  const clearsOf = (b) => (S && S.rules === "puzzle" ? { idx: new Set(), lines: 0, groups: [] } : findClears(b));
   function previewFor(ti, r0, c0) {
     const p = S.tray[ti];
     if (!canPlace(S.board, S.n, p.cells, r0, c0)) {
@@ -5059,11 +5463,11 @@ window.Scene = (() => {
     const b = S.board.slice();
     const cells = new Set();
     for (const [r, c] of p.cells) { const i = (r0 + r) * S.n + c0 + c; b[i] = p.color; cells.add(i); }
-    return { ok: true, cells, color: p.color, will: findClears(b).idx };
+    return { ok: true, cells, color: p.color, will: clearsOf(b).idx };
   }
   function moveDrag(x, y) {
     const lift = drag.touch ? drag.h + drag.cell * 1.1 : drag.h / 2;
-    const left = x - drag.w / 2, top = y - lift;
+    const left = x - drag.w / 2 + (drag.touch && document.body.classList.contains("lefty") ? drag.cell * 1.2 : 0), top = y - lift;
     drag.el.style.transform = `translate(${left}px, ${top}px)`;
     const g = step();
     const r0 = Math.round((top - g.y0) / g.s), c0 = Math.round((left - g.x0) / g.s);
@@ -5072,11 +5476,13 @@ window.Scene = (() => {
     drag.el.classList.toggle("valid", !!(pv && pv.ok));
     drag.el.classList.toggle("invalid", !!(pv && !pv.ok));
     renderBoard(pv);
+    $("btn-hold").classList.toggle("drop", overHold(x, y));
   }
   $("tray").addEventListener("pointerdown", (e) => {
     if (!S || S.over || S.powerTaps > 0) return;
     const slot = e.target.closest(".slot");
     if (!slot || !S.tray[slot.dataset.i]) return;
+    if (rotAim) { e.preventDefault(); doRotate(+slot.dataset.i); return; }
     e.preventDefault();
     const ti = +slot.dataset.i, p = S.tray[ti];
     const el = document.createElement("div");
@@ -5097,6 +5503,10 @@ window.Scene = (() => {
     if (!drag.moved) { drag.moved = true; drag.el.style.visibility = ""; drag.slot.classList.add("away"); selected = -1; }
     moveDrag(e.clientX, e.clientY);
   });
+  function overHold(x, y) {
+    const b = $("btn-hold"); if (b.hidden) return false;
+    const r = b.getBoundingClientRect(); return x >= r.left - 8 && x <= r.right + 8 && y >= r.top - 10 && y <= r.bottom + 10;
+  }
   function endDrag(e, cancel) {
     if (!drag || e.pointerId !== drag.id) return;
     const d = drag; drag = null;
@@ -5107,6 +5517,8 @@ window.Scene = (() => {
       return;
     }
     d.slot.classList.remove("grab");
+    $("btn-hold").classList.remove("drop");
+    if (!cancel && overHold(e.clientX, e.clientY)) { renderBoard(); doHold(d.ti); return; }
     if (cancel || !d.at || !place(d.ti, d.at[0], d.at[1])) {
       renderBoard(); renderTray();
       if (!cancel) { sfx.nope(); buzz(20); const sl = $("tray").children[d.ti]; if (sl) { sl.classList.add("nope"); setTimeout(() => sl.classList.remove("nope"), 260); } }
@@ -5241,7 +5653,7 @@ window.Scene = (() => {
       buzz(power >= 4 ? 90 : power >= 2 ? 55 : 30);
       shake(power >= 3);
       if (n >= 2) fx("praise", n >= 4 ? "TETRIS!" : PRAISE[n], midTop - 70);
-      comboFx(S.combo, $("t-board")); shopEffect(n, S.combo);
+      comboFx(S.combo, $("t-board")); shopEffect(n, S.combo); mission("lines", n); if (S.combo === 3) mission("combo", 1);
       fx("gain", "+" + fmt(gained), midTop - 10, 1000);
     } else {
       S.combo = 0;
@@ -5249,7 +5661,7 @@ window.Scene = (() => {
     }
     S.score += gained;
     const lv = levelOf(S.score);
-    if (lv > levelBefore) {
+    if (lv > levelBefore && S.mode !== "puzzle") {
       music.setRate(rateFor(S.score)); music.setTranspose(Math.min(lv - 1, 12));
       setTimeout(() => { sfx.levelUp(); fx("lvl", `Nível ${lv}<small>Mais rápido!</small>`, midTop + 40, 1700); }, full.length ? 450 : 0);
       changeScene(midTop + 110, full.length ? 900 : 400);
@@ -5436,6 +5848,7 @@ window.Scene = (() => {
   // ---------- screens ----------
   let menuScene = null; // the start screen shows the chosen material's scene once one is picked
   function show(id) {
+    if (id !== "game") { document.body.classList.remove("danger", "rot-aim"); rotAim = false; }
     if (id !== "tetris") tStop();
     if (id !== "game" && id !== "tetris") setModeAccent(null);
     for (const s of ["menu", "records", "levels", "game", "tetris"]) $(s).hidden = s !== id;
@@ -5461,6 +5874,8 @@ window.Scene = (() => {
         ? `Continuar partida · ${fmt(saved.score)} pontos`
         : (MODES[m].sub || "");
     }
+    { const d = Object.keys(store.get("puzzle.done", {})).length; $("rec-puzzle").textContent = `${d}/${PUZZLES.length}`; $("puzzle-sub").textContent = store.get("game.puzzle", null) ? "Continuar desenho" : "Monte desenhos"; }
+    showMenuBadges();
     const ss = store.get("game.story", null);
     $("rec-story").textContent = storyUnlocked();
     $("story-sub").textContent = ss ? `Continuar fase ${ss.level} · ${fmt(ss.score)} pontos` : "1000 fases · bata a meta de pontos ou destrua várias linhas de uma vez";
@@ -5523,7 +5938,7 @@ window.Scene = (() => {
     box.innerHTML = list.map(([k, t, w]) => `<button class="chip-opt" data-track="${k}" role="radio" aria-checked="${k === cur}" title="${w}">${k === "auto" ? "★ " : "♪ "}${t}</button>`).join("");
     for (const b2 of box.children) b2.addEventListener("click", () => { store.set("gameMusic", b2.dataset.track); renderGameMusic(); sfx.ui(); });
   }
-  $("btn-settings").addEventListener("click", () => { renderSettings(); renderVisualPick(); renderSkins(); $("settings").hidden = false; $("set-close").focus(); });
+  $("btn-settings").addEventListener("click", () => { renderBackupInfo(); renderSettings(); renderVisualPick(); renderSkins(); $("settings").hidden = false; $("set-close").focus(); });
   $("set-close").addEventListener("click", () => { $("settings").hidden = true; });
   function showRecords(mode) {
     S = null;
@@ -5544,6 +5959,99 @@ window.Scene = (() => {
     }
     enterGame(MODES[mode].label);
   }
+  // ---------- v24: Quebra-cabeça — 24 drawings × 2 cuts; the pieces tile the drawing exactly ----------
+  const PZ_SHAPES = [
+    ["Tabuleiro", "################################################################"],
+    ["Coração", ".##..##.########################.######...####.....##..........."],
+    ["Diamante", "...##.....####...######.################.######...####.....##..."],
+    ["Cruz", "..####....####..################################..####....####.."],
+    ["Casa", "...##.....####...######.########.##..##..##..##..######..######."],
+    ["Árvore", "...##.....####...######...####...######.########...##......##..."],
+    ["Peixe", "..........####...######.################.######...####.........."],
+    ["Taça", "################.######...####.....##......##.....####...######."],
+    ["Seta", "...#.......##...#######.###############....##......#............"],
+    ["Sino", "...##.....####....####...######..######.################...##..."],
+    ["Cogumelo", "..####...######.################..####....####....####...######."],
+    ["Escada", "#.......##......###.....####....#####...######..#######.########"],
+    ["Ampulheta", "########.######...####.....##......##.....####...######.########"],
+    ["Estrela", "...##......##...########.######...####...######..##..##..#....#."],
+    ["Barco", "...#.......##......###.....####....#....########.######...####.."],
+    ["Gato", "#......###....###########.####.#########.######...####.........."],
+    ["Coroa", "#..##..##..##..###.##.##########################.######........."],
+    ["Lua", "..####...###....###.....###.....###.....###......###......####.."],
+    ["Foguete", "...##.....####....####....####....####...######.#########.#..#.#"],
+    ["Castelo", "#.#..#.#################.######..######..##..##..##..##.########"],
+    ["Letra A", "..####...##..##.##....####....####################....####....##"],
+    ["Anel", ".######.##########....####....####....####....##########.######."],
+    ["Guarda-chuva", "..####...######.################...##......##....#.##.....##...."],
+    ["Raio", "....###....###....###....######....###....###....###.....##....."]
+  ];
+  const PUZZLES = [...PZ_SHAPES.map(([nm, m]) => [nm, m, 2, 4]), ...PZ_SHAPES.map(([nm, m]) => [nm + " II", m, 3, 5])];
+  // Cut the drawing into pieces: grow each piece from the top-left free cell through free neighbours.
+  function puzzleOf(k) {
+    const [, map, mn, mx] = PUZZLES[k], rng = seeded(9001 + k * 131), n = 8;
+    const left = new Set([...map].map((ch, i) => (ch === "#" ? i : -1)).filter((i) => i >= 0)), pieces = [];
+    while (left.size) {
+      const start = Math.min(...left), want = mn + Math.floor(rng() * (mx - mn + 1)), cells = [start]; left.delete(start);
+      while (cells.length < want) {
+        const fr = [];
+        for (const i of cells) { const r = Math.floor(i / n), c = i % n; for (const [a, b] of [[r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]]) if (a >= 0 && b >= 0 && a < n && b < n && left.has(a * n + b)) fr.push(a * n + b); }
+        if (!fr.length) break;
+        const j = fr[Math.floor(rng() * fr.length)]; left.delete(j); cells.push(j);
+      }
+      pieces.push(cells);
+    }
+    const board = [...map].map((ch) => (ch === "#" ? 0 : WALL)), sol = {};
+    const list = pieces.map((cells, id) => {
+      const rs = cells.map((i) => Math.floor(i / n)), cs = cells.map((i) => i % n), r0 = Math.min(...rs), c0 = Math.min(...cs);
+      sol[id] = cells;
+      return { id, color: 1 + (id % 6), cells: cells.map((i) => [Math.floor(i / n) - r0, (i % n) - c0]) };
+    });
+    for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
+    return { board, queue: list, sol };
+  }
+  const pzUnlocked = () => Math.min(PUZZLES.length, Object.keys(store.get("puzzle.done", {})).length + 4);
+  function startPuzzle(k, fresh) {
+    if (k >= PUZZLES.length) return showPuzzles();
+    const saved = fresh ? null : store.get("game.puzzle", null);
+    if (saved && saved.pz === k && !saved.over) S = saved;
+    else {
+      const pz = puzzleOf(k);
+      S = { mode: "puzzle", rules: "puzzle", n: 8, pz: k, board: pz.board, queue: pz.queue, sol: pz.sol, tray: [], score: 0, combo: 0, lines: 0, maxCombo: 0 };
+      dealTray();
+    }
+    $("puzzles").hidden = true;
+    enterGame(`Desenho ${k + 1}`);
+  }
+  function puzzleWin() {
+    const done = store.get("puzzle.done", {}), first = !done[S.pz];
+    done[S.pz] = 1; store.set("puzzle.done", done);
+    if (first) store.set("bonusStars", store.get("bonusStars", 0) + 1);
+    mission("puzzle", 1);
+    music.stop(); music.want = null; sfx.record(); buzzPattern(BUZZ_WIN);
+    overlay("win", "Desenho completo!", `${PUZZLES[S.pz][0]} montado com ${S.moves || 0} peças.`);
+    $("over-badge").hidden = !first; $("over-badge").textContent = "+1 ★ para a loja";
+    $("over-rank").textContent = `${Object.keys(done).length} de ${PUZZLES.length} desenhos resolvidos`;
+    $("btn-next").hidden = S.pz + 1 >= PUZZLES.length; $("btn-levels").hidden = false; $("btn-levels").textContent = "Desenhos";
+    $("btn-again").textContent = "Montar de novo";
+    const br = $("board").getBoundingClientRect(); Scene.celebrate(br.left + br.width / 2, br.top + br.height * .35);
+    autoBackup();
+  }
+  function showPuzzles() {
+    const g = $("pz-grid"), done = store.get("puzzle.done", {}), un = pzUnlocked();
+    g.innerHTML = "";
+    PUZZLES.forEach(([nm, map], k) => {
+      const b = document.createElement("button"); b.className = "pz" + (done[k] ? " done" : ""); b.disabled = k >= un; b.dataset.k = k;
+      const cv = document.createElement("canvas"); cv.width = 8; cv.height = 8; const x = cv.getContext("2d");
+      [...map].forEach((ch, i) => { if (ch === "#") { x.fillStyle = done[k] ? "#ffd36b" : "#e9d6c0"; x.fillRect(i % 8, Math.floor(i / 8), 1, 1); } });
+      b.appendChild(cv); b.insertAdjacentHTML("beforeend", `<span>${k + 1}. ${nm}</span>`);
+      g.appendChild(b);
+    });
+    $("puzzles").hidden = false;
+  }
+  $("pz-grid").addEventListener("click", (e) => { const b = e.target.closest(".pz"); if (b && !b.disabled) { sfx.ui(); startPuzzle(+b.dataset.k, false); } });
+  $("pz-close").addEventListener("click", () => { $("puzzles").hidden = true; });
+  $("play-puzzle").addEventListener("click", () => { wake(); sfx.ui(); showPuzzles(); });
   // Daily challenge: a story-style phase built from today's date (same for everyone, no internet),
   // always a score goal, with undo and continue like the story.
   function startDaily(fresh) {
@@ -5563,7 +6071,11 @@ window.Scene = (() => {
     music.stop(); music.want = null; sfx.record(); buzzPattern(BUZZ_WIN);
     const done = store.get("daily.done", {}), first = !done[S.daily];
     done[S.daily] = Math.max(done[S.daily] || 0, S.score); store.set("daily.done", done);
-    let streak = 0; for (let d = new Date(); ; d.setDate(d.getDate() - 1)) { const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; if (done[k] == null) break; streak++; }
+    const streak = dailyStreak();
+    mission("daily", first ? 1 : 0);
+    const sr = store.get("streak.rewarded", {});
+    if (first && streak > 0 && streak % 7 === 0 && !sr[S.daily]) { sr[S.daily] = 1; store.set("streak.rewarded", sr); store.set("bonusStars", store.get("bonusStars", 0) + STREAK_STARS); setTimeout(() => toast(`<b>🔥 ${streak} dias seguidos!</b><small>+${STREAK_STARS} ★ de presente</small>`), 900); }
+    autoBackup();
     overlay("win", "Desafio do dia concluído!", `Você fez ${fmt(S.score)} pontos. Amanhã tem um desafio novo.`);
     $("btn-next").hidden = true; $("btn-levels").hidden = true; $("over-badge").hidden = !first;
     $("over-badge").textContent = "Primeira vez hoje";
@@ -5572,7 +6084,7 @@ window.Scene = (() => {
     const br = $("board").getBoundingClientRect(); Scene.celebrate(br.left + br.width / 2, br.top + br.height * .35);
     checkAch();
   }
-  function startStory(L, fresh, restored) {
+  function startStory(L, fresh, restored, helped) {
     const saved = restored || (fresh ? null : store.get("game.story", null));
     if (saved && saved.level === L && saved.board && !saved.over) {
       S = saved;
@@ -5580,7 +6092,7 @@ window.Scene = (() => {
       const lv = storyLevel(L);
       S = { mode: "story", rules: lv.rules, n: lv.n, level: L, goal: lv.goal, target: lv.target, marks: lv.marks, marksTotal: lv.marks, need: lv.need,
         board: lv.board, tray: [], score: 0, combo: 0, lines: 0, maxCombo: 0, power: 0, powerEarned: 0, powerTaps: 0,
-        moves: 0, bestMulti: 0, powerUsed: false };
+        moves: 0, bestMulti: 0, powerUsed: false, boss: lv.boss, bombT: lv.bombT, bombFuse: lv.bombFuse, broken: 0, helped: !!helped };
       S.tray = newTray(); S.next = newTray();
       if (lv.key) S.tray[0] = lv.key;
       store.set("played.story", store.get("played.story", 0) + 1);
@@ -5605,7 +6117,7 @@ window.Scene = (() => {
   // v16: the board itself is painted with the game's material, in the current style, tinted by the
   // mode's colour; the empty cells are see-through holes in it, so every mode × material ×
   // style combination has its own board.
-  const MODE_TINT = { classic: "#eaa53c", sudoku: "#3fb59a", tetris: "#a66be0", story: "#d9824a", timed: "#3fa9f5" };
+  const MODE_TINT = { classic: "#eaa53c", sudoku: "#3fb59a", tetris: "#a66be0", story: "#d9824a", timed: "#3fa9f5", puzzle: "#e070aa" };
   const TRAY_BASE = { wood: "#6b4226", cement: "#7a7872", brick: "#8a3a22", ice: "#3a7ab0", water: "#1f5f8f", lava: "#4a1a0c", marble: "#c8c0b4",
     metal: "#5a6270", bolt: "#2a2a5a", electric: "#2a1650", rain: "#3a5a70", future: "#1a2438", sand: "#c09050", grass: "#2f6a24", smoke: "#4a4a52",
     crystal: "#4a2a70", gold: "#8a6418", snow: "#9ab4cc", cloud: "#6a9ac0", candy: "#b04a7a", galaxy: "#1a1240", moss: "#4a5a40", stained: "#2a2230", leather: "#5a341c", coral: "#a04a3e" };
@@ -5652,6 +6164,7 @@ window.Scene = (() => {
   function applyLite() { const on = liteOn(); document.body.classList.toggle("lite", on); Scene.setLite(on); $("lite-toggle").setAttribute("aria-checked", String(on)); }
   $("lite-toggle").addEventListener("click", () => { store.set("lite", !liteOn()); applyLite(); sfx.ui(); });
   applyLite();
+  let lastWorldCard = -1, wcTimer = 0, introDelay = 0;
   function enterGame(label) {
     selected = -1;
     show("game");
@@ -5661,14 +6174,23 @@ window.Scene = (() => {
     else if (!S.mat || !S.theme) { S.mat = chosenSkin(); S.theme = MAT_SCENE[S.mat]; }
     applySkin();
     Scene.set(S.theme, wo ? wo.v : 0);
-    const intro = S.daily ? `Desafio do dia<small>${S.daily.split("-").reverse().join("/")}</small>` : wo ? `Mundo ${worldOf(S.level) + 1}<small>${wo.name}</small>` : `Cenário<small>${Scene.nameOf(S.theme)}</small>`;
-    setTimeout(() => fx("lvl", intro, $("board").clientHeight / 2 - 20, 1900), 250);
-    if (S.mode === "story" && S.goal === "boss") setTimeout(() => S && S.goal === "boss" && !S.over && (sfx.levelUp(), fx("lvl", `👑 Chefe do mundo!<small>Cada pedra pede 2 linhas</small>`, $("board").clientHeight / 2 - 20, 2400)), 1200);
-    if (S.mode === "story") setTimeout(() => S && S.mode === "story" && !S.over && fx("lvl", `Desafio<small>${challengeFor(S).text}</small>`, $("board").clientHeight / 2 - 20, 2200), 2300);
-    if (S.mode === "story") { const L0 = S.level; setTimeout(() => S && S.mode === "story" && S.level === L0 && !S.over && fx("lvl", `Música<small>♪ ${TRACKS[storyTrack(L0)].title}</small>`, $("board").clientHeight / 2 - 20, 1800), 4700); }
+    const intro = S.daily ? `Desafio do dia<small>${S.daily.split("-").reverse().join("/")}</small>` : S.mode === "puzzle" ? `${PUZZLES[S.pz][0]}<small>${S.queue.length + S.tray.filter(Boolean).length} peças</small>` : wo ? `Mundo ${worldOf(S.level) + 1}<small>${wo.name}</small>` : `Cenário<small>${Scene.nameOf(S.theme)}</small>`;
+    // v24: entering a new world shows a big card with its material and music.
+    if (wo && !S.daily && (lastWorldCard !== worldOf(S.level) || (S.level - 1) % LEVELS_PER_WORLD === 0)) {
+      lastWorldCard = worldOf(S.level);
+      const wc = $("world-card"); $("wc-k").textContent = `Mundo ${worldOf(S.level) + 1}`; $("wc-name").textContent = wo.name;
+      $("wc-tile").style.backgroundImage = `url(${Skins.preview((WORLD_SKIN[wo.id] || WORLD_SKIN.ground)[0])})`;
+      $("wc-music").textContent = `♪ ${TRACKS[storyTrack(S.level)].title}`;
+      wc.hidden = false; wc.style.animation = "none"; wc.firstElementChild.style.animation = "none"; void wc.offsetWidth; wc.style.animation = ""; wc.firstElementChild.style.animation = "";
+      clearTimeout(wcTimer); wcTimer = setTimeout(() => { wc.hidden = true; }, 2800);
+      introDelay = 2600;
+    } else { introDelay = 0; setTimeout(() => fx("lvl", intro, $("board").clientHeight / 2 - 20, 1900), 250); }
+    if (S.mode === "story" && S.goal === "boss") setTimeout(() => S && S.goal === "boss" && !S.over && (sfx.levelUp(), fx("lvl", `👑 Chefe do mundo!<small>${BOSS_TXT[S.boss || "stone"][2]}</small>`, $("board").clientHeight / 2 - 20, 2400)), 1200 + introDelay);
+    if (S.mode === "story") setTimeout(() => S && S.mode === "story" && !S.over && fx("lvl", `Desafio<small>${challengeFor(S).text}</small>`, $("board").clientHeight / 2 - 20, 2200), 2300 + introDelay + (S.goal === "boss" ? 1300 : 0));
+    if (S.mode === "story" && !introDelay) { const L0 = S.level; setTimeout(() => S && S.mode === "story" && S.level === L0 && !S.over && fx("lvl", `Música<small>♪ ${TRACKS[storyTrack(L0)].title}</small>`, $("board").clientHeight / 2 - 20, 1800), 4700 + (S.goal === "boss" ? 1300 : 0)); }
     $("mode-label").textContent = label; lastAct = Date.now(); renderTimer();
     if (!store.get("tutorialSeen", 0)) setTimeout(showTutorial, 350);
-    music.play(gameTrack(S.mode === "story" ? storyTrack(S.level) : S.rules));
+    music.play(gameTrack(S.mode === "story" ? storyTrack(S.level) : S.mode === "puzzle" ? "menu_satie" : S.rules));
     music.setRate(rateFor(S.score));
     buildBoard(); sizeBoard(); renderScore(); save();
   }
@@ -5676,20 +6198,23 @@ window.Scene = (() => {
   document.querySelectorAll(".mode[data-mode]").forEach((b) => b.addEventListener("click", () => (b.dataset.mode === "tetris" ? startTetris(false) : startGame(b.dataset.mode, false))));
   $("play-story").addEventListener("click", showLevels);
   $("lv-back").addEventListener("click", showMenu);
-  $("btn-levels").addEventListener("click", showLevels);
-  $("btn-next").addEventListener("click", () => startStory(S.level + 1, true));
-  $("btn-home").addEventListener("click", () => (S && S.mode === "story" ? showLevels() : showMenu()));
+  $("btn-levels").addEventListener("click", () => (S && S.mode === "puzzle" ? (showMenu(), showPuzzles()) : showLevels()));
+  $("btn-next").addEventListener("click", () => (S.mode === "puzzle" ? startPuzzle(S.pz + 1, true) : startStory(S.level + 1, true)));
+  $("btn-home").addEventListener("click", () => (S && S.mode === "story" ? showLevels() : S && S.mode === "puzzle" ? (showMenu(), showPuzzles()) : showMenu()));
   $("btn-menu").addEventListener("click", showMenu);
   $("btn-records").addEventListener("click", () => showRecords());
   $("rec-back").addEventListener("click", showMenu);
-  $("btn-daily").addEventListener("click", () => { wake(); sfx.ui(); startDaily(false); });
-  $("btn-again").addEventListener("click", () => (S.daily ? startDaily(true) : S.mode === "story" ? startStory(S.level, true) : S.mode === "tetris" ? startTetris(true) : startGame(S.mode, true)));
+  $("btn-daily").addEventListener("click", () => { wake(); sfx.ui(); renderDailyPanel(); $("daily").hidden = false; });
+  $("daily-play").addEventListener("click", () => { $("daily").hidden = true; sfx.ui(); startDaily(false); });
+  $("daily-close").addEventListener("click", () => { $("daily").hidden = true; });
+  $("missions").addEventListener("click", (e) => { const b = e.target.closest(".claim"); if (b) claimMission(b.dataset.k); });
+  $("btn-again").addEventListener("click", () => (S.mode === "puzzle" ? startPuzzle(S.pz, true) : S.daily ? startDaily(true) : S.mode === "story" ? startStory(S.level, true) : S.mode === "tetris" ? startTetris(true) : startGame(S.mode, true)));
   window.addEventListener("resize", sizeBoard);
   document.addEventListener("contextmenu", (e) => e.preventDefault());
 
   // Hooks used by the Android app shell.
   window.blockAltUnoBack = () => {
-    for (const id of ["confirm", "shop", "settings"]) if (!$(id).hidden) { $(id).hidden = true; if (id === "shop") music.play(menuTrack()); return true; }
+    for (const id of ["confirm", "shop", "settings", "puzzles", "daily"]) if (!$(id).hidden) { $(id).hidden = true; if (id === "shop") music.play(menuTrack()); return true; }
     if (!$("menu").hidden) return false;
     if (!$("tetris").hidden && $("over").hidden && tRunning()) { tPause(); return true; }
     if ((!$("game").hidden || !$("over").hidden) && S && S.mode === "story") showLevels(); else showMenu();
