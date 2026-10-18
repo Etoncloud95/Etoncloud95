@@ -353,3 +353,15 @@ Cada mundo alterna duas paletas entre as fases e gira a ordem das cores, então 
 - **Chefe derrotado:** a explosão final em câmera lenta (0,28×), zoom e brilho no tabuleiro, fanfarra própria. **Chefe final:** além disso, show de luzes com feixes coloridos girando, 7 fogos de artifício e confete.
 - **Desfazer no Clássico e no Sudoku:** ganha 1 a cada 500 pontos, acumula até 3.
 - **Volume:** controles separados de Música, Efeitos e Vibração (0–100%) em Ajustes.
+
+## v28
+
+- Itens especiais: máximo 3 de cada (estoques maiores são reduzidos para 3).
+- Botões do menu (Recordes, Desafio diário, Loja, Ajustes) com fundo escuro sólido: legíveis em cenários claros (neve, nuvens).
+- "Diário" passa a se chamar **Desafio diário**.
+- **Fases que giram** (contadas dentro de cada bloco de 100 fases da História: 7, 107, 207…):
+  - Subchefe ⚡ — 7, 13, 29, 43, 61, 71, 83, 93: névoa com "FASE DESAFIANTE!" ao começar, a tela treme a cada 3 jogadas e o tabuleiro gira 90° para a direita a cada 5.
+  - 30, 60, 90: gira 90° para a direita a cada 5 jogadas.
+  - 10, 20, 40, 60, 80: a cada 5 jogadas o tabuleiro treme (com vibração) e gira 90° para a esquerda.
+  - A fase 60 está nas duas listas: treme e alterna direita/esquerda.
+  - 🌀 marca essas fases no mapa. Os blocos (e os contadores das bombas) giram junto com o tabuleiro.
