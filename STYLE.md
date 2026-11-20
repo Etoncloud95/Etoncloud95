@@ -420,3 +420,11 @@ Regras da História pelo número real da fase (somam com as da v28; se duas caem
   - **Peças fantasmas:** os blocos ficam invisíveis durante as 2 jogadas seguintes e depois reaparecem.
   - **Música:** o ritmo segue a pontuação total da corrida, então não desacelera ao vencer uma fase.
   - **6 novas habilidades pesadas:** Chuva de blocos (bloco aleatório a cada 3), Tempestade de blocos (a cada 2), Sumiço (some um bloco a cada 3), Virada vertical, Virada horizontal e Virada diagonal (a cada 3).
+
+## v36
+
+- **Campanha mais difícil:** a mistura de peças fica perto da mistura "difícil" desde o começo, peças de 1–2 blocos aparecem ~45% menos e as de 4+ blocos ~35% mais.
+- **Cenário aleatório no Clássico e no Super Desafio:** começa num cenário sorteado (todos os cenários, sem depender de estrelas) e troca para outro sorteado a cada 5–14 jogadas, sem ordem.
+- **Super Desafio — Cadeado permanente:** sempre há 4 casas trancadas; a cada X jogadas (4, menos com níveis) elas abrem e outras 4 trancam em outro lugar.
+- **Super Desafio — novas habilidades ruins:** Menos peças pequenas (−10%, acumula), Bem menos peças pequenas (−15%, acumula), Tabuleiro faminto (engole uma peça inteira a cada 2 jogadas), Vírus rápido (aparece a cada 3 jogadas; 3 jogadas para destruir antes de o bloco sumir e o vírus pular para um vizinho), Vírus lento (o mesmo com 6 jogadas).
+- **MONOCOR (10, 20 ou 30 jogadas):** os blocos já no tabuleiro ficam neutros (cinza) e as peças novas vêm em 🔥 vermelho, 💧 azul ou 🌿 verde; uma linha só some se as cores coloridas forem iguais (neutras combinam com tudo). Pode aparecer de novo depois que acaba.
