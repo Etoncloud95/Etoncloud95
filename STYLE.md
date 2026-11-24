@@ -428,3 +428,11 @@ Regras da História pelo número real da fase (somam com as da v28; se duas caem
 - **Super Desafio — Cadeado permanente:** sempre há 4 casas trancadas; a cada X jogadas (4, menos com níveis) elas abrem e outras 4 trancam em outro lugar.
 - **Super Desafio — novas habilidades ruins:** Menos peças pequenas (−10%, acumula), Bem menos peças pequenas (−15%, acumula), Tabuleiro faminto (engole uma peça inteira a cada 2 jogadas), Vírus rápido (aparece a cada 3 jogadas; 3 jogadas para destruir antes de o bloco sumir e o vírus pular para um vizinho), Vírus lento (o mesmo com 6 jogadas).
 - **MONOCOR (10, 20 ou 30 jogadas):** os blocos já no tabuleiro ficam neutros (cinza) e as peças novas vêm em 🔥 vermelho, 💧 azul ou 🌿 verde; uma linha só some se as cores coloridas forem iguais (neutras combinam com tudo). Pode aparecer de novo depois que acaba.
+
+## v37
+
+- **Música sorteada a cada partida:** com a opção "Automática", toda partida começa com uma música sorteada entre todas (nunca a mesma duas vezes seguidas); o ritmo continua acelerando conforme a pontuação. No Super Desafio a música sorteada vale para a corrida inteira.
+- **Peças fantasmas (Super):** enquanto invisíveis, as casas ficam idênticas a casas vazias (com a grade normal).
+- **Pontos com emoção (Super):** Imposto, Combo frágil e Desgaste agora vêm em 10, 20 ou 30 pontos (leve, média, pesada). A perda sai primeiro dos pontos da fase e depois do total da corrida; se chegar a 0, a corrida acaba ("Seus pontos chegaram a zero!"). Essas cartas não aparecem na escolha inicial.
+- **Recompensa de combo (Super):** combo triplo (ou 3 linhas de uma vez), ou dois combos duplos, abre "Recompensa de combo!": escolha 1 de 2 ajudas — Escudo (bloqueia a próxima perda), Bolsa de pontos (+150), Faxina (limpa a linha e a coluna mais cheias), Peças amigas (2 mãos só com peças pequenas), Desfazer extra (+2), Congelar (habilidades periódicas param 6 jogadas) — ou remover uma habilidade ruim.
+- **Menu:** o Super Desafio passa a ser o primeiro cartão, acima dos outros modos (mesmo layout).

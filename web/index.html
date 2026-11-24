@@ -1,7 +1,7 @@
 <title>BLOCK SUPER GF</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!-- Game version: bump by one on every change. The Android build reads it for the app name and version. -->
-<meta name="bau-version" content="36">
+<meta name="bau-version" content="37">
 <style>
 /* Layout: one-screen column (header, wooden board, tray of 3 pieces), dark walnut room, maple board. Single deliberate theme. */
 :root {
@@ -566,6 +566,7 @@ body[data-mode="super"] .lvl-part { display: none; }
 .sk-card:nth-child(2) { animation-delay: .12s; } .sk-card:nth-child(3) { animation-delay: .24s; }
 @keyframes cardflip { from { transform: perspective(600px) rotateY(90deg) scale(.8); opacity: 0; } }
 .sk-card.t1 { --tc: #6cc070; } .sk-card.t2 { --tc: #ffd36b; } .sk-card.t3 { --tc: #ff5a4a; } .sk-card.relief { --tc: #5fe0a0; background: linear-gradient(180deg, #1d4a35, #0e2a1d); }
+.sk-card.good { --tc: #6fd8ff; background: linear-gradient(180deg, #123a5a, #0a1e33); }
 .sk-card .sk-tier { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--tc); }
 .sk-card .sk-ic { font-size: 34px; line-height: 1.1; } .sk-card b { font-size: 14.5px; } .sk-card small { font-size: 12px; opacity: .85; line-height: 1.3; } .sk-card em { font-style: normal; font-size: 11.5px; color: var(--gold); }
 .sk-chip { padding: 10px 8px; border-radius: 12px; background: rgba(255,255,255,.08); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); font-size: 13px; text-align: left; }
@@ -903,6 +904,12 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
       <span class="ver" id="ver"></span>
       <p class="tag">Quebra-cabeça de blocos</p>
     </div>
+    <button class="super-card" id="play-super">
+      <canvas class="fire-fx" id="fire-fx" aria-hidden="true"></canvas>
+      <span class="sc-ic" aria-hidden="true">⚔️</span>
+      <span><b>Super Desafio</b><small id="super-sub">Vença fases e escolha habilidades que dificultam</small></span>
+      <span class="rec"><em>Recorde</em><strong id="rec-super">—</strong></span>
+    </button>
     <div class="modes">
       <button class="mode" id="play-classic" data-mode="classic">
         <span class="thumb" data-thumb="classic" aria-hidden="true"></span>
@@ -925,12 +932,6 @@ body.boarded.vs-pixel #board, body.boarded.vs-pixel .tboard { image-rendering: p
         <span class="rec"><em>Fase</em><strong id="rec-story">1</strong></span>
       </button>
     </div>
-    <button class="super-card" id="play-super">
-      <canvas class="fire-fx" id="fire-fx" aria-hidden="true"></canvas>
-      <span class="sc-ic" aria-hidden="true">⚔️</span>
-      <span><b>Super Desafio</b><small id="super-sub">Vença fases e escolha habilidades que dificultam</small></span>
-      <span class="rec"><em>Recorde</em><strong id="rec-super">—</strong></span>
-    </button>
     <div class="wide-row">
     <button class="mode-wide" id="play-timed" data-mode="timed">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>
@@ -4109,6 +4110,16 @@ window.Scene = (() => {
   // v23: game music is chosen separately: "auto" = each mode's own (story rotates every 10 phases).
   const GAME_TRACKS = [["classic", "Na Gruta do Rei da Montanha", "Edvard Grieg"], ["sudoku", "Marcha Turca", "Wolfgang Amadeus Mozart"], ["tetris", "Korobeiniki", "Tradicional russa"]];
   const allTracks = () => [...MENU_TRACKS, ...GAME_TRACKS, ...SHOP_TRACKS.filter(([k]) => owned(k))];
+  // v37: with "Automática", every match starts with a randomly drawn track (never the same twice in a row);
+  // the tempo still rises as the player scores.
+  let lastMatchTrack = null;
+  function pickMatchTrack() {
+    const t = store.get("gameMusic", "auto");
+    if (t !== "auto" && allTracks().some(([k]) => k === t)) return t;
+    const pool = allTracks().map(([k]) => k).filter((k) => TRACKS[k] && k !== lastMatchTrack);
+    lastMatchTrack = pool[rnd(pool.length)] || lastMatchTrack || "classic";
+    return lastMatchTrack;
+  }
   const gameTrack = (auto) => { const t = store.get("gameMusic", "auto"); return t !== "auto" && allTracks().some(([k]) => k === t) ? t : auto; };
 
   const TRACKS = {
@@ -5019,7 +5030,7 @@ window.Scene = (() => {
     for (let i = 0; i < cellEls.length; i++) {
       const v = S.board[i];
       let cls = baseClass(i);
-      if (v) cls += " b c" + v;
+      if (v && !(S.sx && S.mode === "super" && superHidden(i))) cls += " b c" + v;
       if (S.pzGoal) { if (S.pzGoalSet.has(i)) cls += " goal"; else if (v) cls += " off"; if (S.own[i] != null) cls += " mov"; }
       else if (preview && preview.ok && preview.cells.has(i)) cls += " preview c" + preview.color;
       if (preview && preview.ok && preview.will.has(i)) cls += " will";
@@ -5227,7 +5238,7 @@ window.Scene = (() => {
     placed.forEach((i) => cellEls[i].classList.add("land"));
     const low = Math.max(...p.cells.map(([r]) => r));
     Scene.dust(p.cells.filter(([r]) => r === low).map(([r, c]) => { const rc = cellEls[(r0 + r) * S.n + c0 + c].getBoundingClientRect(); return { x: rc.left + rc.width / 2, y: rc.bottom, size: rc.width }; }));
-    if (S.mode === "super") { gained = Math.round((gained - 2 * skLv("tax")) * S.run.mult); S.score = Math.max(0, S.score + gained); }
+    if (S.mode === "super") { gained = Math.round(gained * S.run.mult); S.score = Math.max(0, S.score + gained); }
     else S.score += gained;
     if (lines) fx("gain", "+" + fmt(gained), midTop - 10, 1000);
 
@@ -5793,7 +5804,7 @@ window.Scene = (() => {
     locks: ["Casas trancadas 🔒", "Esta fase começa com 4 casas trancadas: nenhuma peça entra nelas. Depois da 2ª jogada elas se abrem e você pode usá-las a partir da 3ª.", `<svg viewBox="0 0 120 120"><rect x="24" y="24" width="72" height="72" rx="10" fill="#3d4150" stroke="#ffd36b" stroke-width="3"/><text x="60" y="76" text-anchor="middle" font-size="40">🔒</text></svg>`],
     morph: ["Tabuleiro que muda", "Nesta fase o tabuleiro se mexe sozinho de tempos em tempos: pode girar, dar meia-volta ou ficar espelhado. Os blocos vão junto — pense no próximo giro!", `<svg viewBox="0 0 120 120"><rect x="30" y="30" width="60" height="60" rx="8" fill="#3a2a1c"/><path d="M20 60h80M60 20v80" stroke="#ffd36b" stroke-width="4" stroke-dasharray="6 5"/></svg>`],
     twist: ["Tabuleiro que gira", "Nesta fase, a cada 5 jogadas o tabuleiro gira 90°. Nas fases 10, 20, 40, 60 e 80 ele também treme e gira para a esquerda; nas 30, 60 e 90 gira para a direita.", `<svg viewBox="0 0 120 120"><rect x="30" y="30" width="60" height="60" rx="8" fill="#3a2a1c"/><path d="M24 60a36 36 0 0172-12" fill="none" stroke="#ffd36b" stroke-width="6" stroke-linecap="round"/><path d="M98 34v16H82" fill="none" stroke="#ffd36b" stroke-width="6" stroke-linecap="round"/></svg>`],
-    super: ["Super Desafio ⚔️", "Você começa escolhendo uma habilidade difícil. Bata a meta para vencer a fase — os blocos e as peças continuam na fase seguinte. A cada vitória você escolhe mais uma habilidade (as leves vêm em dupla); elas deixam o jogo mais difícil e aumentam seus pontos. Toque na faixa roxa para ver as habilidades ativas.", `<svg viewBox="0 0 120 120"><rect x="14" y="26" width="42" height="64" rx="8" fill="#3a1a5c" stroke="#6cc070" stroke-width="3"/><rect x="64" y="26" width="42" height="64" rx="8" fill="#3a1a5c" stroke="#ff5a4a" stroke-width="3"/><text x="35" y="66" text-anchor="middle" font-size="24">↻</text><text x="85" y="66" text-anchor="middle" font-size="24">💣</text></svg>`],
+    super: ["Super Desafio ⚔️", "Você começa escolhendo uma habilidade difícil. Perder pontos é perigoso: se chegarem a 0, a corrida acaba. Combo triplo (ou dois duplos) dá uma recompensa. Bata a meta para vencer a fase — os blocos e as peças continuam na fase seguinte. A cada vitória você escolhe mais uma habilidade (as leves vêm em dupla); elas deixam o jogo mais difícil e aumentam seus pontos. Toque na faixa roxa para ver as habilidades ativas.", `<svg viewBox="0 0 120 120"><rect x="14" y="26" width="42" height="64" rx="8" fill="#3a1a5c" stroke="#6cc070" stroke-width="3"/><rect x="64" y="26" width="42" height="64" rx="8" fill="#3a1a5c" stroke="#ff5a4a" stroke-width="3"/><text x="35" y="66" text-anchor="middle" font-size="24">↻</text><text x="85" y="66" text-anchor="middle" font-size="24">💣</text></svg>`],
     items: ["Itens especiais 🎒", "A partir do Mundo 2 você ganha itens nas fases 5, 10, 15 e 20: 💣 Bomba (explode 3×3), ⛏️ Picareta (quebra qualquer bloco, até pedra) e 🌈 Arco-íris (completa uma linha). Toque em 🎒 para usar.", `<svg viewBox="0 0 120 120"><text x="60" y="78" text-anchor="middle" font-size="56">🎒</text></svg>`],
     boss_final: ["Chefe final!", "Pedras, bombas e fantasmas juntos. Pedras precisam de 2 linhas, bombas têm contador e fantasmas andam. Destrua todos — use Guardar, Girar e o Poder com calma.", MINI([20, 43], 8, [12, 51])],
   };
@@ -6003,9 +6014,13 @@ window.Scene = (() => {
     { id: "lazy", ic: "😴", n: "Linha preguiçosa", d: () => "Limpar 1 linha só não dá pontos — só 2 ou mais de uma vez.", t: 2, st: 1 },
     { id: "rows", ic: "↔️", n: "Só linhas", d: () => "As colunas não limpam, só as linhas.", t: 3, st: 1, ex: ["cols", "wall"] },
     { id: "cols", ic: "↕️", n: "Só colunas", d: () => "As linhas não limpam, só as colunas.", t: 3, st: 1, ex: ["rows"] },
-    { id: "fragile", ic: "💔", n: "Combo frágil", d: () => "Quebrar o combo custa 20 pontos.", t: 1, st: 1 },
+    { id: "fragile10", ic: "💔", n: "Combo frágil 10", d: () => "Quebrar o combo custa 10 pontos." + PEN_TXT, t: 1, st: 1, pen: 1 },
+    { id: "fragile20", ic: "💔", n: "Combo frágil 20", d: () => "Quebrar o combo custa 20 pontos." + PEN_TXT, t: 2, st: 1, pen: 1 },
+    { id: "fragile30", ic: "💔", n: "Combo frágil 30", d: () => "Quebrar o combo custa 30 pontos." + PEN_TXT, t: 3, st: 1, pen: 1 },
     { id: "inflate", ic: "📈", n: "Meta inflada", d: () => "A meta de cada fase sobe 25% (acumula).", t: 1, st: 1, max: 3, only: "f" },
-    { id: "tax", ic: "💸", n: "Imposto", d: () => "Cada peça colocada custa 2 pontos (acumula).", t: 1, st: 1, max: 3 },
+    { id: "tax10", ic: "💸", n: "Imposto 10", d: () => "Cada peça colocada custa 10 pontos." + PEN_TXT, t: 1, st: 1, pen: 1 },
+    { id: "tax20", ic: "💸", n: "Imposto 20", d: () => "Cada peça colocada custa 20 pontos." + PEN_TXT, t: 2, st: 1, pen: 1 },
+    { id: "tax30", ic: "💸", n: "Imposto 30", d: () => "Cada peça colocada custa 30 pontos." + PEN_TXT, t: 3, st: 1, pen: 1 },
     { id: "clock", ic: "⏱️", n: "Relógio", d: () => "Cada fase tem só 90 segundos.", t: 2, st: 1, only: "f" },
     { id: "hurry", ic: "⚡", n: "Pressa", d: () => "Se ficar 6 segundos sem jogar, uma peça da bandeja é trocada.", t: 1, st: 1 },
     { id: "limit", ic: "🔢", n: "Contagem", d: () => "Bata a meta em até 25 jogadas.", t: 2, st: 1, only: "f" },
@@ -6018,7 +6033,9 @@ window.Scene = (() => {
     { id: "mirror", ic: "🪞", n: "Dedo espelhado", d: () => "Arrastar para a esquerda leva a peça para a direita (e vice-versa).", t: 3, st: 1 },
     { id: "tide", ic: "🌊", n: "Maré", d: (v) => `A cada ${v} jogadas sobe uma fileira de blocos por baixo (com 1 buraco).`, t: 3, base: 8 },
     { id: "vanish", ic: "🫥", n: "Peças fantasmas", d: () => "Os blocos colocados ficam invisíveis durante as 2 jogadas seguintes.", t: 3, st: 1 },
-    { id: "decay", ic: "⏳", n: "Desgaste", d: (v) => `A cada ${v} jogadas você perde 5% dos pontos da fase.`, t: 1, base: 7 },
+    { id: "decay10", ic: "⏳", n: "Desgaste 10", d: (v) => `A cada ${v} jogadas você perde 10 pontos.` + PEN_TXT, t: 1, base: 5, pen: 1 },
+    { id: "decay20", ic: "⏳", n: "Desgaste 20", d: (v) => `A cada ${v} jogadas você perde 20 pontos.` + PEN_TXT, t: 2, base: 5, pen: 1 },
+    { id: "decay30", ic: "⏳", n: "Desgaste 30", d: (v) => `A cada ${v} jogadas você perde 30 pontos.` + PEN_TXT, t: 3, base: 5, pen: 1 },
     { id: "lines2", ic: "🎯", n: "Meta dupla", d: () => "Além dos pontos, cada fase pede 5 linhas.", t: 2, st: 1, only: "f" },
     { id: "spin", ic: "🎡", n: "Bandeja giratória", d: (v) => `A cada ${v} jogadas as peças da bandeja giram 90°.`, t: 1, base: 3 },
     { id: "heavy", ic: "🏋️", n: "Mão pesada", d: () => "Toda mão traz uma peça de 5 blocos.", t: 2, st: 1 },
@@ -6044,6 +6061,24 @@ window.Scene = (() => {
     { id: "haste", ic: "⏩", n: "Diminuição de jogadas", d: () => "Tudo o que demora X jogadas passa a demorar 1 a menos (acumula, mínimo 2).", t: 2, st: 1, max: 4 },
   ];
   const SKD = Object.fromEntries(SKILLS.map((k) => [k.id, k]));
+  const PEN_TXT = " Se seus pontos chegarem a 0, você perde!";
+  const penOf = (pre) => 10 * skLv(pre + "10") + 20 * skLv(pre + "20") + 30 * skLv(pre + "30");
+  // v37: point losses come out of the phase score first, then out of the run total;
+  // when everything reaches 0 the run is over. Returns true when it ended the run.
+  function superPenalty(pts, why) {
+    const R = S.run; if (!pts || S.over) return false;
+    if (R.shield) { R.shield--; fx("lvl", `🛡️ Escudo bloqueou<small>${why} −${pts}</small>`, $("board").clientHeight / 2 + 20, 1100); return false; }
+    const bank = (R.kind === "fases" ? R.total : 0) + S.score;
+    if (bank <= 0) return false;
+    const fromScore = Math.min(S.score, pts); S.score -= fromScore;
+    if (pts > fromScore && R.kind === "fases") R.total = Math.max(0, R.total - (pts - fromScore));
+    fx("lvl", `${why} −${pts}`, $("board").clientHeight / 2 + 20, 1000); buzz(50);
+    if (bank - pts > 0) return false;
+    S.score = 0; if (R.kind === "fases") R.total = 0;
+    renderBoard(); renderScore(); S.over = true;
+    setTimeout(() => { if (!S || S.mode !== "super") return; S.over = false; gameOver("Seus pontos chegaram a zero!"); }, 700);
+    return true;
+  }
   // v36 MONOCOR: for N moves the blocks already on the board are neutral and new pieces come in
   // fire, water or plant; a line only clears when its coloured blocks all share one colour.
   function MC_TXT(nm) { return `Pelas próximas ${nm} jogadas os blocos já colocados ficam neutros e as novas peças vêm em 🔥 vermelho, 💧 azul ou 🌿 verde. Uma linha só some se as cores forem iguais (ou neutras).`; }
@@ -6058,7 +6093,7 @@ window.Scene = (() => {
   const skLv = (id) => (S && S.run && S.run.sk[id]) || 0;
   const haste = () => skLv("haste");
   const ivOf = (id, lv) => Math.max(2, SKD[id].base - (Math.max(1, lv) - 1) - haste());
-  const due = (id) => skLv(id) > 0 && S.moves > 0 && S.moves % ivOf(id, skLv(id)) === 0;
+  const due = (id) => skLv(id) > 0 && S.moves > 0 && S.moves % ivOf(id, skLv(id)) === 0 && !(S.run.freezeUntil > S.moves);
   const bombFuseSk = () => Math.max(4, 12 - haste());
   const superOn = () => !!S && S.mode === "super";
   const rndOf = (a) => a[Math.floor(Math.random() * a.length)];
@@ -6095,14 +6130,15 @@ window.Scene = (() => {
   }
   function superKeep() { const k = []; if (S.sx) for (const i in S.sx.hard) if (S.sx.hard[i] >= (S.moves || 0)) k.push(+i); return k; }
   function superLinePts(lines) { if (skLv("lazy") && lines === 1) return 0; return 10 * lines * lines * (skLv("nocombo") ? 1 : S.combo); }
+  const superHidden = (i) => skLv("vanish") && S.sx.age[i] != null && S.moves - S.sx.age[i] >= 1 && S.moves - S.sx.age[i] <= 2;
   function superCellCls(i, v) {
+    if (v && superHidden(i)) return S.sx.fog[i] ? " fogc" : "";
     let c = "";
     if (S.sx.hard[i] != null && S.sx.hard[i] >= S.moves && v) c += " hardc";
     if (S.sx.fog[i]) c += " fogc";
     if (S.sx.rb[i] != null) c += " rbomb";
     if (v && S.sx.vir && S.sx.vir[i]) c += " virus";
     if (v && mcOn()) { const m = S.sx.mcol && S.sx.mcol[i]; c += m ? " mc" + m : " mcn"; }
-    if (skLv("vanish") && v && S.sx.age[i] != null && S.moves - S.sx.age[i] >= 1 && S.moves - S.sx.age[i] <= 2) c += " invis";
     return c;
   }
   // ---- pieces ----
@@ -6112,6 +6148,7 @@ window.Scene = (() => {
     return true;
   }
   function superHand(t) {
+    if (S.run && S.run.smallHands > 0) { S.run.smallHands--; for (let i = 0; i < 3; i++) for (let k = 0; k < 80; k++) { const p = randomPiece(); if (p.cells.length <= 3) { t[i] = p; break; } } }
     if (skLv("heavy")) { for (let k = 0; k < 60; k++) { const p = randomPiece(); if (p.cells.length === 5) { t[1] = p; break; } } }
     if (skLv("twisted")) { const i = Math.floor(Math.random() * 3); if (t[i]) for (let k = 1 + Math.floor(Math.random() * 3); k > 0; k--) t[i] = rotatePiece(t[i]); }
     if (skLv("short")) t[2] = null;
@@ -6184,7 +6221,14 @@ window.Scene = (() => {
       const r = Math.floor(i / n), c = i % n;
       for (const [a, b] of [[r, c], [r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]]) if (a >= 0 && b >= 0 && a < n && b < n) delete S.sx.fog[a * n + b];
     }
-    if (!lines && S.prevCombo && skLv("fragile")) { S.score = Math.max(0, S.score - 20); fx("lvl", "💔 −20 pontos", $("board").clientHeight / 2, 900); }
+    if (superPenalty(penOf("tax"), "💸 Imposto")) return true;
+    if (!lines && S.prevCombo && superPenalty(penOf("fragile"), "💔 Combo quebrado")) return true;
+    // v37: a triple combo (or 3 lines at once), or two doubles, earns a reward
+    if (lines) {
+      const trip = S.combo === 3 || lines >= 3, dbl = !trip && (S.combo === 2 || lines === 2);
+      if (trip) { R.doubles = 0; R.rewards = (R.rewards || 0) + 1; rewardSoon(); }
+      else if (dbl && (R.doubles = (R.doubles || 0) + 1) >= 2) { R.doubles = 0; R.rewards = (R.rewards || 0) + 1; rewardSoon(); }
+    }
     S.prevCombo = S.combo;
     if (S.board.includes(WALLC) && S.colsPhase >= 2) { S.board = S.board.map((v) => (v === WALLC ? 0 : v)); sfx.unlock(); fx("lvl", "🧱 O muro caiu!", $("board").clientHeight / 2 - 20, 1100); }
     if (skLv("swap")) { const left = S.tray.map((p, i) => (p ? i : -1)).filter((i) => i >= 0); if (left.length === 2) { const [a, b] = left; [S.tray[a], S.tray[b]] = [S.tray[b], S.tray[a]]; } }
@@ -6273,7 +6317,7 @@ window.Scene = (() => {
     if (due("hard")) { const b = plainBlocks(); if (b.length) S.sx.hard[rndOf(b)] = S.moves + 1; }
     if (due("ice")) { const e = emptyCells(); if (e.length) S.board[rndOf(e)] = ICE; }
     if (due("tremor")) { screenQuake(false); buzz(60); }
-    if (due("decay")) { S.score = Math.floor(S.score * .95); fx("lvl", "⏳ −5% de pontos", $("board").clientHeight / 2 + 40, 900); }
+    { let pd = 0; for (const [id, v] of [["decay10", 10], ["decay20", 20], ["decay30", 30]]) if (due(id)) pd += v; if (superPenalty(pd, "⏳ Desgaste")) return true; }
     if (due("spin")) { S.tray = S.tray.map((p) => (p ? rotatePiece(p) : p)); fx("lvl", "🎡 A bandeja girou!", $("board").clientHeight / 2 + 80, 900); }
     if (due("blackout")) { const bd = $("board"); bd.classList.add("blackout"); setTimeout(() => bd.classList.remove("blackout"), 2000); }
     renderBoard(); renderTray(); renderScore();
@@ -6296,7 +6340,7 @@ window.Scene = (() => {
     const R = S.run, lvl = R.kind === "fases" ? R.phase - 1 : R.picks + 1, maxT = lvl < 3 ? 1 : lvl < 6 ? 2 : 3;
     return SKILLS.filter((k) => {
       const have = skLv(k.id), cap = k.st ? k.max || 1 : 3;
-      if (have >= cap || (hardOnly ? k.t !== 3 : k.t > maxT)) return false;
+      if (have >= cap || (hardOnly ? k.t !== 3 || k.pen : k.t > maxT)) return false;
       if (k.only === "f" && R.kind !== "fases") return false;
       if (k.mc && (R.mcPending || mcOn())) return false;
       if (k.ex && k.ex.some((x) => skLv(x))) return false;
@@ -6330,6 +6374,7 @@ window.Scene = (() => {
   function applyCard(id) {
     const R = S.run;
     $("cards").hidden = true;
+    if (id.startsWith("g:")) return applyGood(id);
     if (id === "__relief") return showRelief();
     const ids = id === "__none" ? [] : id.split("+");
     for (const k of ids) {
@@ -6350,6 +6395,55 @@ window.Scene = (() => {
     document.body.classList.toggle("sk-blind", !!skLv("blind"));
     renderBoard(); renderTray(); renderScore(); renderSkillStrip(); checkStuck(400, 0);
   }
+  // v37: good cards, earned with a triple combo or two doubles
+  const GOOD = [
+    { id: "g:shield", ic: "🛡️", n: "Escudo", d: "Bloqueia a próxima perda de pontos." },
+    { id: "g:pts", ic: "💰", n: "Bolsa de pontos", d: "Ganhe +150 pontos agora." },
+    { id: "g:sweep", ic: "🧹", n: "Faxina", d: "Limpa agora a linha e a coluna mais cheias." },
+    { id: "g:small", ic: "🧩", n: "Peças amigas", d: "As próximas 2 mãos vêm só com peças pequenas." },
+    { id: "g:undo", ic: "↩️", n: "Desfazer extra", d: "Ganhe +2 desfazer nesta fase." },
+    { id: "g:freeze", ic: "🧊", n: "Congelar", d: "As habilidades periódicas param por 6 jogadas." },
+  ];
+  function rewardSoon() {
+    const R0 = S && S.run; let k = 0;
+    const tryOpen = () => { if (!S || S.run !== R0 || !(R0.rewards > 0)) return; if (S.over || S.turning || overlayOpen() || $("game").hidden) { if (++k < 200) setTimeout(tryOpen, 400); return; } showReward(); };
+    setTimeout(tryOpen, 800);
+  }
+  function showReward() {
+    const R = S.run; R.rewards--; R.inReward = true;
+    const pool = GOOD.slice(), pick = [];
+    while (pick.length < 2 && pool.length) pick.push(pool.splice(rnd(pool.length), 1)[0]);
+    $("cards-title").textContent = "Recompensa de combo! 🎉";
+    $("cards-sub").textContent = "Escolha uma ajuda" + (Object.keys(R.sk).length ? " ou remova uma habilidade ruim." : ".");
+    const html = pick.map((g) => `<button class="sk-card good" data-k="${g.id}"><span class="sk-tier">✨ Ajuda</span><span class="sk-ic">${g.ic}</span><b>${g.n}</b><small>${g.d}</small></button>`);
+    if (Object.keys(R.sk).length) html.push(`<button class="sk-card relief" data-k="__relief"><span class="sk-tier">🍀 Alívio</span><span class="sk-ic">🍀</span><b>Remover</b><small>Tire uma habilidade ruim que você já pegou.</small></button>`);
+    $("cards-row").innerHTML = html.join("");
+    $("cards-row").classList.toggle("three", html.length === 3);
+    $("cards-close").hidden = true; $("cards").hidden = false; sfx.levelUp(); buzzPattern(BUZZ_WIN);
+  }
+  function applyGood(id) {
+    const R = S.run, n = S.n;
+    if (id === "g:shield") R.shield = (R.shield || 0) + 1;
+    if (id === "g:pts") { S.score += 150; fx("gain", "+150", $("board").clientHeight / 2, 1000); }
+    if (id === "g:small") R.smallHands = 2;
+    if (id === "g:undo") S.undoBank = (S.undoBank || 0) + 2;
+    if (id === "g:freeze") R.freezeUntil = S.moves + 6;
+    if (id === "g:sweep") {
+      const cnt = (cells) => cells.filter((i) => S.board[i] && S.board[i] !== WALLC).length;
+      let br = 0, bc = 0, vr = -1, vc = -1;
+      for (let k = 0; k < n; k++) { const r = cnt([...Array(n).keys()].map((c) => k * n + c)), c = cnt([...Array(n).keys()].map((r2) => r2 * n + k)); if (r > vr) { vr = r; br = k; } if (c > vc) { vc = c; bc = k; } }
+      const idx = []; for (let k = 0; k < n; k++) { idx.push(br * n + k, k * n + bc); }
+      const pts = []; for (const i of new Set(idx)) { const v = S.board[i]; if (!v || v === WALLC) continue; const rc = cellEls[i].getBoundingClientRect(); pts.push({ x: rc.left + rc.width / 2, y: rc.top + rc.height / 2, size: rc.width, color: Skins.colorOf(v) }); S.board[i] = 0; }
+      if (pts.length) Scene.explode(pts, 3, Skins.material());
+    }
+    const g = GOOD.find((x) => x.id === id); if (g) toast(`<b>${g.ic} ${g.n}</b><small>${g.d}</small>`);
+    endReward();
+  }
+  function endReward() {
+    S.run.inReward = false;
+    renderBoard(); renderTray(); renderScore(); renderSkillStrip(); if (typeof renderUndo === "function") renderUndo(); checkStuck(400, 0);
+    if (S.run.rewards > 0) rewardSoon();
+  }
   function showRelief() {
     const R = S.run;
     $("cards-title").textContent = "Alívio 🍀"; $("cards-sub").textContent = "Escolha uma habilidade para remover.";
@@ -6360,7 +6454,7 @@ window.Scene = (() => {
   }
   $("cards-row").addEventListener("click", (e) => {
     const c = e.target.closest(".sk-card"); if (c) { sfx.record(); return applyCard(c.dataset.k); }
-    const r = e.target.closest(".sk-chip[data-r]"); if (r) { const R = S.run; if (R.sk[r.dataset.r] > 1) R.sk[r.dataset.r]--; else delete R.sk[r.dataset.r]; $("cards").hidden = true; sfx.levelUp(); toast(`<b>🍀 ${SKD[r.dataset.r].n} removida</b>`); continueRun([]); }
+    const r = e.target.closest(".sk-chip[data-r]"); if (r) { const R = S.run; if (R.sk[r.dataset.r] > 1) R.sk[r.dataset.r]--; else delete R.sk[r.dataset.r]; $("cards").hidden = true; sfx.levelUp(); toast(`<b>🍀 ${SKD[r.dataset.r].n} removida</b>`); if (R.inReward) endReward(); else continueRun([]); }
   });
   $("cards-close").addEventListener("click", () => { $("cards").hidden = true; });
   function renderSkillStrip() {
@@ -6371,6 +6465,8 @@ window.Scene = (() => {
     if (S.moveLimit) extra.push(`${S.moves - (S.phaseStart || 0)}/${S.moveLimit} jogadas`);
     if (skLv("lines2")) extra.push(`${Math.min(5, S.linesPhase)}/5 linhas`);
     if (mcOn()) extra.push(`🎨 ${R.mcUntil - S.moves} jogadas`);
+    if (R.shield) extra.push(`🛡️×${R.shield}`);
+    if (R.freezeUntil > S.moves) extra.push(`🧊 ${R.freezeUntil - S.moves}`);
     el.innerHTML = (ids.length ? ids.map((id) => `<i title="${SKD[id].n}">${SKD[id].ic}${R.sk[id] > 1 ? `<sup>${R.sk[id]}</sup>` : ""}</i>`).join("") : `<span>Nenhuma habilidade ainda</span>`) + (extra.length ? `<span class="sk-x">${extra.join(" · ")}</span>` : "") + `<span class="sk-x">×${R.mult.toFixed(2)}</span>`;
   }
   $("sk-strip").addEventListener("click", () => {
@@ -6545,7 +6641,7 @@ window.Scene = (() => {
     else S = Object.assign(JSON.parse(S.undoSnap), { undoUsed: used, undoSnap: null, over: false });
     if (canBankUndo()) { S.undoBank = Math.max(0, bank); S.undoMile = mile; }
     $("over").hidden = true; $("board").classList.remove("dead");
-    if (!music.track) music.play(S.mode === "puzzle" ? gameTrack("menu_satie") : S.mode === "story" ? storyTrack(S.level) : gameTrack(S.rules));
+    if (!music.track) music.play(S.track || (S.mode === "puzzle" ? gameTrack("menu_satie") : S.mode === "story" ? storyTrack(S.level) : gameTrack(S.rules)));
     selected = -1; renderBoard(); renderTray(); renderScore(); save(); sfx.ui();
     if (S.mode === "puzzle") return;
     fx("lvl", `Jogada desfeita<small>${undosLeft()} ${undosLeft() === 1 ? "restante" : "restantes"} nesta fase</small>`, $("board").clientHeight / 2 - 20, 1400);
@@ -6563,7 +6659,7 @@ window.Scene = (() => {
     S.boomed = null;
     S.marks = S.board.filter((v) => v === MARK).length;
     S.tray = newTray(); S.next = newTray(); S.undoSnap = null;
-    music.play(storyTrack(S.level)); sfx.levelUp();
+    music.play(S.track || storyTrack(S.level)); sfx.levelUp();
     renderBoard(); renderTray(); renderScore(); save();
   }
   $("btn-undo").addEventListener("click", undo);
@@ -6933,7 +7029,8 @@ window.Scene = (() => {
     if (!S.mat || !S.theme) { S.mat = chosenSkin(); S.theme = MAT_SCENE[S.mat]; }
     Scene.set(S.theme);
     applySkin();
-    music.play(gameTrack("tetris")); music.setRate(rateFor(S.score)); music.setTranspose(Math.min(levelOf(S.score) - 1, 12));
+    if (!S.track) S.track = pickMatchTrack();
+    music.play(S.track); music.setRate(rateFor(S.score)); music.setTranspose(Math.min(levelOf(S.score) - 1, 12));
     tHud();
     if (S.piece) renderNext(); else tSpawn();
     tRender();
@@ -7086,7 +7183,7 @@ window.Scene = (() => {
     for (const b2 of box.children) b2.setAttribute("aria-checked", String(b2.dataset.track === cur));
   }
   function renderGameMusic() {
-    const box = $("game-music"), cur = store.get("gameMusic", "auto"), list = [["auto", "Automática", "Cada modo tem a sua; na História troca a cada 10 fases"], ...allTracks()];
+    const box = $("game-music"), cur = store.get("gameMusic", "auto"), list = [["auto", "Automática", "Uma música sorteada a cada partida"], ...allTracks()];
     box.innerHTML = list.map(([k, t, w]) => `<button class="chip-opt" data-track="${k}" role="radio" aria-checked="${k === cur}" title="${w}">${k === "auto" ? "★ " : "♪ "}${t}</button>`).join("");
     for (const b2 of box.children) b2.addEventListener("click", () => { store.set("gameMusic", b2.dataset.track); renderGameMusic(); sfx.ui(); });
   }
@@ -7395,6 +7492,7 @@ window.Scene = (() => {
   let lastWorldCard = -1, wcTimer = 0, introDelay = 0;
   function enterGame(label) {
     selected = -1;
+    if (!S.track) S.track = S.mode === "super" && S.run ? (S.run.track = S.run.track || pickMatchTrack()) : pickMatchTrack();
     show("game");
     setModeAccent(S.mode);
     const wo = S.mode === "story" ? Scene.worlds[worldOf(S.level)] : null;
@@ -7409,7 +7507,7 @@ window.Scene = (() => {
       lastWorldCard = worldOf(S.level);
       const wc = $("world-card"); $("wc-k").textContent = `Mundo ${worldOf(S.level) + 1}`; $("wc-name").textContent = wo.name;
       $("wc-tile").style.backgroundImage = `url(${Skins.preview((WORLD_SKIN[wo.id] || WORLD_SKIN.ground)[0])})`;
-      $("wc-music").textContent = `♪ ${TRACKS[storyTrack(S.level)].title}`;
+      $("wc-music").textContent = `♪ ${TRACKS[S.track || storyTrack(S.level)].title}`;
       wc.hidden = false; wc.style.animation = "none"; wc.firstElementChild.style.animation = "none"; void wc.offsetWidth; wc.style.animation = ""; wc.firstElementChild.style.animation = "";
       clearTimeout(wcTimer); wcTimer = setTimeout(() => { wc.hidden = true; }, 2800);
       introDelay = 2600;
@@ -7417,10 +7515,10 @@ window.Scene = (() => {
     if (S.mode === "story" && !S.daily && twistOf(S.level) && twistOf(S.level).sub) setTimeout(() => S && S.mode === "story" && !S.over && fogIntro(), 300 + introDelay);
     if (S.mode === "story" && S.goal === "boss") setTimeout(() => S && S.goal === "boss" && !S.over && (sfx.levelUp(), fx("lvl", `${S.boss === "final" ? "🐉 Chefe final!" : "👑 Chefe do mundo!"}<small>${BOSS_TXT[S.boss || "stone"][2]}</small>`, $("board").clientHeight / 2 - 20, 2400)), 1200 + introDelay);
     if (S.mode === "story") setTimeout(() => S && S.mode === "story" && !S.over && fx("lvl", `Desafio<small>${challengeFor(S).text}</small>`, $("board").clientHeight / 2 - 20, 2200), 2300 + introDelay + (S.goal === "boss" ? 1300 : 0));
-    if (S.mode === "story" && !introDelay) { const L0 = S.level; setTimeout(() => S && S.mode === "story" && S.level === L0 && !S.over && fx("lvl", `Música<small>♪ ${TRACKS[storyTrack(L0)].title}</small>`, $("board").clientHeight / 2 - 20, 1800), 4700 + (S.goal === "boss" ? 1300 : 0)); }
+    if (S.mode === "story" && !introDelay) { const L0 = S.level; setTimeout(() => S && S.mode === "story" && S.level === L0 && !S.over && fx("lvl", `Música<small>♪ ${TRACKS[S.track || storyTrack(L0)].title}</small>`, $("board").clientHeight / 2 - 20, 1800), 4700 + (S.goal === "boss" ? 1300 : 0)); }
     $("mode-label").textContent = label; lastAct = Date.now(); renderTimer();
     if (!store.get("tutorialSeen", 0)) setTimeout(showTutorial, 350); else setTimeout(modeTips, (introDelay ? 2900 : 600) + (S.mode === "story" && !S.daily && twistOf(S.level) && twistOf(S.level).sub ? 2900 : 0));
-    music.play(gameTrack(S.mode === "story" ? storyTrack(S.level) : S.mode === "puzzle" ? "menu_satie" : S.rules));
+    music.play(S.track);
     music.setRate(rateFor(musicScore()));
     buildBoard(); sizeBoard(); renderScore(); save();
   }
